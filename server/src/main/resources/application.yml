@@ -1,0 +1,14 @@
+node:
+  name: server
+server:
+  port: 8080
+  version: ${version}
+  datasource:
+    initialization-mode: always
+kafka:
+  bootstrap-address: localhost:9092
+  topics:
+    node-message: node-message
+  consumer:
+    filter-messages: false
+    group-id: server-consumer

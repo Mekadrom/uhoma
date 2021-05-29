@@ -1,0 +1,79 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.higgs'
+version = '0.0.1'
+sourceCompatibility = '16'
+
+ext {
+    String db_connection_string = System.getenv('spring.profiles.active')?.contains('prod') ? 'jdbc:postgresql://localhost:5432/hasdb1?currentSchema=ha_data' : 'jdbc:h2:mem:testdb'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    annotationProcessor 'org.projectlombok:lombok'
+
+    compileOnly 'org.projectlombok:lombok'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation 'com.github.Mekadrom:HomeAssistantCommon:release/1.0.0'
+
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+
+    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    implementation 'com.h2database:h2'
+
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+
+    testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+bootRun {
+    jvmArgs = ["-Dlog4j.debug"]
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+processResources {
+    expand(project.properties)
+    finalizedBy bootRun
+}
