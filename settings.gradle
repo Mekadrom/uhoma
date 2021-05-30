@@ -1,0 +1,4 @@
+rootProject.name = 'HomeAssistant'
+include 'node_common'
+include 'node_backend'
+include 'server'

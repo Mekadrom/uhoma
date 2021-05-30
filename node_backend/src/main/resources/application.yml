@@ -10,3 +10,4 @@ kafka:
     node-telemetry: node-telemetry
   consumer:
     group-id: node-consumer-${name}
+    should-filter-consumer: true

@@ -1,7 +1,8 @@
 .idea/
 .gradle/
 build/
+dist/
 
 kafka/volume/kafka-servers/logs/
-kafka/volume/kafdrop/target
-kafka/volume/kafdrop/.mvn
+kafka/volume/kafdrop/target/
+kafka/volume/kafdrop/.mvn/

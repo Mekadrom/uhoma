@@ -1,6 +1,6 @@
 package com.higgs.server.web;
 
-import com.higgs.server.util.JsonUtils;
+import com.higgs.node.common.util.HAJsonUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,7 +29,7 @@ public class HASResponse<T> {
 
     @Override
     public String toString() {
-        return JsonUtils.getDefaultGson().toJson(this);
+        return HAJsonUtils.getDefaultGson().toJson(this);
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)

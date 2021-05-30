@@ -20,6 +20,6 @@ public final class HASpringConstants {
     //endregion
 
     // region variables
-    public static final String SHOULD_FILTER_CONSUMER = "${server.log.should-log-node-messages}";
+    public static final String SHOULD_FILTER_CONSUMER = "${kafka.consumer.should-filter-consumer}";
     // endregion
 }

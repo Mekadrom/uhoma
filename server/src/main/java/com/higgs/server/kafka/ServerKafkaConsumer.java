@@ -1,6 +1,6 @@
 package com.higgs.server.kafka;
 
-import com.higgs.server.util.HASpringConstants;
+import com.higgs.node.common.util.HASpringConstants;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Headers;
