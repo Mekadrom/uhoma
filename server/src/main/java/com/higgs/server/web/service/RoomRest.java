@@ -60,6 +60,6 @@ public class RoomRest {
 
     @GetMapping(value = "nodes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getNodesInRoom(@RequestParam(value = "id") final String roomSeq) {
-        return HASResponse.builder(this.nodeRepository.getNodesByRoomSeq(this.roomRepository.getById(Long.valueOf(roomSeq)))).status(HttpStatus.OK).error(null).build().toResponseEntity();
+        return HASResponse.builder(this.nodeRepository.getNodesByRoom(this.roomRepository.getById(Long.valueOf(roomSeq)).getRoomSeq())).status(HttpStatus.OK).error(null).build().toResponseEntity();
     }
 }

@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface NodeRepository extends SimpleNamedSequenceRepository<Node, Long> {
 
-    List<Node> getNodesByRoomSeq(Room byId);
+    List<Node> getNodesByRoom(Long roomSeq);
 
 }

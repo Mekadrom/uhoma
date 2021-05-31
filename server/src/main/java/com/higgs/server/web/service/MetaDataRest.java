@@ -1,8 +1,7 @@
 package com.higgs.server.web.service;
 
-import com.higgs.node.common.util.HASpringConstants;
 import com.higgs.server.web.HASResponse;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "metadata")
 public class MetaDataRest {
-    @Value(value = HASpringConstants.SERVER_VERSION)
-    private String serverVersion;
+    private BuildProperties buildProperties;
 
     @ResponseBody
     @GetMapping(value = "version", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getServerVersion() {
-        return HASResponse.builder(this.serverVersion)
+        return HASResponse.builder(this.buildProperties.getVersion())
                 .status(HttpStatus.OK)
                 .error(null)
                 .build().toResponseEntity();

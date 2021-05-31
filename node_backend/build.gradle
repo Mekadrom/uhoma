@@ -1,9 +1,3 @@
-ext {
-    name = System.getenv('node.name') as String
-}
-
-//project.properties.putAll(ext.properties)
-
 dependencies {
     implementation project(":node_common")
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -20,4 +14,8 @@ bootRun {
 processResources {
     expand(project.properties)
     expand(ext.properties)
+}
+
+springBoot {
+    buildInfo()
 }

@@ -1,14 +1,5 @@
-ext {
-    db_connection_string = System.getenv('spring.profiles.active')?.contains('prod') ? 'jdbc:postgresql://localhost:5432/hasdb1?currentSchema=ha_data' : 'jdbc:h2:mem:testdb' as String
-}
-
-//project.properties.putAll(ext.properties)
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
+group = 'com.higgs'
+version = '1.0.0'
 
 repositories {
     mavenCentral()
@@ -45,4 +36,8 @@ bootRun {
 processResources {
     expand(project.properties)
     expand(ext.properties)
+}
+
+springBoot {
+    buildInfo()
 }

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${db_connection_string}
+    url: jdbc:postgresql://localhost:5432/hasdb1?currentSchema=ha_data
     driverClassName: org.postgresql.Driver
     username: ha
     password: hapassha1!

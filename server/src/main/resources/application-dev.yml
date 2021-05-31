@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${db_connection_string}
+    url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
     username: sa
     password: password
