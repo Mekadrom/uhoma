@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class NodeRestAdvice {
+public class RestAdvice {
     @ExceptionHandler(value = { NotFoundException.class })
     protected ResponseEntity<String> notFound(final NotFoundException e) {
         return HASResponse.builder(null).status(HttpStatus.NOT_FOUND).error(e.getMessage()).build().toResponseEntity();
