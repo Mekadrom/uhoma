@@ -1,0 +1,5 @@
+schema/create_room_table.sql
+schema/create_node_table.sql
+schema/create_action_table.sql
+schema/create_action_parameter_table.sql
+schema/create_room_link_table.sql

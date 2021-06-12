@@ -17,13 +17,13 @@ repositories {
     mavenCentral()
 }
 
-subprojects {
+subprojects { subproject ->
     group = 'com.higgs'
     version = '1.0.0'
 
-    apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'java'
-    apply plugin: SpringBootPlugin
+    subproject.apply plugin: 'io.spring.dependency-management'
+    subproject.apply plugin: 'java'
+    subproject.apply plugin: SpringBootPlugin
 
     sourceCompatibility = 16
     targetCompatibility = 16

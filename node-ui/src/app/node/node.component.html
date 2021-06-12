@@ -1,0 +1,11 @@
+<div class="center">
+  <h1 style="text-align:center" class="tier-1-blade-header">Node Command Center</h1>
+  <div class="center">
+    <div class="searchbar">todo</div>
+    <mat-list>
+      <mat-list-item *ngFor="let node of nodes">
+        <div class="node-list-item"><span style="text-align:left">{{ node.name }}</span><span style="float:right">{{ node.room?.name }}</span></div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</div>

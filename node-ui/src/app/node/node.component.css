@@ -1,0 +1,28 @@
+mat-list {
+  max-height: 600px;
+  overflow: auto;
+  padding-top: 0px;
+}
+
+.node-list-item {
+  min-width: 100%;
+  overflow: auto;
+  padding-right: 10px;
+}
+
+mat-list-item {
+  border: 1px black solid;
+  border-style: solid none none none;
+  background-color: gainsboro;
+}
+
+.mat-list-item:hover {
+  background-color: dimgrey;
+  color: white;
+}
+
+.center {
+  margin: auto;
+  overflow: none;
+  width: 50%;
+}

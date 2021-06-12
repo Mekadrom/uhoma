@@ -34,8 +34,10 @@ bootRun {
 }
 
 processResources {
-    expand(project.properties)
-    expand(ext.properties)
+    filesMatching('**/*.yml') {
+        expand(project.properties)
+        expand(ext.properties)
+    }
 }
 
 springBoot {
