@@ -16,3 +16,5 @@ If you intend on using the database for the fullstack, and this is your first ti
 
 To update the database to the correct schema layout, you must also run deltarun.sh:
 1. Run ./deltarun.sh -u hams_data -p hams_data -U localhost -P 5432 -d hams_data
+
+Delta run order is defined in the `runorder` file. The order of deltas in the delta directory is not used.

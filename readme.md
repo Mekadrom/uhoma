@@ -1,8 +1,9 @@
-To run the fullstack Home Assistant, start with kafka. See the readme file in the kafka directory to do this.
+To run the fullstack Home Assistant, start with creating a kafka instance. See the readme file in under `kafka` to do this.
 
-To start the database, view the readme under `hadb`.
+You will also need to run and update a postgreSQL database. See the readme file under `hadb` to do this.
 
-After the hamsdb and kafka are up and running, you can build and start the main server by running `./gradlew :server:bootRun` in the root of this repo. You can also distribute by running `./gradlew jarAll` and then cding into `dist` and running `./run_server.sh`.
+After the hamsdb and kafka are up and running, you can build and start the main server by running `./gradlew :server:bootRun` in the root of this repo. 
+* You can also distribute by running `./gradlew jarAll` and then cding into `dist` and running `./run_server.sh`.
 
 You can start the node server by running `./gradlew :node_backend:bootRun` in the root of this repo. You can also distribute by running `./gradlew jarAll` and then cding into `dist` and running `./run_node.sh`.
 
