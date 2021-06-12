@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -23,8 +24,8 @@ public class NodeRest {
 
     @SneakyThrows
     @GetMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> search(@RequestParam(required = false, value = "id") final Optional<String> seqOpt,
-                                         @RequestParam(required = false, value = "name") final Optional<String> nameOpt) {
+    public ResponseEntity<List<Node>> search(@RequestParam(required = false, value = "id") final Optional<String> seqOpt,
+                                             @RequestParam(required = false, value = "name") final Optional<String> nameOpt) {
         return this.restUtils.searchEntity(seqOpt, nameOpt, Node.class, this.nodeRepository);
     }
 }

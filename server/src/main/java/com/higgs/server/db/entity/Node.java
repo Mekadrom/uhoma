@@ -29,17 +29,6 @@ public class Node {
     @Column(name = "NAME", unique = true)
     private String name;
 
-    @Column(name = "URL")
-    private String url;
-
-    @Column(name = "PORT")
-    private Integer port;
-
-    @NotNull
-    @ColumnDefault("'/rest/api'")
-    @Column(name = "ENDPOINT")
-    private String endpoint;
-
     @ManyToOne
     @JoinColumn(name = "ROOM_SEQ")
     private Room room;

@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/hasdb1?currentSchema=ha_data
+    url: jdbc:postgresql://localhost:5432/hams_data?currentSchema=hams_data
     driverClassName: org.postgresql.Driver
-    username: ha
-    password: hapassha1!
+    username: hams_data
+    password: hams_data
     jpa:
       database-platform: org.hibernate.dialect.PostgreSQL82Dialect
       hibernate:
-        ddl-auto: update
+        ddl-auto: validate

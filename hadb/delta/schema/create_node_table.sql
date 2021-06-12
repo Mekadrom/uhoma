@@ -28,10 +28,7 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             node_seq BIGINT NOT NULL,
-            endpoint VARCHAR(255) DEFAULT ''/rest/api'',
             name VARCHAR(255),
-            port INTEGER,
-            url VARCHAR(255),
             room_seq BIGINT,
             PRIMARY KEY (node_seq),
             UNIQUE (name),

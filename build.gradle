@@ -58,9 +58,11 @@ subprojects { subproject ->
 
         runtimeDependency group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
+        runtimeDependency group: 'org.springframework', name: 'spring-webmvc', version: '5.3.8'
         runtimeDependency 'org.springframework.boot:spring-boot-starter-oauth2-client'
         runtimeDependency 'org.springframework.boot:spring-boot-starter-security'
         runtimeDependency 'org.springframework.kafka:spring-kafka'
+
 
         runtimeDependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 

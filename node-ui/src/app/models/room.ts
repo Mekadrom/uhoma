@@ -1,7 +1,6 @@
 import { RoomLink } from './room-link';
 
 export interface Room {
-  id: number;
+  roomSeq: number;
   name: string;
-  room_links: RoomLink[];
 }

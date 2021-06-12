@@ -1,6 +1,7 @@
 package com.higgs.server.web.service.util;
 
 import com.higgs.server.db.repo.SimpleNamedSequenceRepository;
+import com.higgs.server.db.util.PersistenceUtils;
 import com.higgs.server.web.HASResponse;
 import com.higgs.server.web.exception.NotFoundException;
 import lombok.SneakyThrows;
@@ -9,27 +10,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public final class RestUtils {
     @SneakyThrows
-    public <T> ResponseEntity<String> searchEntity(final Optional<String> seqOpt, final Class<T> entityType, final JpaRepository<T, Long> repository) {
-        Optional<T> entityOpt = Optional.empty();
-        if (seqOpt.isPresent()) {
-            entityOpt = repository.findById(Long.valueOf(seqOpt.get()));
-        }
-        return entityOpt.map(it -> HASResponse.builder(it).status(HttpStatus.OK).error(null).build().toResponseEntity()).orElseThrow(() -> new NotFoundException(entityType, seqOpt, Optional.empty()));
+    public <T> ResponseEntity<List<T>> searchEntity(final Optional<String> seqOpt, final Class<T> entityType, final JpaRepository<T, Long> repository) {
+        final Optional<List<T>> entityOpt = seqOpt.map(s -> Optional.of(repository.getById(Long.valueOf(s)))
+                .map(Collections::singletonList))
+                .orElseGet(() -> Optional.of(repository.findAll()));
+        return ResponseEntity.of(entityOpt);
     }
 
     @SneakyThrows
-    public <T> ResponseEntity<String> searchEntity(final Optional<String> seqOpt, final Optional<String> desc, final Class<T> entityType, final SimpleNamedSequenceRepository<T, Long> repository) {
-        Optional<T> entityOpt = Optional.empty();
+    public <T> ResponseEntity<List<T>> searchEntity(final Optional<String> seqOpt, final Optional<String> desc, final Class<T> entityType, final SimpleNamedSequenceRepository<T, Long> repository) {
+        final Optional<List<T>> entityOpt;
         if (seqOpt.isPresent()) {
-            entityOpt = repository.findById(Long.valueOf(seqOpt.get()));
+            entityOpt = Optional.of(repository.getById(Long.valueOf(seqOpt.get()))).map(Collections::singletonList);
         } else if (desc.isPresent()) {
-            entityOpt = repository.findByName(desc.get());
+            entityOpt = repository.findByNameLike(PersistenceUtils.getLikeString(desc.get()));
+        } else {
+            entityOpt = Optional.of(repository.findAll());
         }
-        return entityOpt.map(it -> HASResponse.builder(it).status(HttpStatus.OK).error(null).build().toResponseEntity()).orElseThrow(() -> new NotFoundException(entityType, seqOpt, desc));
+        return ResponseEntity.of(entityOpt);
     }
 }

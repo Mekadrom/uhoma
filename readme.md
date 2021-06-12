@@ -1,4 +1,4 @@
-To run the fullstack Home Assistant, start by running the kafka-docker docker image (wurstmeister/kafka-docker) as is. You can also optionally build and run kafdrop to assist in development.
+To run the fullstack Home Assistant, start by running kafka with `docker-compose up -d` in the kafka project in this directory. Optionally, you can also build and run the provided Dockerfile in that project to start a kafdrop instance as well for development.
 
 To start the database, view the readme under `hadb`.
 

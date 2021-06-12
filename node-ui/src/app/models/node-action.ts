@@ -1,4 +1,5 @@
 export interface NodeAction {
-  id: number
+  actionSeq: number;
   name: string;
+  handler: string;
 }

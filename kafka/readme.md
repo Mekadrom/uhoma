@@ -1,5 +1,4 @@
-To build image run:
-    `sudo docker build -t kafka-fullstack .`
+Replace the KAFKA_ADVERTISED_HOST_NAME and KAFKA_BROKERCONNECT options in docker-compose.yml with your host's ip address. 
+* Run `/sbin/ip route|awk '/default/ { print $3 }'` to find out what to use.
 
-To run image:
-    `sudo docker run -d --name kafka-fullstack-container -p 9092:9092 -p 9000:9000 -p 2181:2181 -v "$(pwd)"/volume:/kafka kafka-fullstack`
+Then run `docker-compose up -d` in this directory. This will start a kafka fullstack set of containers. 

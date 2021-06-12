@@ -23,6 +23,6 @@ import { NodeComponent } from './node/node.component';
     HttpClientModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [ AppComponent ]
 })
 export class AppModule { }

@@ -35,7 +35,7 @@ public class RoomRest {
 
     @SneakyThrows
     @GetMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> search(@RequestParam(required = false, value = "id") final Optional<String> seqOpt,
+    public ResponseEntity<List<Room>> search(@RequestParam(required = false, value = "id") final Optional<String> seqOpt,
                                          @RequestParam(required = false, value = "name") final Optional<String> nameOpt) {
         return this.restUtils.searchEntity(seqOpt, nameOpt, Room.class, this.roomRepository);
     }
