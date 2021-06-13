@@ -1,1 +1,47 @@
-<app-node></app-node>
+<mat-grid-list cols="10" class="grid-layout-custom" rowHeight="fit">
+  <mat-grid-tile colspan="1" rowspan="1">
+    <div class="selector">
+      <button (click)="setHomeBlade()" class="mdc-icon-button">
+        <span class="material-icons app-selector">home</span>
+      </button>
+      <div>
+        <button (click)="setNodeBlade()" class="mdc-icon-button">
+          <span class="material-icons app-selector">grade</span>
+        </button>
+        <button (click)="setAdminBlade()" class="mdc-icon-button">
+          <span class="material-icons app-selector">shield</span>
+        </button>
+        <button (click)="setDevBlade()" class="mdc-icon-button" style="float:bottom;">
+          <span class="material-icons app-selector">https</span>
+        </button>
+      </div>
+      <button (click)="setSettingsBlade()" class="mdc-icon-button" style="float:bottom;">
+        <span class="material-icons app-selector">settings</span>
+      </button>
+    </div>
+  </mat-grid-tile>
+  <mat-grid-tile class="top-mgt left-mgt" colspan="5" rowspan="1">
+    <div class="inner-blade" *ngIf="isHomeBlade">
+      <app-home></app-home>
+    </div>
+    <div class="inner-blade" *ngIf="isNodeBlade">
+      <app-node></app-node>
+    </div>
+    <div class="inner-blade" *ngIf="isAdminBlade">
+      <app-admin></app-admin>
+    </div>
+    <div class="inner-blade" *ngIf="isDevBlade">
+      <app-dev></app-dev>
+    </div>
+    <div class="inner-blade" *ngIf="isSettingsBlade">
+      <app-settings></app-settings>
+    </div>
+  </mat-grid-tile>
+<!--  <mat-grid-tile class="top-mgt left-mgt" colspan="6" rowspan="1">-->
+<!--    <div class="inner-blade" *ngIf="isNodeBlade">-->
+<!--      <h1>I am a info-->
+<!--      Hey your search bar needs sanitizing type "\"-->
+<!--      </h1>-->
+<!--    </div>-->
+<!--  </mat-grid-tile>-->
+</mat-grid-list>

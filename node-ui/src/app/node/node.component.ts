@@ -1,65 +1,83 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+
 import { Node } from '../models/node';
 import { Room } from '../models/room';
 import { RoomLink } from '../models/room-link';
 import { NodeAction } from '../models/node-action';
 import { NodeService } from '../services/node.service';
+import { RoomService } from '../services/room.service';
 
 @Component({
   selector: 'app-node',
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.css']
 })
-export class NodeComponent implements OnInit {
-//   room: Room = {
-//     roomSeq: 1,
-//     name: 'test room'
-//   };
-//
-//   action1: NodeAction = {
-//     actionSeq: 1,
-//     name: 'test action 1',
-//     handler: 'testhandler'
-//   };
-//
-//   action2: NodeAction = {
-//     actionSeq: 2,
-//     name: 'test action 2',
-//     handler: 'testhandler'
-//   };
-//
-//   node1: Node = {
-//     nodeSeq: 1,
-//     name: 'test node 1',
-//     room: this.room,
-//     publicActions: [ this.action1, this.action2 ]
-//   };
-//
-//   node2: Node = {
-//     nodeSeq: 2,
-//     name: 'test node 2',
-//     room: this.room,
-//     publicActions: [ this.action2, this.action1 ]
-//   };
+export class NodeComponent implements OnInit, AfterViewInit {
+  nodeNameSearchTerm: string = '';
+  roomNameSearchTerm: string = '';
 
   nodes: Node[] = [
-//     this.node1, this.node2, this.node2, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1, this.node1
-  ]
+  ];
+
+  rooms: Room[] = [
+  ];
 
   selectedNodeAction?: NodeAction;
   onSelect(nodeAction: NodeAction): void {
     this.selectedNodeAction = nodeAction;
   }
 
-  constructor(private nodeService: NodeService) { }
+  constructor(private nodeService: NodeService, private roomService: RoomService, private toastr: ToastrService) { }
 
   fetchData(): void {
-    this.nodeService.getNodes(null).subscribe((data: Node[]) => {
-      this.nodes = data;
-    })
+    this.nodeService.getNodes(this.nodeNameSearchTerm, this.roomNameSearchTerm).subscribe(
+      (data: Node[]) => {
+        this.nodes = data;
+      },
+      err => {
+        console.log(JSON.stringify(err))
+        this.toastr.error(err.message, 'Connection error');
+      }
+    );
+  }
+
+  fetchRooms(): void {
+    this.roomService.getRooms('').subscribe(
+      (data: Room[]) => {
+        this.rooms = data;
+      },
+      err => {
+        this.toastr.error(err.message, 'Connection error');
+      }
+    );
+  }
+
+  clearSearchBar(): void {
+    this.nodeNameSearchTerm = '';
+    this.roomNameSearchTerm = '';
+  }
+
+  refresh(): void {
+    this.fetchRooms();
+    this.fetchData();
+  }
+
+  onSearchTermChange(): void {
+    this.refresh();
+  }
+
+  roomSelection(roomName: string) {
+    this.roomNameSearchTerm = roomName;
+    this.refresh();
+  }
+
+  ngAfterViewInit(): void {
+    this.clearSearchBar();
+    this.refresh();
   }
 
   ngOnInit(): void {
-    this.fetchData();
+    this.fetchRooms();
   }
 }

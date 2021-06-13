@@ -1,28 +1,29 @@
 mat-list {
-  max-height: 600px;
+  max-height: 1000px;
   overflow: auto;
   padding-top: 0px;
-}
-
-.node-list-item {
-  min-width: 100%;
-  overflow: auto;
-  padding-right: 10px;
 }
 
 mat-list-item {
   border: 1px black solid;
   border-style: solid none none none;
-  background-color: gainsboro;
+  background-color: #fbfbfb;
 }
 
-.mat-list-item:hover {
-  background-color: dimgrey;
+mat-list-item:hover {
+  background-color: #6d6d6d;
   color: white;
 }
 
-.center {
-  margin: auto;
-  overflow: none;
-  width: 50%;
+.node-list-item {
+  min-width: 100%;
+  overflow: auto;
+}
+
+.searchbar {
+  height: 30px;
+  font-size: 24px;
+  margin-bottom: 5px;
+  background-color: #fbfbfb;
+  width: 68%;
 }

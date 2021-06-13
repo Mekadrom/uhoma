@@ -10,6 +10,6 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface SimpleNamedSequenceRepository<E, ID> extends JpaRepository<E, ID>, JpaSpecificationExecutor<E> {
 
-    Optional<List<E>> findByNameLike(String name);
+    Optional<List<E>> findByNameContainingIgnoreCase(String name);
 
 }

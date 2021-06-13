@@ -12,7 +12,7 @@ h2, h3 {
 
 body {
   margin: 2em;
-  background-color: gainsboro;
+  background-color: dimgrey;
 }
 
 body, input[type="text"], button {
@@ -25,6 +25,27 @@ body, input[type="text"], button {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-html { height: 100%; }
+html, body { height: 100%; }
 
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.tier-1-blade-header {
+  color: #fbfbfb;
+}
+
+.top-mgt > div.mat-grid-tile-content {
+   align-items: normal;
+}
+
+.left-mgt > div.mat-grid-tile-content {
+   justify-content: normal;
+}
+
+div.mat-form-field-infix {
+  background-color: #fbfbfb;
+  border-top: 4px solid transparent;
+}
+
+.grid-layout-custom {
+  height: 100%;
+}

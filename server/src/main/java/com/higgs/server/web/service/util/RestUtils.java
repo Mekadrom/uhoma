@@ -1,12 +1,9 @@
 package com.higgs.server.web.service.util;
 
+import com.higgs.server.db.entity.Node;
 import com.higgs.server.db.repo.SimpleNamedSequenceRepository;
-import com.higgs.server.db.util.PersistenceUtils;
-import com.higgs.server.web.HASResponse;
-import com.higgs.server.web.exception.NotFoundException;
 import lombok.SneakyThrows;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +27,7 @@ public final class RestUtils {
         if (seqOpt.isPresent()) {
             entityOpt = Optional.of(repository.getById(Long.valueOf(seqOpt.get()))).map(Collections::singletonList);
         } else if (desc.isPresent()) {
-            entityOpt = repository.findByNameLike(PersistenceUtils.getLikeString(desc.get()));
+            entityOpt = repository.findByNameContainingIgnoreCase(desc.get());
         } else {
             entityOpt = Optional.of(repository.findAll());
         }

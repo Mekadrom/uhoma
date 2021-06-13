@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@Profile({"dev", "test"})
+@Profile({"dev", "test", "prod"})
 public class AllCorsConfig {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
