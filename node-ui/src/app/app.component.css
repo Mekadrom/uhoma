@@ -1,7 +1,7 @@
 .selector {
   width: 100px;
   display: block;
-  outline: 1px solid white;
+  outline: 1px solid #fbfbfb;
   height: 100vh;
   background-color: rgb(42, 42, 42);
   position: fixed;
@@ -10,17 +10,18 @@
   right: 0;
 }
 
+.app-selector {
+  font-size: 90px;
+  color: rgb(42, 42, 42);
+}
+
 .mdc-icon-button {
   width: 100%;
   height: 100px;
   background-color: #eeeeee;
+  border-bottom: 1px solid dimgrey;
 }
 
 .mdc-icon-button:hover {
   background-color: #aaaaaa;
-}
-
-.app-selector {
-  font-size: 90px;
-  color: rgb(42, 42, 42);
 }

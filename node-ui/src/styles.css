@@ -4,6 +4,7 @@ h1 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 250%;
 }
+
 h2, h3 {
   color: black;
   font-family: Arial, Helvetica, sans-serif;
@@ -44,6 +45,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 div.mat-form-field-infix {
   background-color: #fbfbfb;
   border-top: 4px solid transparent;
+
+  outline: none;
+  border-top: 1px solid dimgrey;
+  border-left: 1px solid dimgrey;
+  border-bottom: 1px solid dimgrey;
+  border-right: 1px solid dimgrey;
 }
 
 .grid-layout-custom {

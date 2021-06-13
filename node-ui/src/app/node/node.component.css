@@ -23,7 +23,35 @@ mat-list-item:hover {
 .searchbar {
   height: 30px;
   font-size: 24px;
-  margin-bottom: 5px;
   background-color: #fbfbfb;
-  width: 68%;
+  width: 62%;
+
+  outline: none;
+  border-top: 1px solid dimgrey;
+  border-left: 1px solid dimgrey;
+  border-bottom: 1px solid dimgrey;
+  border-right: none;
+
+  vertical-align: top;
+}
+
+.searchbar:focus {
+    outline: none;
+    border-top: 1px solid dimgrey;
+    border-left: 1px solid dimgrey;
+    border-bottom: 1px solid dimgrey;
+    border-right: none
+}
+
+.mdc-icon-button {
+  height: 34px;
+  font-size: 28px;
+  background-color: #eeeeee;
+  border: 1px solid dimgrey;
+
+  vertical-align: top;
+}
+
+.mdc-icon-button:hover {
+  background-color: #aaaaaa;
 }

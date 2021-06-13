@@ -9,6 +9,9 @@
           <mat-option *ngFor="let room of rooms" [value]="room.name">{{ room.name }}</mat-option>
         </mat-select>
       </mat-form-field>
+      <button style="float:right;" (click)="refresh()" class="mdc-icon-button">
+        <span class="material-icons">refresh</span>
+      </button>
     </div>
     <div>
       <mat-list>
