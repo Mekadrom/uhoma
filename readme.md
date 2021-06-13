@@ -12,3 +12,7 @@ You can then start a node ui instance by running `ng serve --open` in the `node-
 Here is the current planned architecture of the project, in a diagram that showcases how each part might communicate with the others:
 
 ![](server/src/main/resources/readme/architecture.png)
+
+Here is an up-to-date view of the standard node angular ui:
+
+![](server/src/main/resources/readme/angular-uptodate.png)
