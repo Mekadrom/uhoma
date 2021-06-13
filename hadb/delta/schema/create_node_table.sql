@@ -31,7 +31,7 @@ BEGIN
             name VARCHAR(255),
             room_seq BIGINT,
             PRIMARY KEY (node_seq),
-            UNIQUE (name),
+            UNIQUE (name, room_seq),
             FOREIGN KEY (room_seq) REFERENCES room (room_seq)
         );';
     END IF;
