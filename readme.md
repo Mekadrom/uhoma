@@ -15,4 +15,4 @@ Here is the current planned architecture of the project, in a diagram that showc
 
 Here is an up-to-date view of the standard node angular ui:
 
-![](server/src/main/resources/readme/angular-uptodate.png)
+![](node-ui/src/assets/readme/angular-uptodate.png)
