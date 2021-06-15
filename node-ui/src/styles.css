@@ -30,7 +30,12 @@ html, body { height: 100%; }
 
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.tier-1-blade-header {
+.inner-blade {
+  width: 100%;
+}
+
+.blade-header {
+  text-align: center;
   color: #fbfbfb;
 }
 
@@ -53,6 +58,88 @@ div.mat-form-field-infix {
   border-right: 1px solid dimgrey;
 }
 
+span.mat-select-min-line {
+  padding-left: 6px;
+}
+
 .grid-layout-custom {
   height: 100%;
+}
+
+.mat-list {
+  max-height: 80vh;
+  width: 100%;
+  overflow: auto;
+  padding-top: 0px;
+  float: left;
+}
+
+.list-item {
+  font-weight: bold;
+  font-size: 24px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+
+  border: 1px solid dimgrey;
+  border-style: solid none none none;
+
+  background-color: #fbfbfb;
+}
+
+.list-item:hover {
+  background-color: dimgrey;
+  color: white;
+}
+
+.list-item:active {
+  background-color: #0a0a0a;
+}
+
+.searchbar {
+  height: 30px;
+  font-size: 22px;
+  background-color: #fbfbfb;
+  float: left;
+
+  outline: none;
+  border-top: 1px solid dimgrey;
+  border-left: 1px solid dimgrey;
+  border-bottom: 1px solid dimgrey;
+  border-right: none;
+
+  margin-bottom: 1.25em;
+
+  vertical-align: top;
+}
+
+.searchbar:focus {
+    outline: none;
+    border-top: 1px solid dimgrey;
+    border-left: 1px solid dimgrey;
+    border-bottom: 1px solid dimgrey;
+    border-right: none
+}
+
+.mdc-icon-button {
+  height: 34px;
+  font-size: 28px;
+  background-color: #eeeeee;
+  border: 1px solid dimgrey;
+  float: left;
+
+  vertical-align: top;
+}
+
+.mdc-icon-button:hover {
+  background-color: #aaaaaa;
+}
+
+.blade-child {
+  width: 50%;
+  float: left;
 }

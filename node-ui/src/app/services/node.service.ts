@@ -12,28 +12,16 @@ import { ToastrService } from 'ngx-toastr';
 export class NodeService {
   constructor(private http: HttpClient, private toastr: ToastrService) {}
 
-  getNodes(nodeName: string | null, roomName: string | null): Observable<Node[]> {
-    return this.http.get<Node[]>(this.getNodeSearchUrl(nodeName, roomName))
+  getNodes(): Observable<Node[]> {
+    return this.http.get<Node[]>(this.getNodeSearchUrl())
     .pipe(
       retry(1),
       catchError(this.handleError)
     )
   }
 
-  getNodeSearchUrl(nodeName: string | null, roomName: string | null): string {
+  getNodeSearchUrl(): string {
     var searchUrl: string = 'http://localhost:8080/node/search';
-
-    if (nodeName != null && roomName == null && !nodeName.trim()) {
-      searchUrl = searchUrl + '?name=' + nodeName;
-    }
-
-    if (nodeName == null && roomName != null && !roomName.trim()) {
-      searchUrl = searchUrl + '?room=' + roomName;
-    }
-
-    if (nodeName != null && roomName != null) {
-      searchUrl = searchUrl + '?name=' + nodeName + '&room=' + roomName
-    }
 
     console.log(searchUrl)
     return searchUrl;

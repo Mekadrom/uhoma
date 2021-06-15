@@ -16,6 +16,8 @@ import { HomeComponent } from './home/home.component';
 import { DevComponent } from './dev/dev.component';
 import { AdminComponent } from './admin/admin.component';
 import { SettingsComponent } from './settings/settings.component';
+import { NodeActionComponent } from './node-action/node-action.component';
+import { ActionComponent } from './action/action.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +26,9 @@ import { SettingsComponent } from './settings/settings.component';
     HomeComponent,
     DevComponent,
     AdminComponent,
-    SettingsComponent
+    SettingsComponent,
+    NodeActionComponent,
+    ActionComponent
   ],
   imports: [
     BrowserModule,

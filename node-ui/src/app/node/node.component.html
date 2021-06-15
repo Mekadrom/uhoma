@@ -1,25 +1,30 @@
-<div style="width:600px;position:relative;">
-  <h1 style="text-align:center;" class="tier-1-blade-header">Node Command Center</h1>
-  <div>
-    <div>
-      <input class="searchbar" [(ngModel)]="nodeNameSearchTerm" (ngModelChange)="onSearchTermChange()"/>
-      <mat-form-field>
-        <mat-select (selectionChange)="roomSelection($event.value)">
+<div style="width:100%;height:100%;">
+  <div style="width:33%;float:left;">
+    <h1 class="blade-header">Node Command Center</h1>
+    <div style="overflow:hidden;">
+      <input class="searchbar" (keypress)="omitSpecialChar($event)" [(ngModel)]="nodeNameSearchTerm" (ngModelChange)="filter()" />
+      <mat-form-field class="room-selection">
+        <mat-select [(ngModel)]="roomNameSearchTerm" (ngModelChange)="filter()">
           <mat-option value=""></mat-option>
           <mat-option *ngFor="let room of rooms" [value]="room.name">{{ room.name }}</mat-option>
         </mat-select>
       </mat-form-field>
-      <button style="float:right;" (click)="refresh()" class="mdc-icon-button">
+      <button (click)="clearSearchBar()" class="mdc-icon-button">
+        <span class="material-icons">close</span>
+      </button>
+      <button (click)="refresh()" class="mdc-icon-button">
         <span class="material-icons">refresh</span>
       </button>
     </div>
     <div>
-      <mat-list>
-        <mat-list-item *ngFor="let node of nodes">
-          <div class="node-list-item"><span style="text-align:left">{{ node.name }}</span><span style="float:right">{{ node.room?.name }}</span>
-          </div>
-        </mat-list-item>
-      </mat-list>
+      <mat-action-list>
+        <button class="list-item" *ngFor="let node of filteredNodes" (click)="setActiveNode(node)">
+          <span style="text-align:left;float:left;">{{ node.name }}</span><span style="text-align:right;float:right;">{{ node.room?.name }}</span>
+        </button>
+      </mat-action-list>
     </div>
+  </div>
+  <div style="width:67%;float:right;">
+    <div *ngIf="activeNode != null"><app-node-action [setNode]="getActiveNode()"></app-node-action></div>
   </div>
 </div>

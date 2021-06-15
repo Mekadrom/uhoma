@@ -1,5 +1,6 @@
 package com.higgs.server.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -35,5 +36,6 @@ public class Node {
 
     @OneToMany
     @JoinColumn(name = "OWNER_NODE_SEQ")
+    @JsonManagedReference
     private Collection<Action> publicActions;
 }

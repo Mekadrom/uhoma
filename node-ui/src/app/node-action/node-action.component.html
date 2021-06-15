@@ -1,0 +1,24 @@
+<div style="margin-left:10px;">
+  <div style="width:33%;float:left;">
+    <h1 class="blade-header">{{ node?.name }} | {{ node?.room?.name }}</h1>
+    <div>
+      <input class="searchbar" (keypress)="omitSpecialChar($event)" [(ngModel)]="actionNameSearchTerm" (ngModelChange)="refresh()" />
+      <button (click)="clearSearchBar()" class="mdc-icon-button">
+        <span class="material-icons">close</span>
+      </button>
+      <button (click)="refresh()" class="mdc-icon-button">
+        <span class="material-icons">refresh</span>
+      </button>
+    </div>
+    <div>
+      <mat-action-list>
+        <button class="list-item" *ngFor="let nodeAction of filteredActions" (click)="setActiveAction(nodeAction)">
+          <span style="text-align:left;float:left;">{{ nodeAction.name }}</span>
+        </button>
+      </mat-action-list>
+    </div>
+  </div>
+  <div style="width:67%;float:right;">
+    <div *ngIf="activeAction != null"><app-action [setAction]="activeAction"></app-action></div>
+  </div>
+</div>

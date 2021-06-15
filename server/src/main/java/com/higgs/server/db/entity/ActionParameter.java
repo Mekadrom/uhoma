@@ -1,6 +1,6 @@
 package com.higgs.server.db.entity;
 
-import com.higgs.server.db.util.ClassToClasspathJpaConverter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -19,11 +19,11 @@ public class ActionParameter {
 
     @OneToOne
     @JoinColumn(name = "ACTION_SEQ")
+    @JsonBackReference
     private Action action;
 
-    @Convert(converter = ClassToClasspathJpaConverter.class)
     @Column(name = "TYPE")
-    private Class<?> type;
+    private String type;
 
     @Column(name = "DEFAULT_VALUE")
     private String defaultValue;

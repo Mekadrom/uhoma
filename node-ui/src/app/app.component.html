@@ -11,16 +11,16 @@
         <button (click)="setAdminBlade()" class="mdc-icon-button">
           <span class="material-icons app-selector">shield</span>
         </button>
-        <button (click)="setDevBlade()" class="mdc-icon-button" style="float:bottom;">
+        <button (click)="setDevBlade()" class="mdc-icon-button">
           <span class="material-icons app-selector">https</span>
         </button>
       </div>
-      <button (click)="setSettingsBlade()" class="mdc-icon-button" style="float:bottom;">
+      <button (click)="setSettingsBlade()" class="mdc-icon-button">
         <span class="material-icons app-selector">settings</span>
       </button>
     </div>
   </mat-grid-tile>
-  <mat-grid-tile class="top-mgt left-mgt" colspan="5" rowspan="1">
+  <mat-grid-tile class="top-mgt left-mgt" colspan="9" rowspan="1">
     <div class="inner-blade" *ngIf="isHomeBlade">
       <app-home></app-home>
     </div>
@@ -37,11 +37,4 @@
       <app-settings></app-settings>
     </div>
   </mat-grid-tile>
-<!--  <mat-grid-tile class="top-mgt left-mgt" colspan="6" rowspan="1">-->
-<!--    <div class="inner-blade" *ngIf="isNodeBlade">-->
-<!--      <h1>I am a info-->
-<!--      Hey your search bar needs sanitizing type "\"-->
-<!--      </h1>-->
-<!--    </div>-->
-<!--  </mat-grid-tile>-->
 </mat-grid-list>

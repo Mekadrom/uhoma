@@ -1,10 +1,10 @@
 package com.higgs.server.db.entity;
 
-import com.higgs.server.db.util.ClassToClasspathJpaConverter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -30,14 +30,19 @@ public class Action {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "OWNER_NODE_SEQ")
+    @JsonBackReference
     private Node ownerNode;
 
     @NotNull
-    @Convert(converter = ClassToClasspathJpaConverter.class)
+    @Column(name = "NAME")
+    private String name;
+
+    @NotNull
     @Column(name = "HANDLER")
-    private Class<?/* extends ActionHandler*/> handler; // TODO: import Node jar and change to Class<? extends ActionHandler>
+    private String handler;
 
     @OneToMany
     @JoinColumn(name = "ACTION_SEQ")
+    @JsonManagedReference
     private Collection<ActionParameter> parameters;
 }
