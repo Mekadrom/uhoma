@@ -28,7 +28,7 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             room_link_seq BIGINT NOT NULL,
-            transition_location_def VARCHAR(255),
+            transition_location_def VARCHAR(1024),
             end_room_seq BIGINT,
             start_room_seq BIGINT,
             PRIMARY KEY (room_link_seq),

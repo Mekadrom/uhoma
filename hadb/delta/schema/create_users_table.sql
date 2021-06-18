@@ -1,8 +1,8 @@
 DO $$
 DECLARE
     c_schema_name VARCHAR(32) := 'hams_data';
-    c_table_name VARCHAR(32) := 'room';
-    c_sequence_name VARCHAR(32) := 'sq_room';
+    c_table_name VARCHAR(32) := 'user_login';
+    c_sequence_name VARCHAR(32) := 'sq_user_login';
 
     v_table_exists BOOLEAN;
     v_sequence_exists BOOLEAN;
@@ -27,10 +27,14 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            room_seq BIGINT NOT NULL,
-            name VARCHAR(256),
-            PRIMARY KEY (room_seq),
-            UNIQUE (name)
+            user_login_seq BIGINT NOT NULL,
+            username VARCHAR(256),
+            password VARCHAR(1024),
+            node_seq BIGINT,
+            last_login TIMESTAMP WITH TIME ZONE,
+            PRIMARY KEY (user_login_seq),
+            UNIQUE (username),
+            FOREIGN KEY (node_seq) REFERENCES node (node_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

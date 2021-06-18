@@ -4,4 +4,6 @@ schema/create_action_table.sql
 schema/create_action_parameter_table.sql
 schema/create_room_link_table.sql
 schema/test_schema.sql
+schema/create_users_table.sql
+data/insert_admin_user.sql
 data/test_data.sql

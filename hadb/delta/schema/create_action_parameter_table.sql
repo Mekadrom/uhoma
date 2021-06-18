@@ -28,8 +28,8 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             action_parameter_seq BIGINT NOT NULL,
-            default_value VARCHAR(255),
-            type VARCHAR(255),
+            default_value VARCHAR(256),
+            type VARCHAR(256),
             action_seq BIGINT,
             PRIMARY KEY (action_parameter_seq),
             FOREIGN KEY (action_seq) REFERENCES action (action_seq)

@@ -28,8 +28,8 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             action_seq BIGINT NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            handler VARCHAR(255),
+            name VARCHAR(256) NOT NULL,
+            handler VARCHAR(256),
             owner_node_seq BIGINT,
             UNIQUE(name, owner_node_seq),
             PRIMARY KEY (action_seq),

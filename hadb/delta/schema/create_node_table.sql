@@ -28,7 +28,7 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             node_seq BIGINT NOT NULL,
-            name VARCHAR(255),
+            name VARCHAR(256),
             room_seq BIGINT,
             PRIMARY KEY (node_seq),
             UNIQUE (name, room_seq),
