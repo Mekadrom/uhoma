@@ -31,7 +31,6 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .inner-blade {
-  width: 100%;
 }
 
 .blade-header {
@@ -92,11 +91,13 @@ span.mat-select-min-line {
 }
 
 .list-item:hover {
+  transition: all .2s ease;
   background-color: dimgrey;
   color: white;
 }
 
 .list-item:active {
+  transition: all .2s ease;
   background-color: #0a0a0a;
 }
 
@@ -104,7 +105,6 @@ span.mat-select-min-line {
   height: 30px;
   font-size: 22px;
   background-color: #fbfbfb;
-  float: left;
 
   outline: none;
   border-top: 1px solid dimgrey;
@@ -118,11 +118,11 @@ span.mat-select-min-line {
 }
 
 .searchbar:focus {
-    outline: none;
-    border-top: 1px solid dimgrey;
-    border-left: 1px solid dimgrey;
-    border-bottom: 1px solid dimgrey;
-    border-right: none
+  outline: none;
+  border-top: 1px solid dimgrey;
+  border-left: 1px solid dimgrey;
+  border-bottom: 1px solid dimgrey;
+  border-right: none
 }
 
 .mdc-icon-button {
@@ -139,7 +139,28 @@ span.mat-select-min-line {
   background-color: #aaaaaa;
 }
 
-.blade-child {
+.left-blade {
   width: 50%;
   float: left;
+}
+
+.right-blade {
+  width: 50%;
+  float: right;
+}
+
+.left-fill-container {
+  width: 100%;
+  float: left;
+  display: flex;
+}
+
+.left-fill {
+  width: 100%;
+  float: left;
+  overflow: hidden;
+}
+
+.right-fixed {
+  flex: none;
 }

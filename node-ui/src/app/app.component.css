@@ -1,18 +1,19 @@
 .selector {
+  float: left;
   width: 100px;
-  display: block;
-  outline: 1px solid #fbfbfb;
-  height: 100vh;
-  background-color: rgb(42, 42, 42);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  height: 100%;
+  background-color: dimgrey;
+  border-right: 1px solid #0b0b0b;
+  margin-right: 20px;
 }
 
 .app-selector {
   font-size: 90px;
-  color: rgb(42, 42, 42);
+  color: dimgrey;
+}
+
+.inner-blade-container {
+  overflow: hidden;
 }
 
 .mdc-icon-button {
@@ -20,11 +21,10 @@
   height: 100px;
   background-color: #eeeeee;
   border: none;
-  border-bottom: 1px solid dimgrey;
 }
 
 .mdc-icon-button:hover {
+  transition: all .2s ease;
   background-color: #aaaaaa;
   border: none;
-  border-bottom: 1px solid dimgrey;
 }
