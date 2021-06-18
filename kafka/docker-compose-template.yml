@@ -12,10 +12,11 @@ services:
       - "9092:9092"
     environment:
       DOCKER_API_VERSION: 1.22
-      KAFKA_ADVERTISED_HOST_NAME: 172.18.176.1
+      KAFKA_ADVERTISED_HOST_NAME: {{ ip_address }} # /sbin/ip route|awk '/default/ { print $3 }'
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ docker_sock }}:/var/run/docker.sock # typically /var/run/docker.sock:/var/run/docker.sock
+      - {{ kafka_volume }}:/kafka # typically /kafka or ./kafka
   kafdrop:
     image: obsidiandynamics/kafdrop
     depends_on:
@@ -23,6 +24,6 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: 172.18.176.1:9092
+      KAFKA_BROKERCONNECT: {{ ip_address }}:9092 # /sbin/ip route|awk '/default/ { print $3 }'
       JVM_OPTS: "-Xms32M -Xmx64M"
       SERVER_SERVLET_CONTEXTPATH: "/"

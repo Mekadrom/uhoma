@@ -3,9 +3,7 @@
 build/
 dist/
 
-kafka/volume/kafka-servers/logs/
-kafka/volume/kafdrop/target/
-kafka/volume/kafdrop/.mvn/
-
 hadb/delta/schema/test_schema.sql
 hadb/delta/data/test_data.sql
+
+kafka/docker-compose.yml
