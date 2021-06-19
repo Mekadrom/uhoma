@@ -1,5 +1,6 @@
 package com.higgs.server.web.service;
 
+import com.higgs.server.config.security.Roles;
 import com.higgs.server.db.entity.Room;
 import com.higgs.server.db.entity.RoomLink;
 import com.higgs.server.db.repo.NodeRepository;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
+@RolesAllowed(Roles.ADMIN_AUTH)
 @RequestMapping(value = "room")
 public class RoomRest {
     private final NodeRepository nodeRepository;

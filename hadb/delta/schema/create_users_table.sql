@@ -30,10 +30,16 @@ BEGIN
             user_login_seq BIGINT NOT NULL,
             username VARCHAR(256),
             password VARCHAR(1024),
+            is_locked BOOLEAN DEFAULT FALSE,
+            is_enabled BOOLEAN DEFAULT TRUE,
+            is_expired BOOLEAN DEFAULT FALSE,
+            is_credentials_expired BOOLEAN DEFAULT FALSE,
+            auths VARCHAR(1024) NOT NULL,
             node_seq BIGINT,
             last_login TIMESTAMP WITH TIME ZONE,
             PRIMARY KEY (user_login_seq),
             UNIQUE (username),
+            UNIQUE (node_seq),
             FOREIGN KEY (node_seq) REFERENCES node (node_seq)
         );';
     END IF;

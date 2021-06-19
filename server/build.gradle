@@ -20,6 +20,8 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
 
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
     testImplementation 'com.h2database:h2'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
