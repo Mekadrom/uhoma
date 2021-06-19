@@ -31,6 +31,7 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .inner-blade {
+  height: 100%;
 }
 
 .blade-header {
@@ -141,11 +142,13 @@ span.mat-select-min-line {
 
 .left-blade {
   width: 50%;
+  height: 100%;
   float: left;
 }
 
 .right-blade {
   width: 50%;
+  height: 100%;
   float: right;
 }
 
@@ -153,6 +156,22 @@ span.mat-select-min-line {
   width: 100%;
   float: left;
   display: flex;
+}
+
+.right-fill-container {
+  width: 100%;
+  float: right;
+  display: flex;
+}
+
+.left-fixed {
+  flex: none;
+}
+
+.right-fill {
+  width: 100%;
+  float: right;
+  overflow: hidden;
 }
 
 .left-fill {
