@@ -23,7 +23,7 @@ BEGIN
             nextval('sq_user_login'),
             'admin',
             '$2y$12$8.WZVLPGTsg42OjSd.zjkecWxjZRYjDLOTsSRyao.LQzHJ0aeJ24q',
-            'ADMIN_AUTH',
+            'ROLE_ADMIN',
             null,
             null,
             NOW()
