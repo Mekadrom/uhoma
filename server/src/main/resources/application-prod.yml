@@ -1,3 +1,6 @@
+server:
+  error:
+    include-stacktrace: always
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/hams_data?currentSchema=hams_data

@@ -43,7 +43,7 @@ public class JwtTokenUtil implements Serializable {
 
     public String generateToken(final UserDetails user) {
         final Claims claims = Jwts.claims().setSubject(user.getUsername());
-        claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN_AUTH)));
+        claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN)));
 
         return Jwts.builder()
                 .setClaims(claims)

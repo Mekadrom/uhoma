@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 
 import { ToastrService } from 'ngx-toastr';
+import { CookieService } from 'ngx-cookie-service';
 
 import { AuthService } from '../services/auth.service';
 import { UserProviderService } from '../services/user-provider.service';
@@ -17,7 +18,10 @@ export class HomeComponent implements OnInit {
   username: string = '';
   password: string = '';
 
-  constructor(private authService: AuthService, private userProvider: UserProviderService, private toastr: ToastrService) { }
+  constructor(private authService: AuthService,
+              private userProvider: UserProviderService,
+              private toastr: ToastrService,
+              private cookieService: CookieService) { }
 
   ngOnInit(): void {
   }
@@ -30,10 +34,15 @@ export class HomeComponent implements OnInit {
   login(): void {
     this.authService.login(this.username, this.password).subscribe(
       (resp: HttpResponse<UserView>) => {
-        this.userProvider.setJwt(resp.headers.get('Authorization'));
-        this.userProvider.setUserView(resp.body);
-        console.log('setting jwt: ' + this.userProvider.getJwt());
-        this.postLogin();
+        const jwt = resp.headers.get('Authorization');
+        if (jwt) {
+          this.userProvider.setJwt(jwt);
+          this.userProvider.setUserView(resp.body);
+          this.cookieService.set('bearer', jwt);
+          this.postLogin();
+        } else {
+          this.toastr.error('Login unsuccessful');
+        }
       },
       err => {
         this.toastr.error(err.message, 'Login unsuccessful');

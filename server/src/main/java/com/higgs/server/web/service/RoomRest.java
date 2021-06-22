@@ -30,7 +30,7 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RolesAllowed(Roles.ADMIN_AUTH)
+@RolesAllowed(Roles.ADMIN)
 @RequestMapping(value = "room")
 public class RoomRest {
     private final NodeRepository nodeRepository;
@@ -41,7 +41,7 @@ public class RoomRest {
     @SneakyThrows
     @GetMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Room>> search(@RequestParam(required = false, value = "id") final Optional<String> seqOpt,
-                                         @RequestParam(required = false, value = "name") final Optional<String> nameOpt) {
+                                             @RequestParam(required = false, value = "name") final Optional<String> nameOpt) {
         return this.restUtils.searchEntity(seqOpt, nameOpt, Room.class, this.roomRepository);
     }
 

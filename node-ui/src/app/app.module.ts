@@ -7,7 +7,10 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
+
 import { ToastrModule } from 'ngx-toastr';
+import { CookieService } from 'ngx-cookie-service';
+
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
@@ -43,7 +46,14 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
     MatSelectModule,
     ToastrModule.forRoot()
   ],
-  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true } ],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true
+    },
+    CookieService
+  ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

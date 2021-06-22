@@ -5,5 +5,5 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Roles {
-    public static final String ADMIN_AUTH = "ADMIN_AUTH";
+    public static final String ADMIN = "ROLE_ADMIN";
 }

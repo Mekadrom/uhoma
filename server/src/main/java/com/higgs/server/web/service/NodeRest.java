@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RolesAllowed(Roles.ADMIN_AUTH)
+@RolesAllowed(Roles.ADMIN)
 @RequestMapping(value = "node")
 public class NodeRest {
     private final NodeRepository nodeRepository;

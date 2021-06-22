@@ -1,14 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
+
+import { CookieService } from 'ngx-cookie-service';
+
 import { Blade } from './enum-blade';
 import { NodeComponent } from './node/node.component';
+import { UserProviderService } from './services/user-provider.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   private activeBlade: Blade = Blade.HOME;
+
+  constructor(private cookieService: CookieService, private userProvider: UserProviderService) { }
 
   setBlade(blade: Blade): void {
     this.activeBlade = blade;
@@ -52,5 +58,12 @@ export class AppComponent {
 
   setSettingsBlade(): void {
     this.activeBlade = Blade.SETTINGS;
+  }
+
+  ngAfterViewInit(): void {
+    const jwt = this.cookieService.get('bearer');
+    if (jwt) {
+      this.userProvider.setJwt(jwt);
+    }
   }
 }
