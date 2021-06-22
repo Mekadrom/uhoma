@@ -3,7 +3,7 @@ import { ErrorHandler } from "@angular/core";
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,6 +18,8 @@ import { AdminComponent } from './admin/admin.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NodeActionComponent } from './node-action/node-action.component';
 import { ActionComponent } from './action/action.component';
+
+import { AuthInterceptorService } from './services/auth-interceptor.service';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,7 @@ import { ActionComponent } from './action/action.component';
     MatSelectModule,
     ToastrModule.forRoot()
   ],
-  providers: [  ],
+  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true } ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

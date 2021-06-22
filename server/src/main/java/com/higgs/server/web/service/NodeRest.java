@@ -2,13 +2,13 @@ package com.higgs.server.web.service;
 
 import com.higgs.server.config.security.Roles;
 import com.higgs.server.db.entity.Node;
-import com.higgs.server.db.repo.ActionRepository;
 import com.higgs.server.db.repo.NodeRepository;
 import com.higgs.server.web.service.util.RestUtils;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@CrossOrigin
 @RestController
 @AllArgsConstructor
 @RolesAllowed(Roles.ADMIN_AUTH)

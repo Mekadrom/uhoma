@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+
 import { ToastrService } from 'ngx-toastr';
 
 import { Node } from '../models/node';
@@ -82,7 +83,6 @@ export class NodeComponent implements OnInit, AfterViewInit {
   clearSearchBar(): void {
     this.nodeNameSearchTerm = '';
     this.roomNameSearchTerm = '';
-    this.refresh();
   }
 
   refresh(): void {
@@ -90,12 +90,15 @@ export class NodeComponent implements OnInit, AfterViewInit {
     this.fetchData();
   }
 
-  ngAfterViewInit(): void {
+  clearAndRefresh(): void {
     this.clearSearchBar();
     this.refresh();
   }
 
+  ngAfterViewInit(): void {
+    this.clearAndRefresh();
+  }
+
   ngOnInit(): void {
-    this.fetchRooms();
   }
 }

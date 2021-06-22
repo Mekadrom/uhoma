@@ -9,7 +9,7 @@
           <mat-option *ngFor="let room of rooms" [value]="room.name">{{ room.name }}</mat-option>
         </mat-select>
       </mat-form-field>
-      <button mat-flat-button (click)="clearSearchBar()" class="mdc-icon-button">
+      <button mat-flat-button (click)="clearAndRefresh()" class="mdc-icon-button">
         <span class="material-icons">close</span>
       </button>
       <button mat-flat-button (click)="refresh()" class="mdc-icon-button">

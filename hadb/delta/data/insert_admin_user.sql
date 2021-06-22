@@ -15,14 +15,18 @@ BEGIN
             user_login_seq,
             username,
             "password",
+            auths,
             node_seq,
-            lasT_login
+            last_login,
+            created
         ) VALUES (
             nextval('sq_user_login'),
-            'admin'
-            '$2y$12$8.WZVLPGTsg42OjSd.zjkecWxjZRYjDLOTsSRyao.LQzHJ0aeJ24q'
+            'admin',
+            '$2y$12$8.WZVLPGTsg42OjSd.zjkecWxjZRYjDLOTsSRyao.LQzHJ0aeJ24q',
+            'ADMIN_AUTH',
             null,
-            null
+            null,
+            NOW()
         );
     END IF;
 END $$ LANGUAGE plpgsql;

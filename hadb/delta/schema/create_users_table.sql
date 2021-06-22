@@ -37,6 +37,7 @@ BEGIN
             auths VARCHAR(1024) NOT NULL,
             node_seq BIGINT,
             last_login TIMESTAMP WITH TIME ZONE,
+            created TIMESTAMP WITH TIME ZONE NOT NULL,
             PRIMARY KEY (user_login_seq),
             UNIQUE (username),
             UNIQUE (node_seq),

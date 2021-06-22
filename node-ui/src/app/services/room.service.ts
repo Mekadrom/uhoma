@@ -1,34 +1,36 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Room } from '../models/room';
-import { Observable, throwError } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { retry, catchError } from 'rxjs/operators';
-import { HttpResponse } from "@angular/common/http";
-import { ToastrService } from 'ngx-toastr';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+
+import { Observable, throwError } from 'rxjs';
+import { retry, catchError, shareReplay } from 'rxjs/operators';
+
+import { Room } from '../models/room';
+import { UrlProviderService } from './url-provider.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoomService {
-  constructor(private http: HttpClient, private toastr: ToastrService) {}
+  constructor(private http: HttpClient, private urlProvider: UrlProviderService) { }
 
-    getRooms(roomName: string | null): Observable<Room[]> {
+  public getRooms(roomName: string | null): Observable<Room[]> {
     return this.http.get<Room[]>(this.getRoomSearchUrl(roomName))
     .pipe(
       retry(1),
-      catchError(this.handleError)
+      catchError(this.handleError),
+      shareReplay()
     );
   }
 
-  getRoomSearchUrl(roomName: string | null): string {
+  private getRoomSearchUrl(roomName: string | null): string {
     if (roomName == null) {
-      return 'http://localhost:8080/room/search';
+      return this.urlProvider.getRoomSearchUrl();
     } else {
-      return 'http://localhost:8080/room/search?name=' + roomName;
+      return this.urlProvider.getRoomSearchUrl() + '?name=' + roomName;
     }
   }
 
-  handleError(error: any): Observable<any> {
+  private handleError(error: any): Observable<any> {
     return throwError(error);
   }
 }

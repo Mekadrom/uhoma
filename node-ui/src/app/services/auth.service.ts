@@ -4,26 +4,26 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError, shareReplay } from 'rxjs/operators';
 
-import { Node } from '../models/node';
+import { UserView } from '../models/user-view';
 import { UrlProviderService } from './url-provider.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class NodeService {
+export class AuthService {
   constructor(private http: HttpClient, private urlProvider: UrlProviderService) { }
 
-  public getNodes(): Observable<Node[]> {
-    return this.http.get<Node[]>(this.getNodeSearchUrl())
+  public login(username: string, password: string): Observable<HttpResponse<UserView>> {
+    return this.http.post<UserView>(this.getAuthUrl(), { username, password }, { observe: 'response' })
     .pipe(
       retry(1),
       catchError(this.handleError),
-      shareReplay()
+      shareReplay(1)
     );
   }
 
-  private getNodeSearchUrl(): string {
-    return this.urlProvider.getNodeSearchUrl();
+  private getAuthUrl() {
+    return this.urlProvider.getAuthUrl();
   }
 
   private handleError(error: any): Observable<any> {
