@@ -14,7 +14,7 @@ export class AuthInterceptorService implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const jwt = this.userProvider.getJwt();
     console.log('intercepting and setting authorization header');
-    if (jwt) {
+    if (jwt && !this.isJwtExpired(jwt)) {
       request = request.clone({
         setHeaders: {
           'Authorization': 'Bearer ' + jwt
@@ -22,5 +22,11 @@ export class AuthInterceptorService implements HttpInterceptor {
       });
     }
     return next.handle(request);
+  }
+
+  isJwtExpired(jwt: string): boolean {
+    const expiry = (JSON.parse(atob(jwt.split('.')[1]))).exp;
+    console.log((Math.floor((new Date).getTime() / 1000)) + '>=' + expiry);
+    return (Math.floor((new Date).getTime() / 1000)) >= expiry;
   }
 }
