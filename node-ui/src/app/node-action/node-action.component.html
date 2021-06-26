@@ -1,4 +1,4 @@
-<div style="margin-left:10px;">
+<div style="margin-left:20px;margin-right:20px;">
   <div style="width:40%;float:left;">
     <h1 class="blade-header">{{ node?.name }} | {{ node?.room?.name }}</h1>
     <div class="left-fill-container">
@@ -22,8 +22,8 @@
     </div>
   </div>
   <div style="width:60%;float:right;">
-    <div *ngIf="activeAction != null">
-      <app-action [setAction]="activeAction"></app-action>
+    <div style="width:100%;height=100%;" *ngIf="activeAction != null">
+      <app-action style="display:block;" [setAction]="activeAction"></app-action>
     </div>
   </div>
 </div>

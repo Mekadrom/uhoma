@@ -3,17 +3,17 @@
   width: 100px;
   height: 100%;
   background-color: dimgrey;
-  border-right: 1px solid #0b0b0b;
-  margin-right: 20px;
+  border-right: 1px solid #fbfbfb;
 }
 
 .app-selector {
   font-size: 90px;
-  color: dimgrey;
 }
 
 .inner-blade-container {
   height: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
   overflow: hidden;
 }
 
@@ -22,10 +22,17 @@
   height: 100px;
   background-color: #eeeeee;
   border: none;
+  color: dimgrey;
 }
 
 .mdc-icon-button:hover {
   transition: all .2s ease;
   background-color: #aaaaaa;
-  border: none;
+  color: #fbfbfb;
+}
+
+.mdc-icon-button:active {
+  transition: all .2s ease;
+  background-color: #0a0a0a;
+  color: #fbfbfb;
 }

@@ -1,1 +1,27 @@
-<p>action works!</p>
+<div class="action-param-container">
+  <h1 class="blade-header">{{ nodeAction?.name }}</h1>
+  <div *ngIf="nodeAction && nodeAction.parameters && nodeAction.parameters.length > 0;else placeholder" class="action-param-table-container">
+    <table mat-table [dataSource]="nodeAction.parameters">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef style="text-align:left;" class="column-header">Parameter Name</th>
+        <td mat-cell *matCellDef="let param" class="action-param-label">{{ param.name }}</td>
+      </ng-container>
+      <ng-container matColumnDef="currentValue">
+        <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header">Value</th>
+        <td mat-cell *matCellDef="let param">
+          <input class="left-fill vertical-center action-param-input" *ngIf="isParamTextField(param)" matInput [(ngModel)]="param.currentValue">
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+  <ng-template #placeholder>
+    <h3>This action doesn't accept parameters.</h3>
+  </ng-template>
+  <div style="float:right;padding-top:20px;">
+    <button mat-flat-button (click)="runActionWithParams()" class="mdc-icon-button run-button">
+      <span class="material-icons">send</span><span>Run</span>
+    </button>
+  </div>
+</div>

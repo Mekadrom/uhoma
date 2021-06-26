@@ -1,4 +1,3 @@
-/* Application-wide Styles */
 h1 {
   color: black;
   font-family: Arial, Helvetica, sans-serif;
@@ -6,7 +5,7 @@ h1 {
 }
 
 h2, h3 {
-  color: black;
+  color: #fbfbfb;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: lighter;
 }
@@ -37,6 +36,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .blade-header {
   text-align: center;
   color: #fbfbfb;
+  white-space: nowrap;
 }
 
 .top-mgt > div.mat-grid-tile-content {
@@ -94,7 +94,7 @@ span.mat-select-min-line {
 .list-item:hover {
   transition: all .2s ease;
   background-color: dimgrey;
-  color: white;
+  color: #fbfbfb;
 }
 
 .list-item:active {
@@ -102,7 +102,7 @@ span.mat-select-min-line {
   background-color: #0a0a0a;
 }
 
-.searchbar {
+input {
   height: 30px;
   font-size: 22px;
   background-color: #fbfbfb;
@@ -111,18 +111,26 @@ span.mat-select-min-line {
   border-top: 1px solid dimgrey;
   border-left: 1px solid dimgrey;
   border-bottom: 1px solid dimgrey;
-  border-right: none;
+  border-right: 1px solid dimgrey;
 
   margin-bottom: 1.25em;
 
   vertical-align: top;
 }
 
-.searchbar:focus {
+input:focus {
   outline: none;
   border-top: 1px solid dimgrey;
   border-left: 1px solid dimgrey;
   border-bottom: 1px solid dimgrey;
+  border-right: 1px solid dimgrey;
+}
+
+.searchbar {
+  border-right: none;
+}
+
+.searchbar:focus {
   border-right: none
 }
 
@@ -132,12 +140,21 @@ span.mat-select-min-line {
   background-color: #eeeeee;
   border: 1px solid dimgrey;
   float: left;
+  color: dimgrey;
 
   vertical-align: top;
 }
 
 .mdc-icon-button:hover {
+  transition: all .2s ease;
   background-color: #aaaaaa;
+  color: #fbfbfb;
+}
+
+.mdc-icon-button:active {
+  transition: all .2s ease;
+  background-color: #0a0a0a;
+  color: #fbfbfb;
 }
 
 .left-blade {
@@ -182,4 +199,28 @@ span.mat-select-min-line {
 
 .right-fixed {
   flex: none;
+}
+
+.vertical-center {
+  margin: 0;
+  top: 50%;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+   -webkit-box-shadow: 0 0 0px 1000px #fbfbfb inset!important;
+}
+
+input:focus,
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #fbfbfb inset,
+                        0 0 8px #cbcbcbcb;
 }

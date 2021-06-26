@@ -7,6 +7,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 
 import { ToastrModule } from 'ngx-toastr';
 import { CookieService } from 'ngx-cookie-service';
@@ -44,6 +45,7 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
     MatListModule,
     MatGridListModule,
     MatSelectModule,
+    MatTableModule,
     ToastrModule.forRoot()
   ],
   providers: [

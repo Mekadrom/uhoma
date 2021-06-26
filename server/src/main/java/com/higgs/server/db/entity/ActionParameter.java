@@ -17,6 +17,9 @@ public class ActionParameter {
     @Column(name = "ACTION_PARAMETER_SEQ")
     private Long actionParameterSeq;
 
+    @Column(name = "NAME")
+    private String name;
+
     @OneToOne
     @JoinColumn(name = "ACTION_SEQ")
     @JsonBackReference
