@@ -23,16 +23,3 @@
 .setting-input {
   text-align: right;
 }
-
-table {
-  width: 100%;
-}
-
-.mat-table {
-  height: 100%;
-  background-color: #fbfbfb;
-}
-
-.mat-row {
-  background-color: #fbfbfb;
-}

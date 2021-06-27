@@ -18,7 +18,6 @@ import { AppComponent } from './app.component';
 import { NodeComponent } from './node/node.component';
 import { HomeComponent } from './home/home.component';
 import { DevComponent } from './dev/dev.component';
-import { AdminComponent } from './admin/admin.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NodeActionComponent } from './node-action/node-action.component';
 import { ActionComponent } from './action/action.component';
@@ -31,7 +30,6 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
     NodeComponent,
     HomeComponent,
     DevComponent,
-    AdminComponent,
     SettingsComponent,
     NodeActionComponent,
     ActionComponent

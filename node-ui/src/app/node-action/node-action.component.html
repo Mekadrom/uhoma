@@ -14,8 +14,8 @@
       </div>
     </div>
     <div>
-      <mat-action-list>
-        <button mat-flat-button class="list-item" *ngFor="let nodeAction of filteredActions" (click)="setActiveAction(nodeAction)">
+      <mat-action-list style="transform:scaleX(-1);">
+        <button mat-flat-button class="list-item" *ngFor="let nodeAction of filteredActions" (click)="setActiveAction(nodeAction)" style="transform:scaleX(-1);">
           <span style="text-align:left;float:left;">{{ nodeAction.name }}</span>
         </button>
       </mat-action-list>

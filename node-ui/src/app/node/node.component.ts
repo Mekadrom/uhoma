@@ -86,6 +86,8 @@ export class NodeComponent implements OnInit, AfterViewInit {
   }
 
   refresh(): void {
+    this.nodes = [];
+    this.rooms = [];
     this.fetchRooms();
     this.fetchData();
   }

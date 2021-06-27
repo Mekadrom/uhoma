@@ -36,14 +36,6 @@ export class AppComponent implements AfterViewInit {
     this.activeBlade = Blade.NODE;
   }
 
-  get isAdminBlade() {
-    return this.activeBlade == Blade.ADMIN;
-  }
-
-  setAdminBlade(): void {
-    this.activeBlade = Blade.ADMIN;
-  }
-
   get isDevBlade() {
     return this.activeBlade == Blade.DEV;
   }

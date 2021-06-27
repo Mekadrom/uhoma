@@ -7,11 +7,11 @@
 
 .action-param-table-container {
   margin: auto;
-  margin-top: 97px;
-  border: 1px solid #fbfbfb;
+  margin-bottom: 20px;
   background-color: #fbfbfb;
   max-height: 70vh;
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .column-header {
@@ -26,15 +26,48 @@
   text-align: right;
 }
 
-table {
+.bottom-button-div {
+  padding-top: 10px;
+  display: flex;
+
   width: 100%;
+
+  align-items: center;
 }
 
-.mat-table {
-  height: 100%;
-  background-color: #fbfbfb;
+.no-params-text {
+  padding-left: 10px;
+  width: auto;
+  height: auto;
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+  float: right;
+  font-size: 22px;
 }
 
-.mat-row {
-  background-color: #fbfbfb;
+.add-remove-button {
+  padding-left: 15px;
+  padding-right: 15px;
+  float: left;
+}
+
+.run-button {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.selected {
+  transition: color background-color .2s ease;
+  background-color: #0b0b0b;
+  color: #fbfbfb;
+}
+
+.selected > .mat-cell {
+  color: #fbfbfb;
+}
+
+.disabled {
+  background-color: #8b8b8b;
+  color: #fbfbfb;
 }

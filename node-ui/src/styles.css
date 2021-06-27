@@ -76,6 +76,7 @@ span.mat-select-min-line {
   overflow: auto;
   padding-top: 0px;
   float: left;
+  scrollbar-width: thin;
 }
 
 .list-item {
@@ -121,6 +122,8 @@ input {
   margin-bottom: 1.25em;
 
   vertical-align: top;
+
+  filter: none;
 }
 
 input:focus {
@@ -220,21 +223,37 @@ input:focus {
   text-align: center;
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus
-input:-webkit-autofill,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-select:-webkit-autofill,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus {
-   -webkit-box-shadow: 0 0 0px 1000px #fbfbfb inset!important;
+table {
+  width: 100%;
 }
 
-input:focus,
-input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px #fbfbfb inset,
-                        0 0 8px #cbcbcbcb;
+.mat-table {
+  height: 100%;
+  background-color: #fbfbfb;
+}
+
+.mat-row {
+  transition: all .2s ease;
+  background-color: #fbfbfb;
+}
+
+.mat-row:hover {
+  transition: all .2s ease;
+  background-color: #8b8b8b;
+}
+
+.mat-row:hover > .mat-cell {
+  transition: all .2s ease;
+  color: #fbfbfb;
+}
+
+.mat-row:focus {
+  transition: all .2s ease;
+  color: #fbfbfb;
+  background-color: #0b0b0b;
+}
+
+.mat-row:focus > .mat-cell {
+  transition: all .2s ease;
+  color: #fbfbfb;
 }

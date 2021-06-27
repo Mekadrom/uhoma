@@ -1,21 +1,17 @@
 <div class="selector">
-  <button (click)="setHomeBlade()" class="mdc-icon-button">
-    <span class="material-icons app-selector">home</span>
+  <button [ngClass]="{'selected-button': isHomeBlade}" (click)="setHomeBlade()" class="mdc-icon-button selector-button">
+    <span class="material-icons app-icon">home</span>
   </button>
-  <div>
-    <button (click)="setNodeBlade()" class="mdc-icon-button">
-      <span class="material-icons app-selector">grade</span>
-    </button>
-    <button (click)="setAdminBlade()" class="mdc-icon-button">
-      <span class="material-icons app-selector">shield</span>
-    </button>
-    <button (click)="setDevBlade()" class="mdc-icon-button">
-      <span class="material-icons app-selector">code</span>
-    </button>
-  </div>
-  <button (click)="setSettingsBlade()" class="mdc-icon-button">
-    <span class="material-icons app-selector">settings</span>
+  <button [ngClass]="{'selected-button': isNodeBlade}" (click)="setNodeBlade()" class="mdc-icon-button selector-button">
+    <span class="material-icons app-icon">grade</span>
   </button>
+  <button [ngClass]="{'selected-button': isDevBlade}" (click)="setDevBlade()" class="mdc-icon-button selector-button">
+    <span class="material-icons app-icon">code</span>
+  </button>
+  <button [ngClass]="{'selected-button': isSettingsBlade}" (click)="setSettingsBlade()" class="mdc-icon-button selector-button">
+    <span class="material-icons app-icon">settings</span>
+  </button>
+  <div class="selector-bottom" style="height:100%;"></div>
 </div>
 <div class="inner-blade-container">
   <div class="inner-blade" *ngIf="isHomeBlade">
@@ -23,9 +19,6 @@
   </div>
   <div class="inner-blade" *ngIf="isNodeBlade">
     <app-node></app-node>
-  </div>
-  <div class="inner-blade" *ngIf="isAdminBlade">
-    <app-admin></app-admin>
   </div>
   <div class="inner-blade" *ngIf="isDevBlade">
     <app-dev></app-dev>

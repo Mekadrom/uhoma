@@ -1,6 +1,6 @@
 <div class="action-param-container">
   <h1 class="blade-header">{{ nodeAction?.name }}</h1>
-  <div *ngIf="nodeAction && nodeAction.parameters && nodeAction.parameters.length > 0;else placeholder" class="action-param-table-container">
+  <div *ngIf="nodeAction && nodeAction.parameters && nodeAction.parameters.length > 0" class="action-param-table-container">
     <table mat-table [dataSource]="nodeAction.parameters">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef style="text-align:left;" class="column-header">Parameter Name</th>
@@ -13,15 +13,32 @@
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row
+          [ngClass]="{'selected': selectedRow == row.actionParameterSeq}"
+          (click)="highlight(row)"
+          *matRowDef="let row; columns: displayedColumns;">
+      </tr>
     </table>
   </div>
-  <ng-template #placeholder>
-    <h3>This action doesn't accept parameters.</h3>
-  </ng-template>
-  <div style="float:right;padding-top:20px;">
-    <button mat-flat-button (click)="runActionWithParams()" class="mdc-icon-button text-button">
-      <span class="material-icons">send</span>&nbsp;<span>Run</span>
-    </button>
+  <div>
+    <div>
+      <button mat-flat-button (click)="add()" class="mdc-icon-button text-button add-remove-button">
+        <span class="material-icons">add</span>
+      </button>
+      <button mat-flat-button
+              [disabled]="selectedRow === -1"
+              [ngClass]="{'disabled': selectedRow === -1}"
+              (click)="remove(selectedRow)"
+              *ngIf="nodeAction && nodeAction.parameters && nodeAction.parameters.length > 0"
+              class="mdc-icon-button text-button add-remove-button">
+        <span class="material-icons">clear</span>
+      </button>
+    </div>
+    <div class="bottom-button-div">
+      <button mat-flat-button (click)="runActionWithParams()" class="mdc-icon-button text-button run-button">
+        <span class="material-icons" style="padding-right:5px;">send</span><span>Run</span>
+      </button>
+      <span *ngIf="!nodeAction || !nodeAction.parameters || nodeAction.parameters.length == 0" class="no-params-text">This action doesn't accept parameters.</span>
+    </div>
   </div>
 </div>

@@ -12,6 +12,8 @@ export class ActionComponent implements OnInit {
 
   nodeAction?: NodeAction;
 
+  selectedRow: number = -1;
+
   @Input('setAction')
   public set setAction(nodeAction: NodeAction | undefined) {
     console.log(JSON.stringify(nodeAction));
@@ -23,6 +25,7 @@ export class ActionComponent implements OnInit {
 
   refresh(): void {
     this.nodeAction?.parameters.forEach(param => param.currentValue = param.defaultValue);
+    this.selectedRow = -1;
   }
 
   ngOnInit(): void {
@@ -37,7 +40,18 @@ export class ActionComponent implements OnInit {
     return param.type === 'string';
   }
 
+  highlight(row: any){
+    this.selectedRow = row.actionParameterSeq;
+  }
+
   runActionWithParams(): void {
 
+  }
+
+  add(): void {
+  }
+
+  remove(actionParameterSeq: number): void {
+    console.log("doing something");
   }
 }
