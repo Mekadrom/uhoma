@@ -1,7 +1,7 @@
 <div style="width:100%;height:100%;" class="right-fill-container">
   <div style="height:200px;margin:auto;">
-    <input id="username" maxlength="32" placeholder="username" class="right-fill login-input" (keypress)="omitSpecialChar($event)" [(ngModel)]="username"/>
-    <input type="password" id="password" maxlength="32" placeholder="password" class="right-fill login-input" (keypress)="omitSpecialChar($event)" [(ngModel)]="password"/>
+    <input matInput id="username" maxlength="32" placeholder="username" class="right-fill login-input" (keypress)="omitSpecialChar($event)" [(ngModel)]="username"/>
+    <input matInput type="password" id="password" maxlength="32" placeholder="password" class="right-fill login-input" (keypress)="omitSpecialChar($event)" [(ngModel)]="password"/>
     <button mat-flat-button (click)="login()" class="mdc-icon-button">
       <span>Login</span>
     </button>

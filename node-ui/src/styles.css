@@ -1,22 +1,22 @@
 h1 {
-  color: black;
+  color: #0b0b0b;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 250%;
 }
 
 h2, h3 {
-  color: #fbfbfb;
+  color: #0b0b0b;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: lighter;
 }
 
 body {
   margin: 2em;
-  background-color: dimgrey;
+  background-color: #fbfbfb;
 }
 
 body, input[type="text"], button {
-  color: #333;
+  color: #3b3b3b;
   font-family: Cambria, Georgia, serif;
 }
 
@@ -25,9 +25,14 @@ body, input[type="text"], button {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+}
 
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 .inner-blade {
   height: 100%;
@@ -35,7 +40,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .blade-header {
   text-align: center;
-  color: #fbfbfb;
+  color: #0b0b0b;
   white-space: nowrap;
 }
 
@@ -75,6 +80,7 @@ span.mat-select-min-line {
 }
 
 .list-item {
+  transition: all .2s ease;
   font-weight: bold;
   font-size: 24px;
   padding-top: 30px;
@@ -85,7 +91,7 @@ span.mat-select-min-line {
   height: 100%;
   overflow: auto;
 
-  border: 1px solid dimgrey;
+  border: 1px solid #8b8b8b;
   border-style: solid none none none;
 
   background-color: #fbfbfb;
@@ -93,13 +99,13 @@ span.mat-select-min-line {
 
 .list-item:hover {
   transition: all .2s ease;
-  background-color: dimgrey;
+  background-color: #8b8b8b;
   color: #fbfbfb;
 }
 
 .list-item:active {
   transition: all .2s ease;
-  background-color: #0a0a0a;
+  background-color: #0b0b0b;
 }
 
 input {
@@ -108,10 +114,10 @@ input {
   background-color: #fbfbfb;
 
   outline: none;
-  border-top: 1px solid dimgrey;
-  border-left: 1px solid dimgrey;
-  border-bottom: 1px solid dimgrey;
-  border-right: 1px solid dimgrey;
+  border-top: 1px solid #8b8b8b;
+  border-left: 1px solid #8b8b8b;
+  border-bottom: 1px solid #8b8b8b;
+  border-right: 1px solid #8b8b8b;
 
   margin-bottom: 1.25em;
 
@@ -120,10 +126,10 @@ input {
 
 input:focus {
   outline: none;
-  border-top: 1px solid dimgrey;
-  border-left: 1px solid dimgrey;
-  border-bottom: 1px solid dimgrey;
-  border-right: 1px solid dimgrey;
+  border-top: 1px solid #8b8b8b;
+  border-left: 1px solid #8b8b8b;
+  border-bottom: 1px solid #8b8b8b;
+  border-right: 1px solid #8b8b8b;
 }
 
 .searchbar {
@@ -135,25 +141,26 @@ input:focus {
 }
 
 .mdc-icon-button {
+  transition: all .2s ease;
   height: 34px;
   font-size: 28px;
-  background-color: #eeeeee;
-  border: 1px solid dimgrey;
+  background-color: #fbfbfb;
+  border: 1px solid #8b8b8b;
   float: left;
-  color: dimgrey;
+  color: #0b0b0b;
 
   vertical-align: top;
 }
 
 .mdc-icon-button:hover {
   transition: all .2s ease;
-  background-color: #aaaaaa;
+  background-color: #8b8b8b;
   color: #fbfbfb;
 }
 
 .mdc-icon-button:active {
   transition: all .2s ease;
-  background-color: #0a0a0a;
+  background-color: #0b0b0b;
   color: #fbfbfb;
 }
 

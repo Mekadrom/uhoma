@@ -4,19 +4,27 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class UrlProviderService {
-  private baseUrl: string = 'http://localhost:8080'; // todo: make this configurable or otherwise not hard coded
+  private hamsUrl: string = 'http://localhost:8080'; // todo: make this configurable or otherwise not hard coded
 
   constructor() { }
 
+  public getHamsUrl(): string {
+    return this.hamsUrl;
+  }
+
+  public setHamsUrl(hamsUrl: string): void {
+    this.hamsUrl = hamsUrl;
+  }
+
   public getAuthUrl(): string {
-    return this.baseUrl + '/auth/login';
+    return this.hamsUrl + '/auth/login';
   }
 
   public getNodeSearchUrl(): string {
-    return this.baseUrl + '/node/search';
+    return this.hamsUrl + '/node/search';
   }
 
   public getRoomSearchUrl(): string {
-    return this.baseUrl + '/room/search';
+    return this.hamsUrl + '/room/search';
   }
 }

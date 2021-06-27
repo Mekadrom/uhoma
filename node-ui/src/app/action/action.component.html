@@ -9,7 +9,7 @@
       <ng-container matColumnDef="currentValue">
         <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header">Value</th>
         <td mat-cell *matCellDef="let param">
-          <input class="left-fill vertical-center action-param-input" *ngIf="isParamTextField(param)" matInput [(ngModel)]="param.currentValue">
+          <input matInput class="left-fill vertical-center action-param-input" *ngIf="isParamTextField(param)" [(ngModel)]="param.currentValue">
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
