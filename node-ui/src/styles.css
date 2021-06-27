@@ -54,13 +54,12 @@ body {
 
 div.mat-form-field-infix {
   background-color: #fbfbfb;
-  border-top: 4px solid transparent;
 
   outline: none;
-  border-top: 1px solid dimgrey;
-  border-left: 1px solid dimgrey;
-  border-bottom: 1px solid dimgrey;
-  border-right: 1px solid dimgrey;
+  border-top: 1px solid #8b8b8b;
+  border-left: 1px solid #8b8b8b;
+  border-bottom: 1px solid #8b8b8b;
+  border-right: 1px solid #8b8b8b;
 }
 
 span.mat-select-min-line {
@@ -211,6 +210,14 @@ input:focus {
 .vertical-center {
   margin: 0;
   top: 50%;
+}
+
+.text-button {
+  width: auto;
+  height: auto;
+  padding: 10px 10px 10px 10px;
+  display: inline-block;
+  text-align: center;
 }
 
 input:-webkit-autofill,

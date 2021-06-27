@@ -38,11 +38,3 @@ table {
 .mat-row {
   background-color: #fbfbfb;
 }
-
-.run-button {
-  width: auto;
-  height: auto;
-  padding: 10px 10px 10px 10px;
-  display: inline-block;
-  text-align: center;
-}
