@@ -1,4 +1,4 @@
-package com.higgs.node.backend.web.socket;
+package com.higgs.node.common.web.socket;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;

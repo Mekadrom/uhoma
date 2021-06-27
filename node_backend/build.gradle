@@ -1,6 +1,5 @@
 dependencies {
     implementation project(":node_common")
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 bootJar {

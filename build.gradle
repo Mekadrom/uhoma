@@ -62,7 +62,7 @@ subprojects { subproject ->
         runtimeDependency 'org.springframework.boot:spring-boot-starter-oauth2-client'
         runtimeDependency 'org.springframework.boot:spring-boot-starter-security'
         runtimeDependency 'org.springframework.kafka:spring-kafka'
-
+        runtimeDependency 'org.springframework.boot:spring-boot-starter-websocket'
 
         runtimeDependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 
