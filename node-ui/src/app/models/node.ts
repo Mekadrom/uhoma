@@ -1,5 +1,5 @@
-import { NodeAction } from './node-action';
 import { Room } from './room';
+import { NodeAction } from './node-action';
 
 export interface Node {
   nodeSeq: number;

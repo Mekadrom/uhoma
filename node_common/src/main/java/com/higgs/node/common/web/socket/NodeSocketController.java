@@ -5,18 +5,21 @@ import com.google.gson.JsonParser;
 import com.higgs.node.common.kafka.HAKafkaProducer;
 import com.higgs.node.common.kafka.util.HAKafkaConstants;
 import com.higgs.node.common.util.HASpringConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Controller
 public class NodeSocketController {
     private static final String SESSION_ID = "sessionId";
@@ -28,16 +31,19 @@ public class NodeSocketController {
     private String nodeName;
 
     private final HAKafkaProducer producer;
-    private final SimpMessageSendingOperations messageSendingOperations;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public NodeSocketController(final HAKafkaProducer producer, final SimpMessageSendingOperations messageSendingOperations) {
+    public NodeSocketController(final HAKafkaProducer producer, final SimpMessagingTemplate messagingTemplate) {
         this.producer = producer;
-        this.messageSendingOperations = messageSendingOperations;
+        this.messagingTemplate = messagingTemplate;
     }
 
-    @MessageMapping("/message")
+    @SendTo("/topic/node")
+    @MessageMapping("/node")
     public void processMessage(@Payload final String message, final SimpMessageHeaderAccessor headerAccessor) {
+        NodeSocketController.log.debug("hello, message for you: " + message);
+
         Optional.ofNullable(headerAccessor.getSessionAttributes())
                 .map(it -> it.get(NodeSocketController.SESSION_ID))
                 .map(Object::toString)
@@ -54,6 +60,6 @@ public class NodeSocketController {
     }
 
     public void send(final String message, final Map<String, Object> headers) {
-        this.messageSendingOperations.convertAndSendToUser("", message, "/topic/reply", headers);
+        this.messagingTemplate.convertAndSendToUser("", message, "/topic/reply", headers);
     }
 }

@@ -13,7 +13,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class NodeSocketConfigurer implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(@NotNull final StompEndpointRegistry registry) {
-        registry.addEndpoint("/message").withSockJS();
+        registry.addEndpoint("/node")
+                .setAllowedOrigins("*")
+                .withSockJS();
     }
 
     @Override
@@ -23,7 +25,7 @@ public class NodeSocketConfigurer implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(@NotNull final MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic/", "/queue/");
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic");
     }
 }

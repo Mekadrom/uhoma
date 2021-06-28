@@ -4,6 +4,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 
 import { AuthService } from '../services/auth.service';
+import { WebSocketService } from '../services/web-socket.service';
 import { UserProviderService } from '../services/user-provider.service';
 
 import { UserView } from '../models/user-view';
@@ -18,6 +19,7 @@ export class HomeComponent implements OnInit {
   password: string = '';
 
   constructor(private authService: AuthService,
+              private webSocket: WebSocketService,
               private userProvider: UserProviderService,
               private toastr: ToastrService) { }
 
@@ -33,7 +35,7 @@ export class HomeComponent implements OnInit {
     this.authService.login(this.username, this.password).subscribe(
       (resp: HttpResponse<UserView>) => {
         if (resp.headers.get('Authorization')) {
-          this.toastr.success('Login successful, welcome ${resp.body.username}');
+          this.toastr.success('Login successful, welcome ' + resp?.body?.username);
         } else {
           this.toastr.error('Login unsuccessful');
         }
@@ -42,5 +44,7 @@ export class HomeComponent implements OnInit {
         this.toastr.error(err.message, 'Login unsuccessful');
       }
     );
+
+    this.webSocket.attach(this.userProvider.getJwt());
   }
 }

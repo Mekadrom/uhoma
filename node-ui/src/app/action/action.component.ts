@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
+
 import { NodeAction } from '../models/node-action';
 import { ActionParameter } from '../models/action-parameter';
+
+import { WebSocketService } from '../services/web-socket.service';
 
 @Component({
   selector: 'app-action',
@@ -21,7 +24,7 @@ export class ActionComponent implements OnInit {
     this.refresh();
   }
 
-  constructor() { }
+  constructor(private webSocket: WebSocketService) { }
 
   refresh(): void {
     this.nodeAction?.parameters.forEach(param => param.currentValue = param.defaultValue);
@@ -40,12 +43,12 @@ export class ActionComponent implements OnInit {
     return param.type === 'string';
   }
 
-  highlight(row: any){
+  highlight(row: ActionParameter){
     this.selectedRow = row.actionParameterSeq;
   }
 
   runActionWithParams(): void {
-
+    this.webSocket.sendAction(this.nodeAction);
   }
 
   add(): void {

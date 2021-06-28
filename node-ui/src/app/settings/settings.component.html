@@ -8,7 +8,15 @@
       <ng-container matColumnDef="value">
         <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header">Value</th>
         <td mat-cell *matCellDef="let setting">
-          <input matInput class="left-fill vertical-center setting-input" *ngIf="isSettingTextField(setting)" [(ngModel)]="setting.value">
+          <!--     ngIf clauses should only show one input per setting     -->
+          <input matInput class="left-fill vertical-center setting-input" *ngIf="setting.type === 'string'" [(ngModel)]="setting.value">
+          <input matInput type="number" class="left-fill vertical-center setting-input" *ngIf="setting.type === 'number'" [(ngModel)]="setting.value">
+          <mat-form-field *ngIf="setting.type === 'list'" class="room-selection">
+            <mat-select [(ngModel)]="setting.value">
+              <mat-option value=""></mat-option>
+              <mat-option *ngFor="let listValue of setting.getListAndSetDefaultValue(setting)[1]" [value]="listValue">{{ listValue }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

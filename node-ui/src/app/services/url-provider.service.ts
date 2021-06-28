@@ -4,27 +4,50 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class UrlProviderService {
-  private hamsUrl: string = 'http://localhost:8080'; // todo: make this configurable or otherwise not hard coded
+  private hamsHost: string = 'localhost';
+  private hamsPort: string = '8080';
+
+  private webSocketEndpoint = '/app/topic/node';
 
   constructor() { }
 
-  public getHamsUrl(): string {
-    return this.hamsUrl;
+  public getHamsHost(): string {
+    return this.hamsHost;
   }
 
-  public setHamsUrl(hamsUrl: string): void {
-    this.hamsUrl = hamsUrl;
+  public setHamsHost(hamsHost: string): void {
+    this.hamsHost = hamsHost;
+  }
+
+  public getHamsPort(): string {
+      return this.hamsPort;
+    }
+
+    public setHamsPort(hamsPort: string): void {
+      this.hamsPort = hamsPort;
+    }
+
+  public getHamsUrl(): string {
+    return 'http://' + this.hamsHost + ':' + this.hamsPort;
+  }
+
+  public getHamsWebSocketEndpoint(): string {
+    return this.webSocketEndpoint;
+  }
+
+  public setHamsWebSocketEndpoint(webSocketEndpoint: string): void {
+    this.webSocketEndpoint = webSocketEndpoint;
   }
 
   public getAuthUrl(): string {
-    return this.hamsUrl + '/auth/login';
+    return this.getHamsUrl() + '/auth/login';
   }
 
   public getNodeSearchUrl(): string {
-    return this.hamsUrl + '/node/search';
+    return this.getHamsUrl() + '/node/search';
   }
 
   public getRoomSearchUrl(): string {
-    return this.hamsUrl + '/room/search';
+    return this.getHamsUrl() + '/room/search';
   }
 }
