@@ -26,6 +26,15 @@
   text-align: right;
 }
 
+.middle-button-div {
+  padding-top: 10px;
+  display: flex;
+
+  width: 100%;
+
+  align-items: center;
+}
+
 .bottom-button-div {
   padding-top: 10px;
   display: flex;
@@ -68,6 +77,10 @@
 }
 
 .disabled {
-  background-color: #8b8b8b;
-  color: #fbfbfb;
+  background-color: #d9d9d9;
+  color: #8b8b8b;
+}
+
+.list-input .mat-option {
+  font-size: 28px;
 }

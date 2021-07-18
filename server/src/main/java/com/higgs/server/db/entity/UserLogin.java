@@ -1,5 +1,6 @@
 package com.higgs.server.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,9 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "USER_LOGIN")
 public class UserLogin implements UserDetails {
+    public static final String ACCOUNT_SEQ = "ACCOUNT_SEQ";
+
     @PrePersist
     public void onInsert() {
         this.setCreated(new Date());
@@ -39,9 +43,9 @@ public class UserLogin implements UserDetails {
 
     @Id
     @NotNull
-    @GeneratedValue(generator = "SQ_USER_LOGIN")
-    @SequenceGenerator(name = "SQ_USER_LOGIN")
     @Column(name = "USER_LOGIN_SEQ")
+    @SequenceGenerator(name = "SQ_USER_LOGIN")
+    @GeneratedValue(generator = "SQ_USER_LOGIN", strategy = GenerationType.IDENTITY)
     private Long userLoginSeq;
 
     @NotNull
@@ -51,7 +55,7 @@ public class UserLogin implements UserDetails {
     @JsonIgnore
     private String password;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "NODE_SEQ")
     private Node node;
 
@@ -78,6 +82,12 @@ public class UserLogin implements UserDetails {
     @Column(name = "CREATED")
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date created;
+
+    @NotNull
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = UserLogin.ACCOUNT_SEQ)
+    private Account account;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

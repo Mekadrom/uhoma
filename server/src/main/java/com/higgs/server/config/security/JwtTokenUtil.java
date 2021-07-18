@@ -1,5 +1,6 @@
 package com.higgs.server.config.security;
 
+import com.higgs.server.db.entity.UserLogin;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -41,9 +42,10 @@ public class JwtTokenUtil implements Serializable {
         return this.getExpirationDateFromToken(token).before(new Date());
     }
 
-    public String generateToken(final UserDetails user) {
+    public String generateToken(final UserLogin user) {
         final Claims claims = Jwts.claims().setSubject(user.getUsername());
         claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN)));
+        claims.put(UserLogin.ACCOUNT_SEQ, user.getAccount().getAccountSeq());
 
         return Jwts.builder()
                 .setClaims(claims)

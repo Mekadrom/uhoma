@@ -28,6 +28,7 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             user_login_seq BIGINT NOT NULL,
+            account_seq BIGINT NOT NULL,
             username VARCHAR(256),
             password VARCHAR(1024),
             is_locked BOOLEAN DEFAULT FALSE,

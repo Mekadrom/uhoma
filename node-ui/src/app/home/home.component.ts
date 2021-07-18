@@ -37,10 +37,12 @@ export class HomeComponent implements OnInit {
         if (resp.headers.get('Authorization')) {
           this.toastr.success('Login successful, welcome ' + resp?.body?.username);
         } else {
+          console.log('unauthorized. headers: ' + JSON.stringify(resp));
           this.toastr.error('Login unsuccessful');
         }
       },
       err => {
+        console.log('login error: ' + JSON.stringify(err));
         this.toastr.error(err.message, 'Login unsuccessful');
       }
     );

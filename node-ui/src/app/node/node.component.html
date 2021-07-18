@@ -18,7 +18,11 @@
     </div>
   </div>
   <div>
-    <mat-action-list>
+    <div class="spinner-container">
+      <mat-spinner *ngIf="loading && !failedToLoad" class="loading-spinner"></mat-spinner>
+      <h3 *ngIf="failedToLoad">Failed to load.</h3>
+    </div>
+    <mat-action-list *ngIf="!loading">
       <button mat-flat-button class="list-item" *ngFor="let node of filteredNodes" (click)="setActiveNode(node)">
         <span style="text-align:left;float:left;">{{ node.name }}</span><span style="text-align:right;float:right;">{{ node.room?.name }}</span>
       </button>

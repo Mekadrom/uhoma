@@ -11,10 +11,10 @@
           <!--     ngIf clauses should only show one input per setting     -->
           <input matInput class="left-fill vertical-center setting-input" *ngIf="setting.type === 'string'" [(ngModel)]="setting.value">
           <input matInput type="number" class="left-fill vertical-center setting-input" *ngIf="setting.type === 'number'" [(ngModel)]="setting.value">
-          <mat-form-field *ngIf="setting.type === 'list'" class="room-selection">
+          <mat-form-field *ngIf="setting.type === 'list'">
             <mat-select [(ngModel)]="setting.value">
               <mat-option value=""></mat-option>
-              <mat-option *ngFor="let listValue of setting.getListAndSetDefaultValue(setting)[1]" [value]="listValue">{{ listValue }}</mat-option>
+              <mat-option *ngFor="let listValue of getListAndSetDefaultValue(setting)[1]" [value]="listValue">{{ listValue }}</mat-option>
             </mat-select>
           </mat-form-field>
         </td>

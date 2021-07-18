@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 
 import { ToastrService } from 'ngx-toastr';
 
-import { Validator } from './validator/validator';
-import { ListValidator } from './validator/list-validator';
-import { NoOpValidator } from './validator/noop-validator';
-import { NumberValidator } from './validator/number-validator';
+import { Validator } from '../validator/validator';
+import { ListValidator } from '../validator/list-validator';
+import { NoOpValidator } from '../validator/noop-validator';
+import { NumberValidator } from '../validator/number-validator';
 import { UrlProviderService } from '../services/url-provider.service';
 
 export interface Setting {

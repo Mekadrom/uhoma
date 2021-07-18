@@ -99,7 +99,7 @@ span.mat-select-min-line {
 
 .list-item:hover {
   transition: all .2s ease;
-  background-color: #8b8b8b;
+  background-color: #ababab;
   color: #fbfbfb;
 }
 
@@ -147,7 +147,7 @@ input:focus {
   height: 34px;
   font-size: 28px;
   background-color: #fbfbfb;
-  border: 1px solid #8b8b8b;
+  border: 1px solid #0b0b0b;
   float: left;
   color: #0b0b0b;
 
@@ -156,13 +156,15 @@ input:focus {
 
 .mdc-icon-button:hover {
   transition: all .2s ease;
-  background-color: #8b8b8b;
+  background-color: #ababab;
+  border: 1px solid #0b0b0b;
   color: #fbfbfb;
 }
 
 .mdc-icon-button:active {
   transition: all .2s ease;
   background-color: #0b0b0b;
+  border: 1px solid #0b0b0b;
   color: #fbfbfb;
 }
 
@@ -239,7 +241,7 @@ table {
 
 .mat-row:hover {
   transition: all .2s ease;
-  background-color: #8b8b8b;
+  background-color: #ababab;
 }
 
 .mat-row:hover > .mat-cell {
@@ -256,4 +258,8 @@ table {
 .mat-row:focus > .mat-cell {
   transition: all .2s ease;
   color: #fbfbfb;
+}
+
+.loading-spinner ::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
+  stroke: #0b0b0b;
 }

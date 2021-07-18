@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 
 import { NodeComponent } from '../node/node.component';
 
@@ -10,7 +10,7 @@ import { NodeAction } from '../models/node-action';
   templateUrl: './node-action.component.html',
   styleUrls: ['./node-action.component.css']
 })
-export class NodeActionComponent implements OnInit {
+export class NodeActionComponent implements OnInit, AfterViewInit {
   node?: Node;
 
   @Input('setNode')
@@ -31,12 +31,17 @@ export class NodeActionComponent implements OnInit {
     this.activeAction = nodeAction;
   }
 
+  getActiveAction(): NodeAction | undefined {
+    return this.activeAction;
+  }
+
   clearSearchBar(): void {
     this.actionNameSearchTerm = '';
     this.refresh();
   }
 
   refresh(): void {
+    this.activeAction = undefined;
     this.filteredActions = this.node?.publicActions
       .filter(it => this.actionNameSearchTerm === '' || it.name.toUpperCase().indexOf(this.actionNameSearchTerm.toUpperCase()) != -1);
   }

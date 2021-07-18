@@ -1,6 +1,6 @@
 import { RoomLink } from './room-link';
 
 export interface Room {
-  roomSeq: number;
+  roomSeq?: number;
   name: string;
 }

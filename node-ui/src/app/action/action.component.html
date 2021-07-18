@@ -1,26 +1,36 @@
 <div class="action-param-container">
   <h1 class="blade-header">{{ nodeAction?.name }}</h1>
   <div *ngIf="nodeAction && nodeAction.parameters && nodeAction.parameters.length > 0" class="action-param-table-container">
-    <table mat-table [dataSource]="nodeAction.parameters">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef style="text-align:left;" class="column-header">Parameter Name</th>
-        <td mat-cell *matCellDef="let param" class="action-param-label">{{ param.name }}</td>
-      </ng-container>
-      <ng-container matColumnDef="currentValue">
-        <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header">Value</th>
-        <td mat-cell *matCellDef="let param">
-          <input matInput class="left-fill vertical-center action-param-input" *ngIf="isParamTextField(param)" [(ngModel)]="param.currentValue">
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr mat-row
-          [ngClass]="{'selected': selectedRow == row.actionParameterSeq}"
-          (click)="highlight(row)"
-          *matRowDef="let row; columns: displayedColumns;">
-      </tr>
-    </table>
+    <app-typed-editable-table [datasource]="nodeAction.parameters"
+                              [nameHeader]="nameHeader"
+                              [valueHeader]="valueHeader"
+                              [getValue]="getValue"
+                              [setValue]="setValue"
+                              [objectTypeDefGetter]="getObjectTypeDef"
+                              [defaultSetter]="setDefault"
+                              [selectedRowGetter]="getSelectedRow"
+                              [selectedRowSetter]="setSelectedRow"
+                              (selectedRowEmitter)="setSelectedRow($event)">
+    </app-typed-editable-table>
   </div>
   <div>
+    <div class="left-fill">
+      <mat-form-field class="new-param-type-selection">
+        <mat-select [(ngModel)]="newParameterType">
+          <mat-option value=""></mat-option>
+          <mat-option *ngFor="let actionParameterType of actionParameterTypes" [value]="actionParameterType">{{ actionParameterType.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <input matInput placeholder="Name" [(ngModel)]="newParameterName" class="vertical-center action-param-name-input">
+      <input matInput placeholder="Default Value" class="vertical-center string-input action-param-default-value-input" *ngIf="isStringTypeSelected(newParameterType)" [(ngModel)]="newParameterDefaultValue" (click)="consumeEvent($event)">
+      <input matInput type="number" class="vertical-center number-input action-param-default-value-input" *ngIf="isNumberTypeSelected(newParameterType)" [(ngModel)]="newParameterDefaultValue" (click)="consumeEvent($event)" (keypress)="onlyNumeric($event)">
+      <mat-form-field *ngIf="isListTypeSelected(newParameterType)" class="vertical-center action-param-default-value-input" (click)="consumeEvent($event)">
+        <mat-select [(ngModel)]="newParameterDefaultValue" (click)="consumeEvent($event)" panelClass="list-input">
+          <mat-option value=""></mat-option>
+          <mat-option *ngFor="let listValue of getListValues(newParameterType)" [value]="listValue">{{ listValue }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
     <div>
       <button mat-flat-button (click)="add()" class="mdc-icon-button text-button add-remove-button">
         <span class="material-icons">add</span>
@@ -28,10 +38,22 @@
       <button mat-flat-button
               [disabled]="selectedRow === -1"
               [ngClass]="{'disabled': selectedRow === -1}"
-              (click)="remove(selectedRow)"
+              (click)="removeSelected()"
               *ngIf="nodeAction && nodeAction.parameters && nodeAction.parameters.length > 0"
               class="mdc-icon-button text-button add-remove-button">
         <span class="material-icons">clear</span>
+      </button>
+    </div>
+    <div class="middle-button-div">
+      <button mat-flat-button
+              [disabled]="!saveEnabled()"
+              [ngClass]="{'disabled': !saveEnabled()}"
+              (click)="save()"
+              class="mdc-icon-button text-button save-button">
+        <span class="material-icons" style="padding-right:5px;">done</span><span>Save</span>
+      </button>
+      <button mat-flat-button (click)="reset()" class="mdc-icon-button text-button reset-button">
+        <span class="material-icons" style="padding-right:5px;">cached</span><span>Reset</span>
       </button>
     </div>
     <div class="bottom-button-div">

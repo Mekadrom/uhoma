@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -22,15 +23,15 @@ import java.util.Collection;
 public class Action {
     @Id
     @NotNull
-    @GeneratedValue(generator = "SQ_ACTION")
-    @SequenceGenerator(name = "SQ_ACTION")
     @Column(name = "ACTION_SEQ")
+    @SequenceGenerator(name = "SQ_ACTION")
+    @GeneratedValue(generator = "SQ_ACTION", strategy = GenerationType.IDENTITY)
     private Long actionSeq;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "OWNER_NODE_SEQ")
     @JsonBackReference
+    @JoinColumn(name = "OWNER_NODE_SEQ")
     private Node ownerNode;
 
     @NotNull
@@ -42,7 +43,7 @@ public class Action {
     private String handler;
 
     @OneToMany
-    @JoinColumn(name = "ACTION_SEQ")
     @JsonManagedReference
+    @JoinColumn(name = "ACTION_SEQ")
     private Collection<ActionParameter> parameters;
 }

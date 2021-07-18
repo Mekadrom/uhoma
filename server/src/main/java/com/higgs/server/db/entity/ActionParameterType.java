@@ -7,28 +7,26 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Data
 @Entity
-@Table(name = "ROOM")
-public class Room {
+@Table(name = "ACTION_PARAMETER_TYPE")
+public class ActionParameterType {
     @Id
     @NotNull
-    @Column(name = "ROOM_SEQ")
-    @SequenceGenerator(name = "SQ_ROOM")
-    @GeneratedValue(generator = "SQ_ROOM", strategy = GenerationType.IDENTITY)
-    private Long roomSeq;
+    @Column(name = "ACTION_PARAMETER_TYPE_SEQ")
+    @SequenceGenerator(name = "SQ_ACTION_PARAMETER_TYPE")
+    @GeneratedValue(generator = "SQ_ACTION_PARAMETER_TYPE", strategy = GenerationType.IDENTITY)
+    private Long actionParameterTypeSeq;
 
     @NotNull
-    @Column(name = "NAME", unique = true)
+    @Column(name = "NAME")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "ACCOUNT_SEQ")
-    private Account account;
+    @NotNull
+    @Column(name = "TYPE_DEF")
+    private String typeDef;
 }

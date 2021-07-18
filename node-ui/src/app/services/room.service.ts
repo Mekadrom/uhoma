@@ -13,21 +13,13 @@ import { UrlProviderService } from './url-provider.service';
 export class RoomService {
   constructor(private http: HttpClient, private urlProvider: UrlProviderService) { }
 
-  public getRooms(roomName: string | null): Observable<Room[]> {
-    return this.http.get<Room[]>(this.getRoomSearchUrl(roomName))
+  public getRooms(searchCriteria: Room | null): Observable<Room[]> {
+    return this.http.post<Room[]>(this.urlProvider.getRoomSearchUrl(), searchCriteria)
     .pipe(
       retry(1),
       catchError(this.handleError),
       shareReplay()
     );
-  }
-
-  private getRoomSearchUrl(roomName: string | null): string {
-    if (roomName == null) {
-      return this.urlProvider.getRoomSearchUrl();
-    } else {
-      return this.urlProvider.getRoomSearchUrl() + '?name=' + roomName;
-    }
   }
 
   private handleError(error: any): Observable<any> {

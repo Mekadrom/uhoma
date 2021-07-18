@@ -12,9 +12,9 @@ import javax.validation.constraints.NotNull;
 public class ActionParameter {
     @Id
     @NotNull
-    @GeneratedValue(generator = "SQ_ACTION_PARAMETER")
-    @SequenceGenerator(name = "SQ_ACTION_PARAMETER")
     @Column(name = "ACTION_PARAMETER_SEQ")
+    @SequenceGenerator(name = "SQ_ACTION_PARAMETER")
+    @GeneratedValue(generator = "SQ_ACTION_PARAMETER", strategy = GenerationType.IDENTITY)
     private Long actionParameterSeq;
 
     @Column(name = "NAME")
@@ -25,8 +25,9 @@ public class ActionParameter {
     @JsonBackReference
     private Action action;
 
-    @Column(name = "TYPE")
-    private String type;
+    @ManyToOne
+    @JoinColumn(name = "ACTION_PARAMETER_TYPE_SEQ")
+    private ActionParameterType actionParameterType;
 
     @Column(name = "DEFAULT_VALUE")
     private String defaultValue;

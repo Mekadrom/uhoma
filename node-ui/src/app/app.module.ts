@@ -4,10 +4,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+
 import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ToastrModule } from 'ngx-toastr';
 import { CookieService } from 'ngx-cookie-service';
@@ -23,6 +25,7 @@ import { NodeActionComponent } from './node-action/node-action.component';
 import { ActionComponent } from './action/action.component';
 
 import { AuthInterceptorService } from './services/auth-interceptor.service';
+import { TypedEditableTableComponent } from './typed-editable-table/typed-editable-table.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +35,8 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
     DevComponent,
     SettingsComponent,
     NodeActionComponent,
-    ActionComponent
+    ActionComponent,
+    TypedEditableTableComponent
   ],
   imports: [
     BrowserModule,
@@ -44,6 +48,7 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
     MatGridListModule,
     MatSelectModule,
     MatTableModule,
+    MatProgressSpinnerModule,
     ToastrModule.forRoot()
   ],
   providers: [

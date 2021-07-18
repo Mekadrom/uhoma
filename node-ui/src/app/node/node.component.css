@@ -2,3 +2,15 @@
   width: 200px;
   float: left;
 }
+
+.spinner-container {
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-spinner {
+  margin: auto;
+  float: center;
+  text-align: center;
+}

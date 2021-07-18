@@ -13,6 +13,7 @@ BEGIN
     IF NOT v_row_exists THEN
         INSERT INTO user_login (
             user_login_seq,
+            account_seq,
             username,
             "password",
             auths,
@@ -21,6 +22,7 @@ BEGIN
             created
         ) VALUES (
             nextval('sq_user_login'),
+            1,
             'admin',
             '$2y$12$8.WZVLPGTsg42OjSd.zjkecWxjZRYjDLOTsSRyao.LQzHJ0aeJ24q',
             'ROLE_ADMIN',

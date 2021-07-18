@@ -1,5 +1,6 @@
 package com.higgs.server.config.security;
 
+import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -34,10 +35,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         if (StringUtils.isNotBlank(header) && header.startsWith("Bearer ")) {
             final String token = header.split(" ")[1].trim();
 
-            final Optional<? extends UserDetails> userDetailsOpt = this.userLoginRepository.findByUsername(this.jwtTokenUtil.getUsernameFromToken(token));
+            final Optional<? extends UserLogin> userDetailsOpt = this.userLoginRepository.findByUsername(this.jwtTokenUtil.getUsernameFromToken(token));
             if (userDetailsOpt.isPresent()) {
-                final UserDetails userDetails = userDetailsOpt.get();
-                if (this.jwtTokenUtil.validateToken(token, userDetails)) {
+                final UserLogin userDetails = userDetailsOpt.get();
+                if (this.jwtTokenUtil.validateToken(token, userDetails) && this.tokenClaimsHasCorrectAccount(token, userDetails)) {
                     final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -45,5 +46,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private boolean tokenClaimsHasCorrectAccount(final String token, final UserLogin userLogin) {
+        final Long accountSeq = this.jwtTokenUtil.getClaimFromToken(token, claims -> claims.get(UserLogin.ACCOUNT_SEQ, Long.class));
+        return accountSeq != null && accountSeq.equals(userLogin.getAccount().getAccountSeq());
     }
 }

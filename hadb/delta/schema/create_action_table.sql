@@ -30,7 +30,7 @@ BEGIN
             action_seq BIGINT NOT NULL,
             name VARCHAR(256) NOT NULL,
             handler VARCHAR(256),
-            owner_node_seq BIGINT,
+            owner_node_seq BIGINT NOT NULL,
             UNIQUE(name, owner_node_seq),
             PRIMARY KEY (action_seq),
             FOREIGN KEY (owner_node_seq) REFERENCES node (node_seq)

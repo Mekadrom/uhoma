@@ -1,8 +1,8 @@
 DO $$
 DECLARE
     c_schema_name VARCHAR(32) := 'hams_data';
-    c_table_name VARCHAR(32) := 'action_parameter';
-    c_sequence_name VARCHAR(32) := 'sq_action_parameter';
+    c_table_name VARCHAR(32) := 'action_parameter_type';
+    c_sequence_name VARCHAR(32) := 'sq_action_parameter_type';
 
     v_table_exists BOOLEAN;
     v_sequence_exists BOOLEAN;
@@ -27,14 +27,12 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            action_parameter_seq BIGINT NOT NULL,
-            default_value VARCHAR(2048),
             action_parameter_type_seq BIGINT NOT NULL,
-            name VARCHAR(256),
-            action_seq BIGINT,
-            UNIQUE (action_seq, name, action_parameter_type_seq),
-            PRIMARY KEY (action_parameter_seq),
-            FOREIGN KEY (action_seq) REFERENCES action (action_seq)
+            name VARCHAR(1024),
+            type_def VARCHAR(2048),
+            account_seq BIGINT NOT NULL,
+            PRIMARY KEY (action_parameter_type_seq),
+            FOREIGN KEY (account_seq) REFERENCES account (account_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

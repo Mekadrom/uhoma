@@ -20,6 +20,9 @@ export class NodeComponent implements OnInit, AfterViewInit {
 
   activeNode?: Node;
 
+  loading: boolean = true;
+  failedToLoad: boolean = false;
+
   nodes: Node[] = [
   ];
 
@@ -46,26 +49,33 @@ export class NodeComponent implements OnInit, AfterViewInit {
   }
 
   fetchData(): void {
+    this.loading = true;
+    this.failedToLoad = false;
     this.nodeService.getNodes().subscribe(
       (data: Node[]) => {
         this.nodes = data;
+        this.loading = false;
+        this.failedToLoad = false;
         this.postFetch();
       },
       err => {
         console.log(JSON.stringify(err))
+        this.loading = false;
+        this.failedToLoad = true;
+        this.nodes = [];
         this.toastr.error(err.message, 'Connection error');
+        this.postFetch();
       }
     );
   }
 
   fetchRooms(): void {
-    this.roomService.getRooms('').subscribe(
+    this.roomService.getRooms({ name: '' }).subscribe(
       (data: Room[]) => {
         this.rooms = data;
         this.postFetch();
       },
       err => {
-        this.toastr.error(err.message, 'Connection error');
       }
     );
   }
