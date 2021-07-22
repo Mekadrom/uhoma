@@ -44,14 +44,6 @@ body {
   white-space: nowrap;
 }
 
-.top-mgt > div.mat-grid-tile-content {
-   align-items: normal;
-}
-
-.left-mgt > div.mat-grid-tile-content {
-   justify-content: normal;
-}
-
 div.mat-form-field-infix {
   background-color: #fbfbfb;
 
@@ -215,6 +207,7 @@ input:focus {
 .vertical-center {
   margin: 0;
   top: 50%;
+  position: relative;
 }
 
 .text-button {
@@ -262,4 +255,9 @@ table {
 
 .loading-spinner ::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
   stroke: #0b0b0b;
+}
+
+.disabled {
+  background-color: #d9d9d9;
+  color: #8b8b8b;
 }

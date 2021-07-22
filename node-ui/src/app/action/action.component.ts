@@ -1,6 +1,8 @@
-import { Component, OnInit, Input, NgZone } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { ToastrService } from 'ngx-toastr';
+
+import { ListedParameter } from './listed-parameter';
 
 import { NodeAction } from '../models/node-action';
 import { ActionParameter } from '../models/action-parameter';
@@ -22,8 +24,9 @@ export class ActionComponent implements OnInit {
 
   selectedRow: number = -1;
 
-  savedNodeAction?: NodeAction;
   nodeAction?: NodeAction;
+
+  parameters: ListedParameter[] = [];
 
   actionParameterTypes: ActionParameterType[] = [];
 
@@ -35,33 +38,35 @@ export class ActionComponent implements OnInit {
 
   @Input('setAction')
   public set setAction(nodeAction: NodeAction | undefined) {
-    this.savedNodeAction = nodeAction;
-    this.nodeAction = { ...nodeAction } as NodeAction;
+    this.nodeAction = nodeAction;
     this.refresh();
   }
 
   constructor(private webSocket: WebSocketService,
               private nodeService: NodeService,
-              private toastr: ToastrService,
-              private ngZone: NgZone) { }
+              private toastr: ToastrService) { }
 
   refresh(): void {
+    this.newParameterType = this.actionParameterTypes[0];
+    this.newParameterName = '';
+    this.newParameterDefaultValue = '';
+    this.parameters = [];
     if (this.nodeAction) {
-      this.nodeAction.parameters.forEach(param => this.setDefaultValue(param));
-      this.nodeAction.parameters.sort((a: ActionParameter, b: ActionParameter) => (!a.actionParameterSeq || !b.actionParameterSeq) ? 0 : (a.actionParameterSeq > b.actionParameterSeq) ? 1 : -1)
       for (let i = 0; i < this.nodeAction?.parameters.length; i++) {
-        this.nodeAction.parameters[i].rowNum = i;
+        this.parameters.push({ rowNum: i, currentValue: this.nodeAction.parameters[i].defaultValue, actionParameter: this.nodeAction.parameters[i] })
       }
-      this.nodeAction.parameters = this.nodeAction.parameters.slice();
+      this.parameters.forEach(param => this.setDefaultValue(param));
+      this.parameters.sort((a: ActionParameter, b: ActionParameter) => (!a.actionParameterSeq || !b.actionParameterSeq) ? 0 : (a.actionParameterSeq > b.actionParameterSeq) ? 1 : -1);
+      this.parameters = this.parameters.slice();
     }
     this.selectedRow = -1;
   }
 
-  setDefaultValue(param: ActionParameter): void {
-    param.currentValue = param.defaultValue;
+  setDefaultValue(param: ListedParameter): void {
+    param.currentValue = param.actionParameter.defaultValue;
     if (!param.currentValue) {
-      if (this.isListTypeSelected(param.actionParameterType)) {
-        const config: any = this.getListConfig(param.actionParameterType);
+      if (this.isListTypeSelected(param.actionParameter.actionParameterType)) {
+        const config: any = this.getListConfig(param.actionParameter.actionParameterType);
         if (config) {
           param.currentValue = config.defaultListValue;
         }
@@ -81,6 +86,7 @@ export class ActionComponent implements OnInit {
     .subscribe(
       (data: ActionParameterType[]) => {
         this.actionParameterTypes = data;
+        this.refresh();
       }
     );
   }
@@ -111,46 +117,38 @@ export class ActionComponent implements OnInit {
       defaultValue: this.newParameterDefaultValue,
       actionParameterType: this.newParameterType
     };
+    const listedParam: ListedParameter = {
+      currentValue: this.newParameterDefaultValue,
+      actionParameter: param
+    };
     this.setDefault(param);
+    this.parameters.push(listedParam);
     this.nodeAction?.parameters.push(param);
     this.refresh();
   }
 
   removeSelected(): void {
-    if (this.nodeAction && this.nodeAction.parameters && this.selectedRow !== -1) {
-      for (let i = 0; i < this.nodeAction.parameters.length; i++) {
-        const param = this.nodeAction.parameters[i];
-        if (param) {
-          if (i == this.selectedRow) {
-            this.nodeAction.parameters.splice(i, 1);
-          } else if (i > this.selectedRow && param.rowNum) {
-            param.rowNum = param.rowNum - 1;
-          }
-        }
+    if (this.selectedRow !== -1) {
+      if (this.nodeAction && this.nodeAction.parameters) {
+        this.removeParam(this.nodeAction.parameters, this.selectedRow);
+      }
+      if (this.parameters) {
+        this.removeParam(this.parameters, this.selectedRow);
       }
     }
     this.refresh();
   }
 
-  saveEnabled(): boolean {
-    return JSON.stringify(this.savedNodeAction) != JSON.stringify(this.nodeAction);
-  }
-
-  save(): void {
-    this.nodeService.saveNodeAction(this.nodeAction)
-    .subscribe((resp: any) => {
-      this.savedNodeAction = resp;
-      this.nodeAction = { ...this.savedNodeAction } as NodeAction;
-      this.refresh();
-    },
-    (err) => {
-      this.toastr.error(err.message, 'Failed to save:');
-    });
-  }
-
-  reset(): void {
-    if (this.nodeAction) {
-      this.nodeAction.parameters.forEach(param => this.resetParam(param, null));
+  removeParam(params: ActionParameter[], index: number): void {
+    for (let i: number = 0; i < params.length; i++) {
+      const param = params[i];
+      if (param) {
+        if (i == index) {
+          params.splice(i, 1);
+        } else if (i > index && param.rowNum) {
+          param.rowNum = param.rowNum - 1;
+        }
+      }
     }
   }
 
@@ -182,6 +180,26 @@ export class ActionComponent implements OnInit {
     return JSON.parse(actionParameterType?.typeDef).values;
   }
 
+  listValueAllowsEmpty(listParamType?: ActionParameterType) {
+    if (listParamType && listParamType.typeDef) {
+      const config: any = JSON.parse(listParamType.typeDef).config;
+      if (config) {
+        return config.allowEmptyValues;
+      }
+    }
+    return true;
+  }
+
+  resetNewParameterDefault(event: any) {
+    this.newParameterDefaultValue = '';
+    if (this.newParameterType && this.newParameterType.typeDef && !this.listValueAllowsEmpty(this.newParameterType)) {
+      const config: any = JSON.parse(this.newParameterType.typeDef).config;
+      if (config) {
+        this.newParameterDefaultValue = config.defaultWhenEmpty;
+      }
+    }
+  }
+
   consumeEvent(event: any): void {
     event?.stopPropagation();
   }
@@ -203,6 +221,10 @@ export class ActionComponent implements OnInit {
     return null;
   }
 
+  getName(object: any): string {
+    return object.actionParameter.name;
+  }
+
   setValue(object: any, value: string | null): void {
     if (object) {
       object.currentValue = value;
@@ -210,8 +232,8 @@ export class ActionComponent implements OnInit {
   }
 
   getObjectTypeDef(rowObject: any): any {
-    if (rowObject.actionParameterType) {
-      return JSON.parse(rowObject.actionParameterType?.typeDef);
+    if (rowObject.actionParameter.actionParameterType) {
+      return JSON.parse(rowObject.actionParameter.actionParameterType?.typeDef);
     }
     return null;
   }

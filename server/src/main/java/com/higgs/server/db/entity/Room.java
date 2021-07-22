@@ -1,5 +1,6 @@
 package com.higgs.server.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -29,6 +30,7 @@ public class Room {
     private String name;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "ACCOUNT_SEQ")
     private Account account;
 }

@@ -1,6 +1,8 @@
 .action-param-container {
   margin-left: 20px;
 
+  position: relative;
+
   width: 100%;
   height: 100%;
 }
@@ -9,7 +11,7 @@
   margin: auto;
   margin-bottom: 20px;
   background-color: #fbfbfb;
-  max-height: 70vh;
+  max-height: 65vh;
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -26,32 +28,17 @@
   text-align: right;
 }
 
-.middle-button-div {
+.run-button-container {
   padding-top: 10px;
-  display: flex;
-
   width: 100%;
-
-  align-items: center;
-}
-
-.bottom-button-div {
-  padding-top: 10px;
-  display: flex;
-
-  width: 100%;
-
-  align-items: center;
 }
 
 .no-params-text {
-  padding-left: 10px;
+  padding-right: 10px;
   width: auto;
   height: auto;
-  display: inline-block;
-  text-align: left;
+  text-align: right;
   vertical-align: middle;
-  float: right;
   font-size: 22px;
 }
 
@@ -64,6 +51,13 @@
 .run-button {
   padding-left: 15px;
   padding-right: 15px;
+  background-color: #88c488;
+  color: #0b0b0b;
+}
+
+.run-button:hover {
+  background-color: #479647;
+  color: #fbfbfb;
 }
 
 .selected {
@@ -76,11 +70,13 @@
   color: #fbfbfb;
 }
 
-.disabled {
-  background-color: #d9d9d9;
-  color: #8b8b8b;
-}
-
 .list-input .mat-option {
   font-size: 28px;
+}
+
+.bottom-button-container {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 100%;
 }

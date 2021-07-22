@@ -3,6 +3,7 @@ package com.higgs.server.web.service;
 import com.higgs.server.config.security.Roles;
 import com.higgs.server.db.entity.Action;
 import com.higgs.server.db.entity.Node;
+import com.higgs.server.db.repo.ActionParameterRepository;
 import com.higgs.server.db.repo.ActionRepository;
 import com.higgs.server.db.repo.NodeRepository;
 import com.higgs.server.web.service.util.RestUtils;
@@ -18,8 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -28,10 +30,17 @@ import java.util.Optional;
 public class NodeRest {
     private final RestUtils restUtils;
     private final NodeRepository nodeRepository;
+    private final ActionRepository actionRepository;
+    private final ActionParameterRepository actionParameterRepository;
 
     @PostMapping(value = "upsert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Node> upsert(@RequestBody(required = false) final Node node) {
-        return ResponseEntity.of(Optional.of(this.nodeRepository.save(node)));
+        this.actionParameterRepository.saveAllAndFlush(node.getPublicActions().stream()
+                .map(Action::getParameters)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()));
+        this.actionRepository.saveAllAndFlush(node.getPublicActions());
+        return ResponseEntity.ok(this.nodeRepository.save(node));
     }
 
     @SneakyThrows

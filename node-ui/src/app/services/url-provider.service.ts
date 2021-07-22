@@ -51,8 +51,8 @@ export class UrlProviderService {
     return this.getHamsUrl() + '/actionParameter/actionParameterType/search'
   }
 
-  public getNodeActionSaveUrl(): string {
-    return this.getHamsUrl() + '/node/action/upsert';
+  public getNodeSaveUrl(): string {
+    return this.getHamsUrl() + '/node/upsert';
   }
 
   public getRoomSearchUrl(): string {

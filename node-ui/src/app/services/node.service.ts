@@ -34,9 +34,9 @@ export class NodeService {
     );
   }
 
-  public saveNodeAction(nodeAction?: NodeAction): Observable<any> {
-    console.log(JSON.stringify(nodeAction));
-    return this.http.post<NodeAction>(this.urlProvider.getNodeActionSaveUrl(), nodeAction)
+  public saveNode(node?: Node): Observable<any> {
+    console.log('saving node: ')
+    return this.http.post<NodeAction>(this.urlProvider.getNodeSaveUrl(), node)
     .pipe(
       retry(0),
       catchError(this.handleError),

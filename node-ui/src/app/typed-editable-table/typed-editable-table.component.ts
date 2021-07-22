@@ -24,6 +24,8 @@ export class TypedEditableTableComponent implements OnInit {
 
   setSelectedRow: (selectedRow: any) => void = (selectedRow: any) => {};
 
+  nameGetter: (rowObject: any) => string = (rowObject: any) => '';
+
   @Input('datasource')
   public set setDatasource(datasource: any[]) {
     this.datasource = datasource;
@@ -37,6 +39,11 @@ export class TypedEditableTableComponent implements OnInit {
   @Input('valueHeader')
   public set setValueHeader(valueHeader: string) {
     this.valueHeader = valueHeader;
+  }
+
+  @Input('getName')
+  public set setNameGetter(nameGetter: (rowObject: any) => string) {
+    this.nameGetter = nameGetter;
   }
 
   @Input('getValue')
