@@ -261,3 +261,9 @@ table {
   background-color: #d9d9d9;
   color: #8b8b8b;
 }
+
+textarea {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}

@@ -42,12 +42,6 @@
   font-size: 22px;
 }
 
-.add-remove-button {
-  padding-left: 15px;
-  padding-right: 15px;
-  float: left;
-}
-
 .run-button {
   padding-left: 15px;
   padding-right: 15px;
@@ -72,6 +66,12 @@
 
 .list-input .mat-option {
   font-size: 28px;
+}
+
+.add-remove-button {
+  padding-left: 15px;
+  padding-right: 15px;
+  float: left;
 }
 
 .bottom-button-container {

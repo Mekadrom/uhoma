@@ -35,11 +35,19 @@ export class NodeActionComponent implements OnInit, AfterViewInit {
 
   activeAction?: NodeAction;
 
+  newActionName: string = '';
+
+  newActionHandler: string = '';
+
   constructor(private nodeService: NodeService,
               private toastr: ToastrService) { }
 
-  setActiveAction(nodeAction: NodeAction): void {
-    this.activeAction = nodeAction;
+  toggleActiveAction(nodeAction: NodeAction): void {
+    if (this.activeAction === nodeAction) {
+      this.activeAction = undefined;
+    } else {
+      this.activeAction = nodeAction;
+    }
   }
 
   getActiveAction(): NodeAction | undefined {
@@ -88,7 +96,43 @@ export class NodeActionComponent implements OnInit, AfterViewInit {
     });
   }
 
+  add(): void {
+    if (!this.savedNode) {
+      return;
+    }
+    if (this.newActionName === '') {
+      this.toastr.error('Please type a name for the new action.');
+      return;
+    }
+
+    const newAction: NodeAction = { name: this.newActionName, ownerNode: this.savedNode, handler: this.newActionHandler, parameters: [] };
+    this.node?.publicActions?.push(newAction);
+    this.toggleActiveAction(newAction);
+    this.refresh();
+
+    if (this.newActionHandler === '') {
+      this.toastr.warning('Action created with empty handler definition.');
+    }
+  }
+
+  isActionActive(nodeAction: NodeAction): boolean {
+    return JSON.stringify(nodeAction) === JSON.stringify(this.activeAction);
+  }
+
+  removeActive(): void {
+    if (this.node && this.activeAction) {
+      const index: number = this.node.publicActions.indexOf(this.activeAction, 0);
+      if (index > -1) {
+        console.log('index: ' + index);
+        this.node?.publicActions.splice(index, 1);
+        this.refresh();
+        this.activeAction = this.node.publicActions[0];
+      }
+    }
+  }
+
   reset(): void {
-    this.node = JSON.parse(JSON.stringify(this.savedNode)) as Node;
+    this.setNode = JSON.parse(JSON.stringify(this.savedNode)) as Node;
+    this.activeAction = undefined;
   }
 }

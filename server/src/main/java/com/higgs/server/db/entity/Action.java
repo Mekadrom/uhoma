@@ -2,7 +2,11 @@ package com.higgs.server.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,8 +21,12 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
-@Data
 @Entity
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "ACTION")
 public class Action {
     @Id
@@ -46,4 +54,14 @@ public class Action {
     @JsonManagedReference
     @JoinColumn(name = "ACTION_SEQ")
     private Collection<ActionParameter> parameters;
+
+    /**
+     * Don't let lombok generate this in order to avoid stack overflow errors when the entity is saved.
+     *
+     * @return hashcode
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
 import java.util.Collection;
@@ -33,13 +34,16 @@ public class NodeRest {
     private final ActionRepository actionRepository;
     private final ActionParameterRepository actionParameterRepository;
 
+    @Transactional
     @PostMapping(value = "upsert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Node> upsert(@RequestBody(required = false) final Node node) {
-        this.actionParameterRepository.saveAllAndFlush(node.getPublicActions().stream()
+        this.actionRepository.saveAll(node.getPublicActions());
+        this.actionParameterRepository.saveAll(node.getPublicActions().stream()
                 .map(Action::getParameters)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList()));
-        this.actionRepository.saveAllAndFlush(node.getPublicActions());
+        this.actionRepository.flush();
+        this.actionParameterRepository.flush();
         return ResponseEntity.ok(this.nodeRepository.save(node));
     }
 

@@ -1,5 +1,5 @@
-<div style="margin-left:20px;margin-right:20px;height:100%;">
-  <div style="width:40%;float:left;height:85%;">
+<div style="margin-left:20px;margin-right:20px;height:100%;position:relative;">
+  <div style="width:40%;float:left;height:100%;position:relative;margin-bottom:20px;">
     <h1 class="blade-header">{{ savedNode?.name }} | {{ savedNode?.room?.name }}</h1>
     <div class="left-fill-container">
       <input (keypress)="omitSpecialChar($event)"
@@ -12,20 +12,54 @@
         </button>
       </div>
     </div>
-    <div>
+    <div class="action-list-container">
       <mat-action-list>
-        <button mat-flat-button class="list-item" *ngFor="let nodeAction of filteredActions" (click)="setActiveAction(nodeAction)">
+        <button mat-flat-button
+                *ngFor="let nodeAction of filteredActions"
+                [ngClass]="{'selected': isActionActive(nodeAction)}"
+                (click)="toggleActiveAction(nodeAction)"
+                class="list-item">
           <span style="text-align:left;float:left;">{{ nodeAction.name }}</span>
         </button>
       </mat-action-list>
     </div>
-  </div>
-  <div style="width:60%;float:right;height:85%;">
-    <div style="width:100%;height:100%;" *ngIf="activeAction != null">
-      <app-action [setAction]="getActiveAction()"></app-action>
+    <div style="width:100%;" class="bottom-button-container">
+      <div class="left-fill-container">
+        <div style="height:100%;" class="left-fill">
+          <input matInput placeholder="Name"
+                 [(ngModel)]="newActionName"
+                 style="margin-bottom:20px;"
+                 class="vertical-center action-param-name-input left-fixed" />
+        </div>
+        <div class="right-fixed">
+          <button mat-flat-button (click)="add()"
+                  class="mdc-icon-button text-button add-remove-button">
+            <span class="material-icons">add</span>
+          </button>
+          <button mat-flat-button
+                  [disabled]="activeAction === undefined"
+                  [ngClass]="{'disabled': activeAction === undefined}"
+                  (click)="removeActive()"
+                  *ngIf="activeAction"
+                  class="mdc-icon-button text-button add-remove-button">
+            <span class="material-icons">clear</span>
+          </button>
+        </div>
+      </div>
+      <div style="height:200px;">
+        <textarea matInput placeholder="Handler Definition"
+                  [(ngModel)]="newActionHandler"
+                  style="width:100%;height:100%;resize:none;margin-top:10px;">
+        </textarea>
+      </div>
     </div>
   </div>
-  <div style="width:100%;height:15%;">
+  <div style="width:60%;float:right;height:85%;">
+    <div style="width:100%;height:100%;">
+      <app-action *ngIf="activeAction != null" [setAction]="getActiveAction()"></app-action>
+    </div>
+  </div>
+  <div style="width:60%;height:15%;">
     <div class="bottom-button-div">
       <div style="width:100%;">
         <button mat-flat-button

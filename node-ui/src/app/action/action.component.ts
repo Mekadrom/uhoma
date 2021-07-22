@@ -39,6 +39,7 @@ export class ActionComponent implements OnInit {
   @Input('setAction')
   public set setAction(nodeAction: NodeAction | undefined) {
     this.nodeAction = nodeAction;
+    this.selectedRow = -1;
     this.refresh();
   }
 

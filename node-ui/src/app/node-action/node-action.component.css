@@ -1,9 +1,32 @@
 .bottom-button-div {
-  width: 100%;
+  max-width: 100%;
 
   position: absolute;
   right: 20px;
   bottom: 20px;
 
   padding-top: 10px;
+}
+
+.bottom-button-container {
+  width: 100%;
+}
+
+.add-remove-button {
+  padding-left: 15px;
+  padding-right: 15px;
+  float: left;
+}
+
+.selected {
+  transition: color background-color .2s ease;
+  background-color: #0b0b0b;
+  color: #fbfbfb;
+}
+
+.action-list-container {
+  margin: auto;
+  margin-bottom: 20px;
+  background-color: #fbfbfb;
+  height: 64vh;
 }
