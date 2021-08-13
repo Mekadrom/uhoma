@@ -1,4 +1,11 @@
+@import "~../../styles.scss";
+
 .typed-editable-table {
   min-width: 100%;
   width: 100%;
+}
+
+.selected {
+  transition: 0.1s all ease;
+  background-color: $select;
 }

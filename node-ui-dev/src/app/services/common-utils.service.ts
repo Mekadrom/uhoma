@@ -58,4 +58,13 @@ export class CommonUtilsService {
   consumeEvent(event: any): void {
     event?.stopPropagation();
   }
+
+  // i hate that this works, but angular or material for some reason overrides the style of the <td>
+  // tags on the left column with display: flex and a couple other attributes that make it display incorrectly
+  fixMaterialBug(): void {
+    const elements: any = document.getElementsByClassName('left-column');
+    for (let element of elements) {
+      element.style = "display:table-cell";
+    }
+  }
 }

@@ -49,7 +49,7 @@ import { TypedEditableTableComponent } from './typed-editable-table/typed-editab
     MatSelectModule,
     MatTableModule,
     MatTooltipModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule.withConfig({warnOnNgModelWithFormControl: 'never'}),
     ToastrModule.forRoot()
   ],
   providers: [

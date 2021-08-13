@@ -1,4 +1,4 @@
-@import "~../../_variables.scss";
+@import "~../../styles.scss";
 
 .menubar-container {
 }
@@ -187,17 +187,10 @@ mat-form-field {
   height: 10%;
 }
 
-.selected {
-  transition: 0.1s all ease;
-  background-color: $select;
-}
-
 .new-param-default-value-input {
 }
 
-.icon-only-button {
-  background-color: transparent;
-  text-size: 10px;
-  justify-content: center;
-  text-align: center;
+.selected {
+  transition: 0.1s all ease;
+  background-color: $select;
 }

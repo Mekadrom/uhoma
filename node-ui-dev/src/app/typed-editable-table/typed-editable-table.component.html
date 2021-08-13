@@ -2,11 +2,32 @@
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef class="column-header left-column">{{ nameHeader }}</th>
     <td mat-cell *matCellDef="let rowObject" class="left-column">
-      <span *ngIf="editingRow !== getRow(rowObject)">{{ rowObject[nameFieldName] }}</span>
-      <mat-form-field *ngIf="editingRow === getRow(rowObject)" fxFlex class="menu-item">
-        <mat-label>{{ nameHeader }}</mat-label>
-        <input matInput class="namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="rowObject[nameFieldName]" />
-      </mat-form-field>
+      <div fxLayout="row" fxLayoutAlign="start center" *ngIf="editingRow !== getRow(rowObject)">
+        <button mat-flat-button
+                (click)="[toggleEditing(rowObject), commonUtilsService.consumeEvent($event)]"
+                class="icon-only-button">
+          <mat-icon>mode_edit</mat-icon>
+        </button>
+        <span>{{ rowObject[nameFieldName] }}</span>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start center" *ngIf="editingRow === getRow(rowObject)">
+        <button mat-flat-button
+                (click)="[saveEditing(rowObject), commonUtilsService.consumeEvent($event)]"
+                class="icon-only-button">
+          <mat-icon>edit_off</mat-icon>
+        </button>
+        <mat-form-field class="menu-item">
+          <mat-label>Name</mat-label>
+          <input matInput [formControl]="nonEmptyFormControl" class="namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="editingName" />
+          <mat-error *ngIf="nonEmptyFormControl.hasError('required')">
+            Name is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="menu-item">
+          <mat-label>Default Value</mat-label>
+          <input matInput class="namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="editingDefaultValue" />
+        </mat-form-field>
+      </div>
     </td>
   </ng-container>
   <ng-container matColumnDef="value">
@@ -31,7 +52,9 @@
           <mat-option *ngFor="let listValue of commonUtilsService.getListValues(typeDefGetter(rowObject))" [value]="listValue">{{ listValue }}</mat-option>
         </mat-select>
       </mat-form-field>
-      <button mat-flat-button (click)="defaultSetter(rowObject); commonUtilsService.consumeEvent($event)" class="mdc-icon-button right-fixed refresh-button">
+      <button mat-flat-button
+              (click)="setDefault(rowObject); commonUtilsService.consumeEvent($event)"
+              class="icon-only-button">
         <span class="material-icons">cached</span>
       </button>
     </td>
@@ -39,7 +62,7 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header"></tr>
   <tr mat-row
       *matRowDef="let rowObject; columns: displayedColumns;"
-      [ngClass]="{'selected': selected === getRow(rowObject) || editingRow === getRow(rowObject)}"
+      [ngClass]="{'selected': selected === getRow(rowObject)}"
       (click)="selected = getRow(rowObject)"
       class="no-select">
   </tr>

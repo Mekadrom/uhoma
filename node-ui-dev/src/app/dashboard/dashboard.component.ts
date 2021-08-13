@@ -24,7 +24,6 @@ export class DashboardComponent implements AfterViewInit {
 
   editingNodeRow: number = -1;
   editingActionRow: number = -1;
-  editingParameterRow: number = -1;
 
   actionNameSearchCriteria = '';
 
@@ -56,6 +55,8 @@ export class DashboardComponent implements AfterViewInit {
 
   editingActionName: string = '';
   editingActionHandlerSeq: number = -1;
+
+  editingParameterRow: number = -1;
 
   constructor(private actionHandlerService: ActionHandlerService,
               private actionParameterTypeService: ActionParameterTypeService,
@@ -387,10 +388,10 @@ export class DashboardComponent implements AfterViewInit {
     if (this.editingNodeRow !== editingNodeRow) {
       this.editingNodeRow = -1;
     }
-    this.fixMaterialBug();
+    this.commonUtilsService.fixMaterialBug();
   }
 
-  toggleEditNode(node: Node): void {
+  toggleEditingNode(node: Node): void {
     const editingNodeRow: number = this.getNodeRow(node);
     if (this.editingNodeRow === editingNodeRow) {
       this.editingNodeRow = -1;
@@ -400,7 +401,7 @@ export class DashboardComponent implements AfterViewInit {
       this.editingNodeRoomSeq = node.room.roomSeq || -1;
       this.editingNodeRow = editingNodeRow;
     }
-    this.fixMaterialBug();
+    this.commonUtilsService.fixMaterialBug();
   }
 
   clearEditingNode(): void {
@@ -415,6 +416,7 @@ export class DashboardComponent implements AfterViewInit {
       node.room = room;
     }
     this.editingNodeRow = -1;
+    this.commonUtilsService.fixMaterialBug();
   }
 
   findRoomFromRoomSeq(roomSeq: number): Room | undefined {
@@ -431,10 +433,10 @@ export class DashboardComponent implements AfterViewInit {
     if (this.editingActionRow !== editingActionRow) {
       this.editingActionRow = -1;
     }
-    this.fixMaterialBug();
+    this.commonUtilsService.fixMaterialBug();
   }
 
-  toggleEditAction(action: Action): void {
+  toggleEditingAction(action: Action): void {
     const editingActionRow: number = this.getActionRow(action);
     if (this.editingActionRow === editingActionRow) {
       this.editingActionRow = -1;
@@ -444,7 +446,7 @@ export class DashboardComponent implements AfterViewInit {
       this.editingActionName = action.name;
       this.editingActionHandlerSeq = action.actionHandler?.actionHandlerSeq || -1;
     }
-    this.fixMaterialBug();
+    this.commonUtilsService.fixMaterialBug();
   }
 
   clearEditingAction(): void {
@@ -456,6 +458,7 @@ export class DashboardComponent implements AfterViewInit {
     action.name = !this.editingActionName || this.editingActionName === '' ? action.name : this.editingActionName;
     action.actionHandler = this.findActionHandlerByActionHandlerSeq(this.editingActionHandlerSeq);
     this.editingActionRow = -1;
+    this.commonUtilsService.fixMaterialBug();
   }
 
   findActionHandlerByActionHandlerSeq(actionHandlerSeq: number): ActionHandler | undefined {
@@ -465,33 +468,6 @@ export class DashboardComponent implements AfterViewInit {
       }
     }
     return undefined;
-  }
-
-  cancelEditingParameter(parameter: ActionParameter): void {
-    const editingParameterRow: number = this.getParameterRow(parameter);
-    if (this.editingParameterRow !== editingParameterRow) {
-      this.editingParameterRow = -1;
-    }
-    this.fixMaterialBug();
-  }
-
-  toggleEditParameter(parameter: ActionParameter): void {
-    const editingParameterRow: number = this.getParameterRow(parameter);
-    if (this.editingParameterRow === editingParameterRow) {
-      this.editingParameterRow = -1;
-    } else {
-      this.editingParameterRow = editingParameterRow;
-    }
-    this.fixMaterialBug();
-  }
-
-  // i hate that this works, but angular or material for some reason overrides the style of the <td>
-  // tags on the left column with display: flex and a couple other attributes that make it display incorrectly
-  fixMaterialBug(): void {
-    const elements: any = document.getElementsByClassName('left-column');
-    for (let element of elements) {
-      element.style = "display:table-cell";
-    }
   }
 
   getParameterDatasource(): ActionParameter[] {
@@ -507,10 +483,6 @@ export class DashboardComponent implements AfterViewInit {
       return rowObject.actionParameterType?.typeDef;
     }
     return null;
-  }
-
-  setParameterDefault(row: number): void {
-    this.getParameter
   }
 
   resetNewParameterDefault(event: any) {
@@ -538,5 +510,22 @@ export class DashboardComponent implements AfterViewInit {
 
   resetAll(): void {
     this.setNodeData(this.savedNodes);
+    this.setAllDefaults();
+  }
+
+  setParameterDefault(param: ActionParameter): void {
+    param.currentValue = param.defaultValue;
+  }
+
+  setParameterDefaults(action: Action): void {
+    action.parameters.forEach((param: ActionParameter) => this.setParameterDefault(param));
+  }
+
+  setDefaults(node: Node): void {
+    node.actions.forEach((action: Action) => this.setParameterDefaults(action));
+  }
+
+  setAllDefaults(): void {
+    this.mutableNodes.forEach((node: Node) => this.setDefaults(node));
   }
 }

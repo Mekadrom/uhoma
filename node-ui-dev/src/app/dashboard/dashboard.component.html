@@ -78,7 +78,7 @@
               <div fxLayout="row" fxLayoutAlign="end center" *ngIf="editingNodeRow !== getNodeRow(node)">
                 <span>{{ node.room.name }}</span>
                 <button mat-flat-button
-                        (click)="[toggleEditNode(node), commonUtilsService.consumeEvent($event)]"
+                        (click)="[toggleEditingNode(node), commonUtilsService.consumeEvent($event)]"
                         class="icon-only-button">
                   <mat-icon>mode_edit</mat-icon>
                 </button>
@@ -147,7 +147,7 @@
               <div fxLayout="row" fxLayoutAlign="end center" *ngIf="editingActionRow !== getActionRow(action)">
                 <span>{{ action.actionHandler?.name ? action.actionHandler.name : '&lt;No Handler&gt;' }}</span>
                 <button mat-flat-button
-                        (click)="[toggleEditAction(action), commonUtilsService.consumeEvent($event)]"
+                        (click)="[toggleEditingAction(action), commonUtilsService.consumeEvent($event)]"
                         class="icon-only-button">
                   <mat-icon>mode_edit</mat-icon>
                 </button>
@@ -228,10 +228,11 @@
                                   valueHeader="Value"
                                   nameFieldName="name"
                                   valueFieldName="currentValue"
+                                  defaultValueFieldName="defaultValue"
                                   [selectedRowGetter]="getSelectedParameterRow"
                                   [selectedRowSetter]="setSelectedParameterRow"
                                   [typeDefGetter]="getParameterTypeDef"
-                                  [defaultSetter]="setParameterDefault">
+                                  (editingRow)="editingParameterRow = $event">
         </app-typed-editable-table>
       </div>
       <div fxLayout="row" fxLayoutAlign="center center" class="parameter-edit-container">

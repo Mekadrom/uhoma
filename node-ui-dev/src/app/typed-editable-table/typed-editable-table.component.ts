@@ -1,4 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+
 import { CommonUtilsService } from '../services';
 
 @Component({
@@ -6,74 +8,44 @@ import { CommonUtilsService } from '../services';
   templateUrl: './typed-editable-table.component.html',
   styleUrls: ['./typed-editable-table.component.scss']
 })
-export class TypedEditableTableComponent implements OnInit {
+export class TypedEditableTableComponent implements AfterContentInit {
+  nonEmptyFormControl = new FormControl('', [
+    Validators.required
+  ]);
+
   displayedColumns: string[] = [ 'name', 'value' ];
 
-  datasource: any = [];
+  @Input("datasource") datasource: any = [];
 
-  nameHeader: string = '';
-  valueHeader: string = '';
+  @Input("nameHeader") nameHeader: string = '';
+  @Input("valueHeader") valueHeader: string = '';
 
-  nameFieldName : string = '';
-  valueFieldName: string = '';
+  @Input("nameFieldName") nameFieldName : string = '';
+  @Input("valueFieldName") valueFieldName: string = '';
+  @Input("defaultValueFieldName") defaultValueFieldName: string = '';
 
-  selectedRowGetter: () => number = () => -1;
-  selectedRowSetter: (selectedRow: number) => void = (selectedRow: number) => {};
+  @Input("selectedRowGetter") selectedRowGetter: () => number = () => -1;
+  @Input("selectedRowSetter") selectedRowSetter: (selectedRow: number) => void = (selectedRow: number) => {};
 
-  typeDefGetter: (rowObject: any) => any = (rowObject: any) => {};
+  @Input("typeDefGetter") typeDefGetter: (rowObject: any) => any = (rowObject: any) => {};
 
-  defaultSetter: (rowObject: any) => void = (rowObject: any) => {};
+  @Output("editingRow") editingRowEvent: EventEmitter<number> = new EventEmitter<number>();
 
   editingRow: number = -1;
 
-  @Input("datasource")
-  public set setDatasource(datasource: any) {
-    this.datasource = datasource;
+  set setEditingRow(editingRow: number) {
+    this.editingRow = editingRow;
+    this.editingRowEvent.emit(this.editingRow);
   }
 
-  @Input("nameHeader")
-  public set setNameHeader(nameHeader: string) {
-    this.nameHeader = nameHeader;
-  }
-
-  @Input("valueHeader")
-  public set setValueHeader(valueHeader: string) {
-    this.valueHeader = valueHeader;
-  }
-
-  @Input("nameFieldName")
-  public set setNameFieldName(nameFieldName: string) {
-    this.nameFieldName = nameFieldName;
-  }
-
-  @Input("valueFieldName")
-  public set setValueFieldName(valueFieldName: string) {
-    this.valueFieldName = valueFieldName;
-  }
-
-  @Input("selectedRowGetter")
-  public set setSelectedRowGetter(selectedRowGetter: () => number) {
-    this.selectedRowGetter = selectedRowGetter;
-  }
-
-  @Input("selectedRowSetter")
-  public set setSelectedRowSetter(selectedRowSetter: (selectedRow: number) => void) {
-    this.selectedRowSetter = selectedRowSetter;
-  }
-
-  @Input("typeDefGetter")
-  public set setTypeDefGetter(typeDefGetter: (rowObject: any) => any) {
-    this.typeDefGetter = typeDefGetter;
-  }
-
-  @Input("defaultSetter")
-  public set setDefaultSetter(defaultSetter: (rowObject: any) => void) {
-    this.defaultSetter = defaultSetter;
-  }
+  editingName: string = '';
+  editingDefaultValue: string = '';
 
   constructor(public commonUtilsService: CommonUtilsService) { }
 
-  ngOnInit(): void { }
+  ngAfterContentInit (): void {
+    this.setDefaults();
+  }
 
   getRow(rowObject: any) {
     for (let i: number = 0; i < this.datasource.length; i++) {
@@ -90,5 +62,40 @@ export class TypedEditableTableComponent implements OnInit {
 
   set selected(row: number) {
     this.selectedRowSetter(row);
+  }
+
+  setDefault(rowObject: any): void {
+    rowObject[this.valueFieldName] = rowObject[this.defaultValueFieldName];
+  }
+
+  setDefaults(): void {
+    this.datasource.forEach((rowObject: any) => this.setDefault(rowObject));
+  }
+
+  cancelEditing(rowObject: any): void {
+    const editingRow: number = this.getRow(rowObject);
+    if (this.editingRow !== editingRow) {
+      this.editingRow = -1;
+    }
+    this.commonUtilsService.fixMaterialBug();
+  }
+
+  toggleEditing(rowObject: any): void {
+    const editingRow: number = this.getRow(rowObject);
+    if (this.editingRow === editingRow) {
+      this.editingRow = -1;
+    } else {
+      this.editingRow = editingRow;
+      this.editingName = rowObject[this.nameFieldName];
+      this.editingDefaultValue = rowObject[this.defaultValueFieldName];
+    }
+    this.commonUtilsService.fixMaterialBug();
+  }
+
+  saveEditing(rowObject: any): void {
+    rowObject[this.nameFieldName] = !this.editingName || this.editingName === '' ? rowObject[this.nameFieldName] : this.editingName;
+    rowObject[this.defaultValueFieldName] = this.editingDefaultValue
+    this.editingRow = -1;
+    this.commonUtilsService.fixMaterialBug();
   }
 }
