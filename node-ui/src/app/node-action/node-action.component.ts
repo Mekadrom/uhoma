@@ -10,8 +10,6 @@ import { ActionParameterType } from '../models/action-parameter-type';
 import { NodeService } from '../services/node.service';
 import { WebSocketService } from '../services/web-socket.service';
 
-import { NodeComparator } from './node-comparator';
-
 @Component({
   selector: 'app-node-action',
   templateUrl: './node-action.component.html',
@@ -76,32 +74,16 @@ export class NodeActionComponent implements OnInit, AfterViewInit {
     this.refresh();
   }
 
-  saveEnabled(): boolean {
-    if (!this.savedNode || !this.node) {
-      return false;
-    }
-    return NodeComparator.nodesDifferent(this.savedNode, this.node);
-  }
-
-  save(): void {
-    this.nodeService.saveNode(this.node)
-    .subscribe((resp: any) => {
-      this.savedNode = resp;
-      this.reset();
-      this.refresh();
-      this.toastr.success('Save complete.');
-    },
-    (err: any) => {
-      this.toastr.error(err.message, 'Failed to save:');
-    });
-  }
-
   add(): void {
-    if (!this.savedNode) {
+    if (!this.savedNode || !this.node) {
       return;
     }
     if (this.newActionName === '') {
       this.toastr.error('Please type a name for the new action.');
+      return;
+    }
+    if (this.node.publicActions.some(action => action.name === this.newActionName)) {
+      this.toastr.error('An action with that name already exists. Please choose a different name.');
       return;
     }
 
@@ -129,10 +111,5 @@ export class NodeActionComponent implements OnInit, AfterViewInit {
         this.activeAction = this.node.publicActions[0];
       }
     }
-  }
-
-  reset(): void {
-    this.setNode = JSON.parse(JSON.stringify(this.savedNode)) as Node;
-    this.activeAction = undefined;
   }
 }

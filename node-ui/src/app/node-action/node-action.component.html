@@ -59,24 +59,4 @@
       <app-action *ngIf="activeAction != null" [setAction]="getActiveAction()"></app-action>
     </div>
   </div>
-  <div style="width:60%;height:15%;">
-    <div class="bottom-button-div">
-      <div style="width:100%;">
-        <button mat-flat-button
-                (click)="reset()"
-                style="float:right;"
-                class="mdc-icon-button text-button vertical-center">
-          <span class="material-icons" style="padding-right:5px;">cached</span><span>Reset</span>
-        </button>
-        <button mat-flat-button
-                [disabled]="!saveEnabled()"
-                [ngClass]="{'disabled': !saveEnabled()}"
-                (click)="save()"
-                style="float:right;"
-                class="mdc-icon-button text-button vertical-center">
-          <span class="material-icons" style="padding-right:5px;">done</span><span>Save</span>
-        </button>
-      </div>
-    </div>
-  </div>
 </div>

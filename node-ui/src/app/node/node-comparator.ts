@@ -3,6 +3,32 @@ import { NodeAction } from '../models/node-action';
 import { ActionParameter } from '../models/action-parameter';
 
 export class NodeComparator {
+  public static nodeArraysDifferent(nodes1: Node[], nodes2: Node[]): boolean {
+//     console.log('node arrays the same: ' + (nodes1 === nodes2 || JSON.stringify(nodes1) === JSON.stringify(nodes2)));
+    if (nodes1 === nodes2 || JSON.stringify(nodes1) === JSON.stringify(nodes2)) {
+      return false;
+    }
+//     console.log('node array lengths different: ' + (nodes1.length !== nodes2.length));
+    if (nodes1.length !== nodes2.length) {
+      return true;
+    }
+//     lengths are the same; can safely loop through one's length and not AIOOBE on the other
+    let pairings: Map<Node, Node> = new Map();
+    for (let i: number = 0; i < nodes1.length; i++) {
+      for (let j: number = 0; j < nodes2.length; j++) {
+        if (nodes1[i].nodeSeq === nodes2[j].nodeSeq) {
+          pairings.set(nodes1[i], nodes2[j]);
+        }
+      }
+    }
+//     console.log('node action pairings for comparison: ' + JSON.stringify(pairings));
+    let anyDiff: boolean = false;
+    for (let [key, value] of pairings) {
+      anyDiff ||= NodeComparator.nodesDifferent(key, value);
+    }
+    return anyDiff;
+  }
+
   public static nodesDifferent(node1: Node, node2: Node): boolean {
 //     console.log('nodes the same: ' + (node1 === node2 || JSON.stringify(node1) === JSON.stringify(node2)));
     if (node1 === node2 || JSON.stringify(node1) === JSON.stringify(node2)) {
@@ -24,9 +50,8 @@ export class NodeComparator {
     if (actions1.length !== actions2.length) {
       return true;
     }
-    // lengths are the same; can safely loop through one's length and not AIOOBE on the other
+//     lengths are the same; can safely loop through one's length and not AIOOBE on the other
     let pairings: Map<NodeAction, NodeAction> = new Map();
-    let anyDiff: boolean = false;
     for (let i: number = 0; i < actions1.length; i++) {
       for (let j: number = 0; j < actions2.length; j++) {
         if (actions1[i].actionSeq === actions2[j].actionSeq) {
@@ -35,6 +60,7 @@ export class NodeComparator {
       }
     }
 //     console.log('node action pairings for comparison: ' + JSON.stringify(pairings));
+    let anyDiff: boolean = false;
     for (let [key, value] of pairings) {
       anyDiff ||= NodeComparator.nodeActionsDifferent(key, value);
     }

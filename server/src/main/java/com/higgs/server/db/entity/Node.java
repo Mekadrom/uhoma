@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -42,10 +43,10 @@ public class Node {
     @JoinColumn(name = "ROOM_SEQ")
     private Room room;
 
-    @OneToMany
     @JsonManagedReference
     @JoinColumn(name = "OWNER_NODE_SEQ")
-    private Collection<Action> publicActions;
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Collection<Action> actions;
 
     /**
      * Don't let lombok generate this in order to avoid stack overflow errors when the entity is saved.

@@ -25,6 +25,7 @@ import java.util.Optional;
 @RequestMapping(value = "room")
 public class RoomRest {
     private final RestUtils restUtils;
+
     private final RoomRepository roomRepository;
 
     @PostMapping(value = "upsert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

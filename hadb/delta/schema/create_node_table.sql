@@ -29,7 +29,7 @@ BEGIN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             node_seq BIGINT NOT NULL,
             name VARCHAR(256),
-            room_seq BIGINT,
+            room_seq BIGINT NOT NULL,
             PRIMARY KEY (node_seq),
             UNIQUE (name, room_seq),
             FOREIGN KEY (room_seq) REFERENCES room (room_seq)

@@ -30,7 +30,7 @@ BEGIN
             room_seq BIGINT NOT NULL,
             name VARCHAR(256),
             account_seq BIGINT NOT NULL,
-            UNIQUE (name),
+            UNIQUE (name, account_seq),
             PRIMARY KEY (room_seq),
             FOREIGN KEY (account_seq) REFERENCES account (account_seq)
         );';

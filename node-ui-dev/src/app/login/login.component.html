@@ -1,0 +1,9 @@
+<div class="blade-container login-outer-container">
+  <div class="login-inner-container vertical-center">
+    <input matInput id="username" maxlength="32" placeholder="username" class="login-input" (keypress)="commonUtils.omitSpecialChar($event)" [(ngModel)]="username"/>
+    <input matInput type="password" id="password" maxlength="32" placeholder="password" class="login-input" (keypress)="commonUtils.omitSpecialChar($event)" [(ngModel)]="password"/>
+    <button mat-flat-button (click)="login()" class="mdc-icon-button text-button">
+      <span>Login</span>
+    </button>
+  </div>
+</div>

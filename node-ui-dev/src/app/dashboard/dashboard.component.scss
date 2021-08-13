@@ -1,0 +1,203 @@
+@import "~../../_variables.scss";
+
+.menubar-container {
+}
+
+.breadcrumb-trail-mark {
+  padding-left: 6px;
+  padding-right: 6px;
+
+  font-size: 20px;
+
+  color: invert($accent);
+}
+
+.breadcrumb-text {
+  font-size: 20px;
+
+  color: invert($accent);
+}
+
+.node-save-container {
+  width: calc((33%) - 20px);
+
+  padding-top: 10px;
+  padding-right: 20px;
+}
+
+.row-align-container {
+  width: 100%;
+  height: 100%;
+}
+
+
+.node-search-table-container {
+  width: calc((33%) - 20px);
+  height: 100%;
+
+  padding-right: 20px;
+}
+
+.node-search-inputs-container {
+  height: 5%;
+}
+
+.node-namebar {
+  padding-left: 10px;
+  min-width: none;
+
+  color: invert($accent);
+}
+
+.room-selection {
+  min-width: none;
+}
+
+.node-table-container {
+  min-width: 100%;
+  width: 100%;
+  height: 85%;
+
+  overflow: auto;
+}
+
+.node-table {
+  min-width: 100%;
+  width: 100%;
+}
+
+
+.action-search-table-container {
+  width: calc((33%) - 20px);
+  height: 100%;
+
+  padding-right: 20px;
+}
+
+.action-search-inputs-container {
+  height: 5%;
+}
+
+.action-namebar {
+  padding-left: 10px;
+  min-width: none;
+
+  color: invert($accent);
+}
+
+.action-table-container {
+  min-width: 100%;
+  width: 100%;
+  height: 85%;
+
+  overflow: auto;
+}
+
+.action-table {
+  min-width: 100%;
+  width: 100%;
+}
+
+.action-edit-container {
+  width: 100%;
+  height: 5%;
+}
+
+.action-name-input {
+  padding-left: 10px;
+  min-width: none;
+
+  color: invert($accent);
+}
+
+.action-handler-selection {
+  min-width: none;
+}
+
+
+.parameter-table-edit-container {
+  width: calc((33%) - 20px);
+  height: 100%;
+
+  padding-right: 20px;
+}
+
+.parameter-table-container {
+  width: 100%;
+  height: 90%;
+}
+
+.parameter-table {
+  min-width: 100%;
+  width: 100%;
+}
+
+.parameter-edit-container {
+  width: 100%;
+  height: 5%;
+}
+
+.parameter-edit-inner-container {
+  width: 50%;
+  height: 100%;
+}
+
+.new-param-namebar {
+  padding-left: 10px;
+  min-width: none;
+
+  color: invert($accent);
+}
+
+.new-param-default-value-input {
+  padding-left: 10px;
+  min-width: none;
+
+  color: invert($accent);
+}
+
+
+mat-form-field {
+  min-width: none;
+  padding-top: 10px;
+}
+
+.menu-button {
+  width: 20px;
+  height: 40px;
+
+  margin-bottom: 1.25em;
+  margin-left: 1px;
+
+  border-radius: 0px;
+}
+
+.results-text-container {
+  height: 5%;
+  position: relative;
+}
+
+.results-text {
+  color: invert($accent);
+
+  font-size:  18px;
+}
+
+.run-action-container {
+  height: 10%;
+}
+
+.selected {
+  transition: 0.1s all ease;
+  background-color: $select;
+}
+
+.new-param-default-value-input {
+}
+
+.icon-only-button {
+  background-color: transparent;
+  text-size: 10px;
+  justify-content: center;
+  text-align: center;
+}

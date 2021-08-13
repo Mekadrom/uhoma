@@ -9,6 +9,8 @@ import { NodeAction } from '../models/node-action';
 import { NodeService } from '../services/node.service';
 import { RoomService } from '../services/room.service';
 
+import { NodeComparator } from './node-comparator';
+
 @Component({
   selector: 'app-node',
   templateUrl: './node.component.html',
@@ -18,28 +20,27 @@ export class NodeComponent implements OnInit, AfterViewInit {
   nodeNameSearchTerm: string = '';
   roomNameSearchTerm: string = '';
 
-  activeNode?: Node;
+  selectedNode?: Node;
 
   loading: boolean = true;
   failedToLoad: boolean = false;
 
-  nodes: Node[] = [
-  ];
+  savedNodes: Node[] = [];
+  nodes: Node[] = [];
+  filteredNodes: Node[] = [];
 
-  filteredNodes: Node[] = [
-  ];
+  rooms: Room[] = [];
 
-  rooms: Room[] = [
-  ];
+  constructor(private nodeService: NodeService,
+              private roomService: RoomService,
+              private toastr: ToastrService) { }
 
-  constructor(private nodeService: NodeService, private roomService: RoomService, private toastr: ToastrService) { }
-
-  setActiveNode(node: Node) {
-    this.activeNode = node;
+  setSelectedNode(node: Node) {
+    this.selectedNode = node;
   }
 
-  getActiveNode(): Node | undefined {
-    return this.activeNode;
+  getSelectedNode(): Node | undefined {
+    return this.selectedNode;
   }
 
   filter(): void {
@@ -53,15 +54,16 @@ export class NodeComponent implements OnInit, AfterViewInit {
     this.failedToLoad = false;
     this.nodeService.getNodes().subscribe(
       (data: Node[]) => {
-        this.nodes = data;
+        this.savedNodes = data;
+        this.nodes = JSON.parse(JSON.stringify(this.savedNodes)) as Node[];
         this.loading = false;
         this.failedToLoad = false;
         this.postFetch();
       },
       err => {
-        console.log(JSON.stringify(err))
         this.loading = false;
         this.failedToLoad = true;
+        this.savedNodes = [];
         this.nodes = [];
         this.toastr.error(err.message, 'Connection error');
         this.postFetch();
@@ -81,18 +83,56 @@ export class NodeComponent implements OnInit, AfterViewInit {
   }
 
   postFetch(): void {
-    this.activeNode = undefined;
+    this.selectedNode = undefined;
+    this.filter();
+  }
+
+  notifyUpdate(nodeToUpdate: Node): void {
+    for (let i: number = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i].nodeSeq === nodeToUpdate.nodeSeq) {
+        this.nodes[i] = nodeToUpdate;
+        break;
+      }
+    }
     this.filter();
   }
 
   omitSpecialChar(event: any) {
     let k = event.charCode;
-    return((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57));
+    return (k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57);
   }
 
   clearSearchBar(): void {
     this.nodeNameSearchTerm = '';
     this.roomNameSearchTerm = '';
+  }
+
+  saveEnabled(): boolean {
+    if (!this.savedNodes || !this.nodes) {
+      return false;
+    }
+    return NodeComparator.nodeArraysDifferent(this.savedNodes, this.nodes);
+  }
+
+  save(): void {
+    this.nodeService.saveNodes(this.filteredNodes)
+    .subscribe(
+      (resp: Node[]) => {
+        this.nodes = resp;
+        this.filter();
+        this.selectedNode = undefined;
+        this.toastr.success('Save complete.');
+      },
+      (err: any) => {
+        this.toastr.error(err.message, 'Failed to save:');
+      }
+    );
+  }
+
+  reset(): void {
+    this.nodes = JSON.parse(JSON.stringify(this.savedNodes)) as Node[];
+    this.selectedNode = undefined;
+    this.filter();
   }
 
   refresh(): void {

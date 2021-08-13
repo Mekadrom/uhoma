@@ -1,0 +1,13 @@
+@import '~@angular/material/theming';
+
+$app-primary: mat-palette($mat-gray, 400);
+$app-accent:  mat-palette($mat-gray, 900);
+$app-warn: mat-palette($mat-red, 900);
+$app-select: mat-palette($mat-gray, 700);
+$app-highlight: mat-palette($mat-gray, 500);
+
+$primary: mat-color($app-primary);
+$accent: mat-color($app-accent);
+$warn: mat-color($app-warn);
+$select: mat-color($app-select);
+$highlight: mat-color($app-highlight);

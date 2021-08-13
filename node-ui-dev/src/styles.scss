@@ -1,0 +1,83 @@
+@import "~./_variables.scss";
+
+* {
+  scrollbar-width: thin;
+}
+
+*::selection {
+  color: $accent;
+  background: invert($accent);
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* prevents ugly yellow background color from browser autofill */
+input:-webkit-autofill {
+  filter: none;
+}
+
+.blade-container {
+  width: 95vw;
+  height: 100%;
+
+  background-color: $accent;
+
+  padding-top: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-left: 20px;
+
+
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
+
+  overflow: hidden;
+}
+
+/* vertical-center divs need to have a position: relative above and no float values above or below */
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.no-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+.column-header {
+  font-size: 22px;
+}
+
+.left-column {
+  text-align: left;
+}
+
+.right-column {
+  text-align: right;
+}
+
+.hidden {
+  display: none;
+}
+
+tr:hover:not(.header) {
+  background-color: $select;
+}

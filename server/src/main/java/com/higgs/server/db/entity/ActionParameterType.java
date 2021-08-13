@@ -1,5 +1,6 @@
 package com.higgs.server.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -7,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -29,4 +32,9 @@ public class ActionParameterType {
     @NotNull
     @Column(name = "TYPE_DEF")
     private String typeDef;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "ACCOUNT_SEQ")
+    private Account account;
 }

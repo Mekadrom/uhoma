@@ -1,4 +1,7 @@
 server:
+  servlet:
+    session:
+      persistent: false
   error:
     include-stacktrace: always
 spring:

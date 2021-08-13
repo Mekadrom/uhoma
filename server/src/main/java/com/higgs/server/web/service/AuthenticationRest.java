@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -38,5 +39,11 @@ public class AuthenticationRest {
         } else {
             throw new UsernameNotFoundException(user.getUsername());
         }
+    }
+
+    @PostMapping(value = "refresh")
+    public ResponseEntity<UserDetails> refresh(final Principal principal) {
+//        final Authentication authenticate = this.authenticationManager.authenticate()
+        return ResponseEntity.ok(null);
     }
 }

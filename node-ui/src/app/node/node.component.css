@@ -14,3 +14,13 @@
   float: center;
   text-align: center;
 }
+
+.bottom-button-div {
+  max-width: 100%;
+
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+
+  padding-top: 10px;
+}

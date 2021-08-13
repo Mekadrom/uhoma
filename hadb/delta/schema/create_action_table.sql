@@ -29,11 +29,12 @@ BEGIN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             action_seq BIGINT NOT NULL,
             name VARCHAR(256) NOT NULL,
-            handler VARCHAR(256),
+            action_handler_seq BIGINT,
             owner_node_seq BIGINT NOT NULL,
             UNIQUE(name, owner_node_seq),
             PRIMARY KEY (action_seq),
-            FOREIGN KEY (owner_node_seq) REFERENCES node (node_seq)
+            FOREIGN KEY (owner_node_seq) REFERENCES node (node_seq),
+            FOREIGN KEY (action_handler_seq) REFERENCES action_handler (action_handler_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

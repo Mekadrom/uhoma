@@ -1,0 +1,292 @@
+<div class="blade-container">
+  <div class="menubar-container">
+    <div class="breadcrumbs-container">
+      <span class="breadcrumb-trail-mark">►</span>
+      <span *ngIf="!getNode(getSelectedNodeRow())?.name" class="breadcrumb-trail-mark">None selected</span>
+      <span class="breadcrumb-text">{{ getNode(getSelectedNodeRow())?.room?.name }}</span>
+      <span *ngIf="getNode(getSelectedNodeRow())?.name" class="breadcrumb-trail-mark">►</span>
+      <span class="breadcrumb-text">{{ getNode(getSelectedNodeRow())?.name }}</span>
+      <span *ngIf="getAction(getSelectedActionRow())?.name" class="breadcrumb-trail-mark">►</span>
+      <span class="breadcrumb-text">{{ getAction(getSelectedActionRow())?.name }}</span>
+      <span *ngIf="getParameter(getSelectedParameterRow())?.name" class="breadcrumb-trail-mark">►</span>
+      <span class="breadcrumb-text">{{ getParameter(getSelectedParameterRow())?.name }}</span>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="start end"  class="node-save-container">
+      <button mat-flat-button
+              matTooltip="Save the current changes"
+              matTooltipPosition="above"
+              (click)="save()"
+              class="mdc-icon-button menu-button">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-flat-button
+              matTooltip="Reset the current changes"
+              matTooltipPosition="above"
+              (click)="resetAll()"
+              class="mdc-icon-button menu-button">
+        <mat-icon>cached</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div fxLayout="row" fxLayoutAlign="start end" class="row-align-container">
+    <div class="node-search-table-container">
+      <div fxLayout="row" fxLayoutAlign="start end" class="node-search-inputs-container">
+        <mat-form-field fxFlex class="menu-item">
+          <mat-label>Node Name</mat-label>
+          <input matInput class="node-namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="nodeNameSearchCriteria" (dblclick)="commonUtilsService.consumeEvent($event)"/>
+        </mat-form-field>
+        <mat-form-field class="menu-item">
+          <mat-label>Location</mat-label>
+          <mat-select [(ngModel)]="roomNameSearchCriteria">
+            <mat-option value="" class="room-selection"></mat-option>
+            <mat-option *ngFor="let room of rooms" [value]="room.name" class="room-selection">{{ room.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-flat-button
+                matTooltip="Clear node search criteria and refresh"
+                matTooltipPosition="above"
+                (click)="clearNodeSearchCriteriaAndRefresh()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button mat-flat-button
+                matTooltip="Refresh data"
+                matTooltipPosition="above"
+                (click)="refresh()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+      <div class="node-table-container">
+        <table mat-table class="node-table" [dataSource]="mutableNodes">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef class="column-header">Node Name</th>
+            <td mat-cell *matCellDef="let node" class="left-column">
+              <span *ngIf="editingNodeRow !== getNodeRow(node)">{{ node.name }}</span>
+              <mat-form-field *ngIf="editingNodeRow === getNodeRow(node)" fxFlex class="menu-item">
+                <mat-label>Node Name</mat-label>
+                <input matInput [formControl]="nonEmptyFormControl" class="node-namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="editingNodeName" />
+                <mat-error *ngIf="nonEmptyFormControl.hasError('required')">
+                  Name is <strong>required</strong>
+                </mat-error>
+              </mat-form-field>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header right-column">Location</th>
+            <td mat-cell *matCellDef="let node" class="right-column">
+              <div fxLayout="row" fxLayoutAlign="end center" *ngIf="editingNodeRow !== getNodeRow(node)">
+                <span>{{ node.room.name }}</span>
+                <button mat-flat-button
+                        (click)="[toggleEditNode(node), commonUtilsService.consumeEvent($event)]"
+                        class="icon-only-button">
+                  <mat-icon>mode_edit</mat-icon>
+                </button>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="end center" *ngIf="editingNodeRow === getNodeRow(node)">
+                <mat-form-field class="menu-item">
+                  <mat-label>Location</mat-label>
+                  <mat-select [(ngModel)]="editingNodeRoomSeq">
+                    <mat-option *ngFor="let room of rooms" [value]="room.roomSeq" class="room-selection">{{ room.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button mat-flat-button
+                        (click)="[saveEditingNode(node), commonUtilsService.consumeEvent($event)]"
+                        class="icon-only-button">
+                  <mat-icon>edit_off</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="nodeDisplayedColumns; sticky: true" class="header"></tr>
+          <tr mat-row
+              *matRowDef="let node; columns: nodeDisplayedColumns;"
+              [ngClass]="{'selected': getSelectedNodeRow() === getNodeRow(node) || editingNodeRow === getNodeRow(node), 'hidden': !showNode(node)}"
+              (click)="[selectNode(node), cancelEditingNode(node)]"
+              class="no-select">
+          </tr>
+        </table>
+      </div>
+      <div *ngIf="getFilteredNodeCount() === 1" class="results-text-container"><span class="results-text vertical-center">1 result</span></div>
+      <div *ngIf="getFilteredNodeCount() > 1" class="results-text-container"><span class="results-text vertical-center">{{ getFilteredNodeCount() }} results</span></div>
+      <div *ngIf="getFilteredNodeCount() <= 0" class="results-text-container"><span class="results-text vertical-center">No results</span></div>
+    </div>
+    <div *ngIf="getSelectedNodeRow() !== -1" class="action-search-table-container">
+      <div fxLayout="row" fxLayoutAlign="start end"  class="action-search-inputs-container">
+        <mat-form-field fxFlex class="menu-item">
+          <mat-label>Action Name</mat-label>
+          <input matInput class="action-namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="actionNameSearchCriteria" />
+        </mat-form-field>
+        <button mat-flat-button
+                matTooltip="Clear action search criteria"
+                matTooltipPosition="above"
+                (click)="clearActionSearchCriteria()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="action-table-container">
+        <div *ngIf="getActionsToShow().length === 0" class="results-text-container"><span class="results-text">The selected node has no actions.</span></div>
+        <table mat-table *ngIf="getActionsToShow().length > 0" [dataSource]="getActionsToShow()" class="action-table" >
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef class="column-header left-column">Action Name</th>
+            <td mat-cell *matCellDef="let action" class="left-column">
+              <span *ngIf="editingActionRow !== getActionRow(action)">{{ action.name }}</span>
+              <mat-form-field *ngIf="editingActionRow === getActionRow(action)" fxFlex class="menu-item">
+                <mat-label>Action Name</mat-label>
+                <input matInput [formControl]="nonEmptyFormControl" class="action-namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="editingActionName" />
+                <mat-error *ngIf="nonEmptyFormControl.hasError('required')">
+                  Name is <strong>required</strong>
+                </mat-error>
+              </mat-form-field>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actionHandler">
+            <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header right-column">Handler</th>
+            <td mat-cell *matCellDef="let action" class="right-column">
+              <div fxLayout="row" fxLayoutAlign="end center" *ngIf="editingActionRow !== getActionRow(action)">
+                <span>{{ action.actionHandler?.name ? action.actionHandler.name : '&lt;No Handler&gt;' }}</span>
+                <button mat-flat-button
+                        (click)="[toggleEditAction(action), commonUtilsService.consumeEvent($event)]"
+                        class="icon-only-button">
+                  <mat-icon>mode_edit</mat-icon>
+                </button>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="end center" *ngIf="editingActionRow === getActionRow(action)">
+                <mat-form-field class="menu-item">
+                  <mat-label>Handler</mat-label>
+                  <mat-select [(ngModel)]="editingActionHandlerSeq">
+                    <mat-option value="undefined" class="action-handler-selection">&lt;No Handler&gt;</mat-option>
+                    <mat-option *ngFor="let actionHandler of actionHandlers" [value]="actionHandler.actionHandlerSeq" class="action-handler-selection">{{ actionHandler.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button mat-flat-button
+                        (click)="[saveEditingAction(action), commonUtilsService.consumeEvent($event)]"
+                        class="icon-only-button">
+                  <mat-icon>edit_off</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="actionDisplayedColumns; sticky: true" class="header"></tr>
+          <tr mat-row
+              *matRowDef="let action; columns: actionDisplayedColumns;"
+              [ngClass]="{'selected': getSelectedActionRow() === getActionRow(action) || editingActionRow === getActionRow(action), 'hidden': !showAction(action)}"
+              (click)="[selectAction(action), cancelEditingAction(action)]"
+              class="no-select">
+          </tr>
+        </table>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start end" class="action-edit-container">
+        <mat-form-field fxFlex class="menu-item">
+          <mat-label>Action Name</mat-label>
+          <input matInput class="action-namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="newActionName" />
+        </mat-form-field>
+        <mat-form-field class="menu-item">
+          <mat-label>Action Handler</mat-label>
+          <mat-select [(ngModel)]="newActionActionHandler">
+            <mat-option value="undefined" class="action-handler-selection"></mat-option>
+            <mat-option *ngFor="let actionHandler of actionHandlers" [value]="actionHandler" class="action-handler-selection">{{ actionHandler.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-flat-button
+                matTooltip="Add new action with given inputs"
+                matTooltipPosition="above"
+                (click)="addAction()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-flat-button
+                matTooltip="Delete selected action"
+                matTooltipPosition="above"
+                (click)="deleteAction()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button mat-flat-button
+                matTooltip="Import new action definition"
+                matTooltipPosition="above"
+                (click)="importAction()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+        <button mat-flat-button
+                matTooltip="Export selected action definition"
+                matTooltipPosition="above"
+                (click)="exportAction()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div *ngIf="getSelectedActionRow() !== -1" class="parameter-table-edit-container">
+      <div class="parameter-table-container">
+        <div *ngIf="getParametersToShow().length === 0" class="results-text-container"><span class="results-text">The selected action has no parameters.</span></div>
+        <app-typed-editable-table *ngIf="getParametersToShow().length > 0"
+                                  [datasource]="getParameterDatasource()"
+                                  nameHeader="Parameter Name"
+                                  valueHeader="Value"
+                                  nameFieldName="name"
+                                  valueFieldName="currentValue"
+                                  [selectedRowGetter]="getSelectedParameterRow"
+                                  [selectedRowSetter]="setSelectedParameterRow"
+                                  [typeDefGetter]="getParameterTypeDef"
+                                  [defaultSetter]="setParameterDefault">
+        </app-typed-editable-table>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center" class="parameter-edit-container">
+        <div fxLayout="row" fxLayoutAlign="start center" class="parameter-edit-inner-container">
+          <mat-form-field class="new-param-type-selection">
+            <mat-select [(ngModel)]="newParameterType" (selectionChange)="resetNewParameterDefault($event)">
+              <mat-option value=""></mat-option>
+              <mat-option *ngFor="let actionParameterType of actionParameterTypes" [value]="actionParameterType">{{ actionParameterType.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Name</mat-label>
+            <input matInput placeholder="Name"
+                   [(ngModel)]="newParameterName"
+                   class="new-param-namebar">
+          </mat-form-field>
+          <mat-form-field *ngIf="commonUtilsService.isStringField(newParameterType?.typeDef)">
+            <mat-label>Default Value</mat-label>
+            <input matInput
+                   [(ngModel)]="newParameterDefaultValue"
+                   (click)="commonUtilsService.consumeEvent($event)"
+                   placeholder="Default Value"
+                   class="string-input new-param-default-value-input" />
+          </mat-form-field>
+          <mat-form-field *ngIf="commonUtilsService.isNumberField(newParameterType?.typeDef)">
+            <input matInput type="number"
+                   [(ngModel)]="newParameterDefaultValue"
+                   (click)="commonUtilsService.consumeEvent($event)"
+                   (keypress)="commonUtilsService.onlyNumeric($event)"
+                   class="number-input new-param-default-value-input" />
+          </mat-form-field>
+          <mat-form-field *ngIf="commonUtilsService.isListField(newParameterType?.typeDef)" class="new-param-default-value-input" (click)="commonUtilsService.consumeEvent($event)">
+            <mat-select [(ngModel)]="newParameterDefaultValue" (click)="commonUtilsService.consumeEvent($event)" panelClass="list-input">
+              <mat-option *ngIf="commonUtilsService.listValueAllowsEmpty(newParameterType?.typeDef)" value=""></mat-option>
+              <mat-option *ngFor="let listValue of commonUtilsService.getListValues(newParameterType?.typeDef)" [value]="listValue">{{ listValue }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="end center" class="parameter-edit-inner-container">
+          <button mat-flat-button
+                  matTooltip="Add new action with given inputs"
+                  matTooltipPosition="above"
+                  (click)="addParameter()"
+                  class="mdc-icon-button menu-button">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-flat-button
+                  matTooltip="Delete selected action"
+                  matTooltipPosition="above"
+                  (click)="deleteParameter()"
+                  class="mdc-icon-button menu-button">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
