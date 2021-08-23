@@ -11,21 +11,33 @@
       <span *ngIf="getParameter(getSelectedParameterRow())?.name" class="breadcrumb-trail-mark">►</span>
       <span class="breadcrumb-text">{{ getParameter(getSelectedParameterRow())?.name }}</span>
     </div>
-    <div fxLayout="row" fxLayoutAlign="start end"  class="node-save-container">
-      <button mat-flat-button
-              matTooltip="Save the current changes"
-              matTooltipPosition="above"
-              (click)="save()"
-              class="mdc-icon-button menu-button">
-        <mat-icon>done</mat-icon>
-      </button>
-      <button mat-flat-button
-              matTooltip="Reset the current changes"
-              matTooltipPosition="above"
-              (click)="resetAll()"
-              class="mdc-icon-button menu-button">
-        <mat-icon>cached</mat-icon>
-      </button>
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="top-button-container">
+      <div fxLayout="row" fxLayoutAlign="start end" class="node-save-container">
+        <button mat-flat-button
+                matTooltip="Save the current changes"
+                matTooltipPosition="above"
+                (click)="save()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>done</mat-icon>
+        </button>
+        <button mat-flat-button
+                matTooltip="Reset the current changes"
+                matTooltipPosition="above"
+                (click)="resetAll()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>cached</mat-icon>
+        </button>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start end">
+        <button mat-flat-button
+                *ngIf="selectedActionRow !== -1"
+                matTooltip="Run the currently selected action with the given parameter values"
+                matTooltipPosition="above"
+                (click)="executeAction()"
+                class="mdc-icon-button menu-button">
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
   <div fxLayout="row" fxLayoutAlign="start end" class="row-align-container">
@@ -189,34 +201,40 @@
             <mat-option *ngFor="let actionHandler of actionHandlers" [value]="actionHandler" class="action-handler-selection">{{ actionHandler.name }}</mat-option>
           </mat-select>
         </mat-form-field>
-        <button mat-flat-button
-                matTooltip="Add new action with given inputs"
-                matTooltipPosition="above"
-                (click)="addAction()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>add</mat-icon>
-        </button>
-        <button mat-flat-button
-                matTooltip="Delete selected action"
-                matTooltipPosition="above"
-                (click)="deleteAction()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>close</mat-icon>
-        </button>
-        <button mat-flat-button
-                matTooltip="Import new action definition"
-                matTooltipPosition="above"
-                (click)="importAction()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>arrow_upward</mat-icon>
-        </button>
-        <button mat-flat-button
-                matTooltip="Export selected action definition"
-                matTooltipPosition="above"
-                (click)="exportAction()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>arrow_downward</mat-icon>
-        </button>
+        <div fxLayout="column" fxLayoutAlign="center center" class="button-grid-container">
+          <div fxLayout="row" fxLayoutAlign="center end">
+            <button mat-flat-button
+                    matTooltip="Add new action with given inputs"
+                    matTooltipPosition="above"
+                    (click)="addAction()"
+                    class="mdc-icon-button grid-button">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-flat-button
+                    matTooltip="Delete selected action"
+                    matTooltipPosition="above"
+                    (click)="deleteAction()"
+                    class="mdc-icon-button grid-button">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="center start">
+            <button mat-flat-button
+                    matTooltip="Import new action definition"
+                    matTooltipPosition="above"
+                    (click)="importAction()"
+                    class="mdc-icon-button grid-button">
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button mat-flat-button
+                    matTooltip="Export selected action definition"
+                    matTooltipPosition="above"
+                    (click)="exportAction()"
+                    class="mdc-icon-button grid-button">
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <div *ngIf="getSelectedActionRow() !== -1" class="parameter-table-edit-container">

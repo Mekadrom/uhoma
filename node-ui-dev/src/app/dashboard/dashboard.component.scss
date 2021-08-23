@@ -194,3 +194,21 @@ mat-form-field {
   transition: 0.1s all ease;
   background-color: $select;
 }
+
+.top-button-container {
+  padding-right: 44px;
+}
+
+.grid-button {
+  width: 20px;
+  height: 40px;
+
+  margin-top: 1px;
+  margin-left: 1px;
+
+  border-radius: 0px;
+}
+
+.button-grid-container{
+  margin-bottom: 1.25em;
+}

@@ -375,11 +375,11 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   importAction(): void {
-
+    // todo
   }
 
   exportAction(): void {
-
+    // todo
   }
 
   cancelEditingNode(node: Node): void {
@@ -534,5 +534,9 @@ export class DashboardComponent implements AfterViewInit {
 
   setEditingParameterRow(event: any) {
     this.editingParameterRow = event as number;
+  }
+
+  executeAction(): void {
+    // todo: websocket integration
   }
 }
