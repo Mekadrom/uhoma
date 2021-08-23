@@ -23,16 +23,32 @@
             Name is <strong>required</strong>
           </mat-error>
         </mat-form-field>
-        <mat-form-field class="menu-item">
+        <mat-form-field *ngIf="commonUtilsService.isStringField(typeDefGetter(rowObject))">
           <mat-label>Default Value</mat-label>
-          <input matInput class="namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="editingDefaultValue" />
+          <input matInput class="string-input"
+                 [(ngModel)]="editingDefaultValue"
+                 (click)="commonUtilsService.consumeEvent($event)">
+        </mat-form-field>
+        <mat-form-field *ngIf="commonUtilsService.isNumberField(typeDefGetter(rowObject))">
+          <mat-label>Default Value</mat-label>
+          <input matInput type="number" class="number-input"
+                 [(ngModel)]="editingDefaultValue"
+                 (click)="commonUtilsService.consumeEvent($event)"
+                 (keypress)="commonUtilsService.onlyNumeric(typeDefGetter($event))">
+        </mat-form-field>
+        <mat-form-field *ngIf="commonUtilsService.isListField(typeDefGetter(rowObject))" (click)="commonUtilsService.consumeEvent($event)">
+          <mat-label>Default Value</mat-label>
+          <mat-select [(ngModel)]="editingDefaultValue" (click)="commonUtilsService.consumeEvent($event)" class="list-input">
+            <mat-option *ngIf="commonUtilsService.listValueAllowsEmpty(typeDefGetter(rowObject))" value=""></mat-option>
+            <mat-option *ngFor="let listValue of commonUtilsService.getListValues(typeDefGetter(rowObject))" [value]="listValue">{{ listValue }}</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
     </td>
   </ng-container>
   <ng-container matColumnDef="value">
     <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header right-column">{{ valueHeader }}</th>
-    <td mat-cell fxLayout="row" fxLayoutAlign="end center" *matCellDef="let rowObject" class="right-column">
+    <td mat-cell fxLayout="row" fxLayoutAlign="end center" *matCellDef="let rowObject" class="right-column table-cell">
       <mat-form-field *ngIf="commonUtilsService.isStringField(typeDefGetter(rowObject))">
         <mat-label>Value</mat-label>
         <input matInput class="string-input"
@@ -47,6 +63,7 @@
                (keypress)="commonUtilsService.onlyNumeric(typeDefGetter($event))">
       </mat-form-field>
       <mat-form-field *ngIf="commonUtilsService.isListField(typeDefGetter(rowObject))" (click)="commonUtilsService.consumeEvent($event)">
+        <mat-label>Value</mat-label>
         <mat-select [(ngModel)]="rowObject[valueFieldName]" (click)="commonUtilsService.consumeEvent($event)" class="list-input">
           <mat-option *ngIf="commonUtilsService.listValueAllowsEmpty(typeDefGetter(rowObject))" value=""></mat-option>
           <mat-option *ngFor="let listValue of commonUtilsService.getListValues(typeDefGetter(rowObject))" [value]="listValue">{{ listValue }}</mat-option>
