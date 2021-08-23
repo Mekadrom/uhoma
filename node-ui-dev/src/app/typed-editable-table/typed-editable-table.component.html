@@ -79,8 +79,8 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header"></tr>
   <tr mat-row
       *matRowDef="let rowObject; columns: displayedColumns;"
-      [ngClass]="{'selected': selected === getRow(rowObject)}"
-      (click)="selected = getRow(rowObject)"
+      [ngClass]="{'selected': selectedRow === getRow(rowObject)}"
+      (click)="selectedRow = getRow(rowObject)"
       class="no-select">
   </tr>
 </table>

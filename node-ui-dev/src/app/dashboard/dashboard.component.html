@@ -229,15 +229,15 @@
                                   nameFieldName="name"
                                   valueFieldName="currentValue"
                                   defaultValueFieldName="defaultValue"
-                                  [selectedRowGetter]="getSelectedParameterRow"
-                                  [selectedRowSetter]="setSelectedParameterRow"
                                   [typeDefGetter]="getParameterTypeDef"
-                                  (editingRow)="editingParameterRow = $event">
+                                  (editingRow)="setEditingParameterRow($event)"
+                                  (selectedRow)="setSelectedParameterRow($event)">
         </app-typed-editable-table>
       </div>
       <div fxLayout="row" fxLayoutAlign="center center" class="parameter-edit-container">
         <div fxLayout="row" fxLayoutAlign="start center" class="parameter-edit-inner-container">
           <mat-form-field class="new-param-type-selection">
+            <mat-label>Parameter Type</mat-label>
             <mat-select [(ngModel)]="newParameterType" (selectionChange)="resetNewParameterDefault($event)">
               <mat-option value=""></mat-option>
               <mat-option *ngFor="let actionParameterType of actionParameterTypes" [value]="actionParameterType">{{ actionParameterType.name }}</mat-option>
@@ -258,6 +258,7 @@
                    class="string-input new-param-default-value-input" />
           </mat-form-field>
           <mat-form-field *ngIf="commonUtilsService.isNumberField(newParameterType?.typeDef)">
+            <mat-label>Default Value</mat-label>
             <input matInput type="number"
                    [(ngModel)]="newParameterDefaultValue"
                    (click)="commonUtilsService.consumeEvent($event)"
@@ -265,6 +266,7 @@
                    class="number-input new-param-default-value-input" />
           </mat-form-field>
           <mat-form-field *ngIf="commonUtilsService.isListField(newParameterType?.typeDef)" class="new-param-default-value-input" (click)="commonUtilsService.consumeEvent($event)">
+            <mat-label>Default Value</mat-label>
             <mat-select [(ngModel)]="newParameterDefaultValue" (click)="commonUtilsService.consumeEvent($event)" panelClass="list-input">
               <mat-option *ngIf="commonUtilsService.listValueAllowsEmpty(newParameterType?.typeDef)" value=""></mat-option>
               <mat-option *ngFor="let listValue of commonUtilsService.getListValues(newParameterType?.typeDef)" [value]="listValue">{{ listValue }}</mat-option>
@@ -273,14 +275,14 @@
         </div>
         <div fxLayout="row" fxLayoutAlign="end center" class="parameter-edit-inner-container">
           <button mat-flat-button
-                  matTooltip="Add new action with given inputs"
+                  matTooltip="Add new parameter with given inputs"
                   matTooltipPosition="above"
                   (click)="addParameter()"
                   class="mdc-icon-button menu-button">
             <mat-icon>add</mat-icon>
           </button>
           <button mat-flat-button
-                  matTooltip="Delete selected action"
+                  matTooltip="Delete selected parameter"
                   matTooltipPosition="above"
                   (click)="deleteParameter()"
                   class="mdc-icon-button menu-button">

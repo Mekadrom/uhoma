@@ -233,10 +233,6 @@ export class DashboardComponent implements AfterViewInit {
     return this.selectedParameterRow;
   }
 
-  setSelectedParameterRow(selectedParameterRow: number): void {
-    this.selectedParameterRow = selectedParameterRow;
-  }
-
   getParameterRow(findParameter: ActionParameter): number {
     const selectedAction: Action | null = this.getAction(this.selectedActionRow);
     if (selectedAction) {
@@ -333,6 +329,7 @@ export class DashboardComponent implements AfterViewInit {
         const selectedActionRow: number = this.getSelectedActionRow();
         if (selectedActionRow >= 0 && selectedActionRow < selectedNode.actions.length) {
           selectedNode.actions.splice(selectedActionRow, 1);
+          selectedNode.actions = selectedNode.actions.slice(); // updates reference, forces angular view to refresh
         }
       }
     }
@@ -368,8 +365,10 @@ export class DashboardComponent implements AfterViewInit {
       const selectedAction: Action | null = this.getAction(selectedActionRow);
       if (selectedAction) {
         const selectedParameterRow: number = this.getSelectedParameterRow();
+        console.log(selectedParameterRow);
         if (selectedParameterRow >= 0 && selectedParameterRow < selectedAction.parameters.length) {
           selectedAction.parameters.splice(selectedParameterRow, 1);
+          selectedAction.parameters = selectedAction.parameters.slice();
         }
       }
     }
@@ -527,5 +526,13 @@ export class DashboardComponent implements AfterViewInit {
 
   setAllDefaults(): void {
     this.mutableNodes.forEach((node: Node) => this.setDefaults(node));
+  }
+
+  setSelectedParameterRow(event: any) {
+    this.selectedParameterRow = event as number;
+  }
+
+  setEditingParameterRow(event: any) {
+    this.editingParameterRow = event as number;
   }
 }

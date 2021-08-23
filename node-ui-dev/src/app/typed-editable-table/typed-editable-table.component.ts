@@ -24,18 +24,30 @@ export class TypedEditableTableComponent implements AfterContentInit {
   @Input("valueFieldName") valueFieldName: string = '';
   @Input("defaultValueFieldName") defaultValueFieldName: string = '';
 
-  @Input("selectedRowGetter") selectedRowGetter: () => number = () => -1;
-  @Input("selectedRowSetter") selectedRowSetter: (selectedRow: number) => void = (selectedRow: number) => {};
-
   @Input("typeDefGetter") typeDefGetter: (rowObject: any) => any = (rowObject: any) => {};
 
+  @Output("selectedRow") selectedRowEvent: EventEmitter<number> = new EventEmitter<number>();
   @Output("editingRow") editingRowEvent: EventEmitter<number> = new EventEmitter<number>();
 
-  editingRow: number = -1;
+  selectedRowValue: number = -1;
+  editingRowValue: number = -1;
 
-  set setEditingRow(editingRow: number) {
-    this.editingRow = editingRow;
-    this.editingRowEvent.emit(this.editingRow);
+  get selectedRow(): number {
+    return this.selectedRowValue;
+  }
+
+  set selectedRow(selectedRowValue: number) {
+    this.selectedRowValue = selectedRowValue;
+    this.selectedRowEvent.emit(this.selectedRowValue);
+  }
+
+  get editingRow(): number {
+    return this.editingRowValue;
+  }
+
+  set editingRow(editingRowValue: number) {
+    this.editingRowValue = editingRowValue;
+    this.editingRowEvent.emit(this.editingRowValue);
   }
 
   editingName: string = '';
@@ -54,14 +66,6 @@ export class TypedEditableTableComponent implements AfterContentInit {
       }
     }
     return -1;
-  }
-
-  get selected(): number {
-    return this.selectedRowGetter();
-  }
-
-  set selected(row: number) {
-    this.selectedRowSetter(row);
   }
 
   setDefault(rowObject: any): void {
