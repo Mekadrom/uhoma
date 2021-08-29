@@ -1,9 +1,8 @@
-import { Room } from './room';
-import { NodeAction } from './node-action';
+import { Room, Action } from '../models';
 
 export interface Node {
   nodeSeq: number;
   name: string;
   room: Room;
-  publicActions: NodeAction[];
+  actions: Action[];
 }

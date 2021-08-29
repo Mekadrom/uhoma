@@ -1,8 +1,8 @@
-import { NodeAction } from './node-action';
+import { Action } from '../models';
 
 export interface NodeActionRequest {
   fromNodeSeq: number;
   toNodeSeq: number;
-  nodeActionWithParams: NodeAction;
+  actionWithParams: Action;
   sentEpoch: number;
 }

@@ -1,4 +1,4 @@
-import { RoomLink } from './room-link';
+import { RoomLink } from '../models';
 
 export interface Room {
   roomSeq?: number;

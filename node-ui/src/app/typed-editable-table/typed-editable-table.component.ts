@@ -1,141 +1,105 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+
+import { CommonUtilsService } from '../services';
 
 @Component({
   selector: 'app-typed-editable-table',
   templateUrl: './typed-editable-table.component.html',
-  styleUrls: ['./typed-editable-table.component.css']
+  styleUrls: ['./typed-editable-table.component.scss']
 })
-export class TypedEditableTableComponent implements OnInit {
+export class TypedEditableTableComponent implements AfterContentInit {
+  nonEmptyFormControl = new FormControl('', [
+    Validators.required
+  ]);
+
   displayedColumns: string[] = [ 'name', 'value' ];
 
-  datasource: any[] = [];
+  @Input("datasource") datasource: any = [];
 
-  nameHeader: string = 'Name';
-  valueHeader: string = 'Value';
+  @Input("nameHeader") nameHeader: string = '';
+  @Input("valueHeader") valueHeader: string = '';
 
-  valueGetter: (rowObject: any) => string | null = (rowObject: any) => '';
-  valueSetter: (rowObject: any, value: string | null) => void = (rowObject: any, value: string | null) => {};
+  @Input("nameFieldName") nameFieldName : string = '';
+  @Input("valueFieldName") valueFieldName: string = '';
+  @Input("defaultValueFieldName") defaultValueFieldName: string = '';
 
-  objectTypeDefGetter: (rowObject: any) => any = (rowObject: any) => {};
+  @Input("typeDefGetter") typeDefGetter: (rowObject: any) => any = (rowObject: any) => {};
 
-  defaulter: (rowObject: any) => void = (rowObject: any) => {};
+  @Output("selectedRow") selectedRowEvent: EventEmitter<number> = new EventEmitter<number>();
+  @Output("editingRow") editingRowEvent: EventEmitter<number> = new EventEmitter<number>();
 
-  getSelectedRow: () => number = () => -1;
+  selectedRowValue: number = -1;
+  editingRowValue: number = -1;
 
-  setSelectedRow: (selectedRow: any) => void = (selectedRow: any) => {};
-
-  nameGetter: (rowObject: any) => string = (rowObject: any) => '';
-
-  @Input('datasource')
-  public set setDatasource(datasource: any[]) {
-    this.datasource = datasource;
+  get selectedRow(): number {
+    return this.selectedRowValue;
   }
 
-  @Input('nameHeader')
-  public set setNameHeader(nameHeader: string) {
-    this.nameHeader = nameHeader;
+  set selectedRow(selectedRowValue: number) {
+    this.selectedRowValue = selectedRowValue;
+    this.selectedRowEvent.emit(this.selectedRowValue);
   }
 
-  @Input('valueHeader')
-  public set setValueHeader(valueHeader: string) {
-    this.valueHeader = valueHeader;
+  get editingRow(): number {
+    return this.editingRowValue;
   }
 
-  @Input('getName')
-  public set setNameGetter(nameGetter: (rowObject: any) => string) {
-    this.nameGetter = nameGetter;
+  set editingRow(editingRowValue: number) {
+    this.editingRowValue = editingRowValue;
+    this.editingRowEvent.emit(this.editingRowValue);
   }
 
-  @Input('getValue')
-  public set setValueGetter(valueGetter: (rowObject: any) => string | null) {
-    this.valueGetter = valueGetter;
+  editingName: string = '';
+  editingDefaultValue: string = '';
+
+  constructor(public commonUtilsService: CommonUtilsService) { }
+
+  ngAfterContentInit (): void {
+    this.setDefaults();
   }
 
-  @Input('setValue')
-  public set setValueSetter(valueSetter: (rowObject: any, value: string | null) => void) {
-    this.valueSetter = valueSetter;
+  getRow(rowObject: any) {
+    for (let i: number = 0; i < this.datasource.length; i++) {
+      if (rowObject === this.datasource[i]) {
+        return i;
+      }
+    }
+    return -1;
   }
 
-  @Input('objectTypeDefGetter')
-  public set setObjectTypeDefGetter(objectTypeDefGetter: (rowObject: any) => any) {
-    this.objectTypeDefGetter = objectTypeDefGetter;
+  setDefault(rowObject: any): void {
+    rowObject[this.valueFieldName] = rowObject[this.defaultValueFieldName];
   }
 
-  @Input('defaultSetter')
-  public set setDefaulter(defaulter: (rowObject: any) => void) {
-    this.defaulter = defaulter;
+  setDefaults(): void {
+    this.datasource.forEach((rowObject: any) => this.setDefault(rowObject));
   }
 
-  @Input('selectedRowGetter')
-  public set setSelectedRowGetter(selectedRowGetter: () => number) {
-    this.getSelectedRow = selectedRowGetter;
+  cancelEditing(rowObject: any): void {
+    const editingRow: number = this.getRow(rowObject);
+    if (this.editingRow !== editingRow) {
+      this.editingRow = -1;
+    }
+    this.commonUtilsService.fixMaterialBug();
   }
 
-  @Input('selectedRowSetter')
-  public set setSelectedRowSetter(selectedRowSetter: (selectedRow: any) => void) {
-    this.setSelectedRow = selectedRowSetter;
-  }
-
-  @Output('selectedRowEmitter') selectedRowEmitter = new EventEmitter<any>();
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-  getValue(rowObject: any): string | null {
-    return this.valueGetter(rowObject);
-  }
-
-  setValue(rowObject: any, event: any): void {
-    this.valueSetter(rowObject, event);
-  }
-
-  isStringField(rowObject: any): boolean {
-    return this.objectTypeDefGetter(rowObject).type === 'string';
-  }
-
-  isNumberField(rowObject: any): boolean {
-    return this.objectTypeDefGetter(rowObject).type === 'number';
-  }
-
-  isListField(rowObject: any): boolean {
-    return this.objectTypeDefGetter(rowObject).type === 'list';
-  }
-
-  highlight(rowNum: number): void {
-    if (this.getSelectedRow() === rowNum) {
-      this.selectedRowEmitter.emit(-1);
-      this.setSelectedRow(-1);
+  toggleEditing(rowObject: any): void {
+    const editingRow: number = this.getRow(rowObject);
+    if (this.editingRow === editingRow) {
+      this.editingRow = -1;
     } else {
-      this.selectedRowEmitter.emit(rowNum);
-      this.setSelectedRow(rowNum);
+      this.editingRow = editingRow;
+      this.editingName = rowObject[this.nameFieldName];
+      this.editingDefaultValue = rowObject[this.defaultValueFieldName];
     }
+    this.commonUtilsService.fixMaterialBug();
   }
 
-  getListValues(rowObject: any): string[] {
-    return this.objectTypeDefGetter(rowObject).values;
-  }
-
-  listValueAllowsEmpty(rowObject: any) {
-    const config: any = this.objectTypeDefGetter(rowObject)?.config;
-    if (config) {
-      return config.allowsEmpty;
-    }
-    return true;
-  }
-
-  consumeEvent(event: any): void {
-    event?.stopPropagation();
-  }
-
-  omitSpecialChar(event: any) {
-    let k = event.charCode;
-    return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57));
-  }
-
-  onlyNumeric(event: any) {
-    let k = event.charCode;
-    return k >= 48 && k <= 57;
+  saveEditing(rowObject: any): void {
+    rowObject[this.nameFieldName] = !this.editingName || this.editingName === '' ? rowObject[this.nameFieldName] : this.editingName;
+    rowObject[this.defaultValueFieldName] = this.editingDefaultValue
+    this.editingRow = -1;
+    this.commonUtilsService.fixMaterialBug();
   }
 }

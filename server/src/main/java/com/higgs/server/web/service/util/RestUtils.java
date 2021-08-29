@@ -2,19 +2,18 @@ package com.higgs.server.web.service.util;
 
 import com.higgs.server.db.repo.UserLoginRepository;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.security.Principal;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public final class RestUtils {
     private final UserLoginRepository userLoginRepository;
 
-    @SneakyThrows
     public Long getAccountSeq(final Principal principal) {
         Long accountSeq = null;
         if (principal != null) {
@@ -24,7 +23,7 @@ public final class RestUtils {
             }
         }
         if (accountSeq == null) {
-            throw new AccountNotFoundException();
+            RestUtils.log.error("Account not found: " + Optional.ofNullable(principal).map(Principal::getName).orElse("null"));
         }
         return accountSeq;
     }

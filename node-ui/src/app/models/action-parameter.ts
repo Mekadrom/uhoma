@@ -1,5 +1,4 @@
-import { NodeAction } from './node-action';
-import { ActionParameterType } from './action-parameter-type';
+import { Action, ActionParameterType } from '../models';
 
 export interface ActionParameter {
   actionParameterSeq?: number;
@@ -8,6 +7,6 @@ export interface ActionParameter {
   actionParameterType?: ActionParameterType;
   actionParameterTypeSeq?: number;
   name?: string;
-  action?: NodeAction;
+  action?: Action;
   rowNum?: number;
 }

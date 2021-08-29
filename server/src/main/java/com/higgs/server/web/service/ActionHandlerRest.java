@@ -1,9 +1,7 @@
 package com.higgs.server.web.service;
 
 import com.higgs.server.db.entity.ActionHandler;
-import com.higgs.server.db.entity.ActionParameterType;
 import com.higgs.server.db.repo.ActionHandlerRepository;
-import com.higgs.server.db.repo.ActionParameterTypeRepository;
 import com.higgs.server.web.service.util.RestUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

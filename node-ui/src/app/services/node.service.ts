@@ -1,33 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError, shareReplay } from 'rxjs/operators';
 
-import { Node } from '../models/node';
-import { NodeAction } from '../models/node-action';
-import { ActionParameterType } from '../models/action-parameter-type';
-
-import { UrlProviderService } from './url-provider.service';
+import { Node } from '../models';
+import { UrlProviderService } from '../services';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NodeService {
-  constructor(private http: HttpClient, private urlProvider: UrlProviderService) { }
+  constructor(private http: HttpClient,
+              private urlProviderService: UrlProviderService) { }
 
   public getNodes(): Observable<Node[]> {
-    return this.http.post<Node[]>(this.urlProvider.getNodeSearchUrl(), {})
-    .pipe(
-      retry(1),
-      catchError(this.handleError),
-      shareReplay()
-    );
-  }
-
-  public getActionParameterTypes(): Observable<ActionParameterType[]> {
-    return this.http.post<ActionParameterType[]>(this.urlProvider.getNodeActionParameterTypeSearchUrl(), {})
-    .pipe(
+    return this.http.post<Node[]>(this.urlProviderService.getNodeSearchUrl(), {}).pipe(
       retry(1),
       catchError(this.handleError),
       shareReplay()
@@ -35,8 +22,7 @@ export class NodeService {
   }
 
   public saveNodes(nodes?: Node[]): Observable<any> {
-    return this.http.post<Node[]>(this.urlProvider.getNodesSaveUrl(), nodes)
-    .pipe(
+    return this.http.post<Node[]>(this.urlProviderService.getNodesSaveUrl(), nodes).pipe(
       retry(0),
       catchError(this.handleError),
       shareReplay()

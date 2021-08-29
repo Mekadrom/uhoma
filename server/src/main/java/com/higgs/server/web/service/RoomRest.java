@@ -1,6 +1,5 @@
 package com.higgs.server.web.service;
 
-import com.higgs.server.config.security.Roles;
 import com.higgs.server.db.entity.Room;
 import com.higgs.server.db.repo.RoomRepository;
 import com.higgs.server.web.service.util.RestUtils;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
 import java.util.List;
@@ -21,7 +19,6 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-@RolesAllowed(Roles.ADMIN)
 @RequestMapping(value = "room")
 public class RoomRest {
     private final RestUtils restUtils;

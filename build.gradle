@@ -81,8 +81,6 @@ subprojects { subproject ->
 }
 
 task buildAll {
-    dependsOn ':node_common:build'
-    dependsOn ':node_backend:build'
     dependsOn ':server:build'
 }
 
@@ -95,7 +93,7 @@ task copyToDist(type: Copy) {
     doFirst {
         mkdir "${distDir}"
 
-        subprojects.stream().filter {!it.name.contains('common') }.forEach {
+        subprojects.stream().forEach {
             mkdir "${distDir}/${it.name}"
         }
     }

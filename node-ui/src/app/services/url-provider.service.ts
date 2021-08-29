@@ -7,7 +7,7 @@ export class UrlProviderService {
   private hamsHost: string = 'localhost';
   private hamsPort: string = '8080';
 
-  private webSocketEndpoint = '/app/topic/node';
+  private webSocketEndpoint = '/app/send/message';
 
   constructor() { }
 
@@ -20,12 +20,12 @@ export class UrlProviderService {
   }
 
   public getHamsPort(): string {
-      return this.hamsPort;
-    }
+    return this.hamsPort;
+  }
 
-    public setHamsPort(hamsPort: string): void {
-      this.hamsPort = hamsPort;
-    }
+  public setHamsPort(hamsPort: string): void {
+    this.hamsPort = hamsPort;
+  }
 
   public getHamsUrl(): string {
     return 'http://' + this.hamsHost + ':' + this.hamsPort;
@@ -43,12 +43,24 @@ export class UrlProviderService {
     return this.getHamsUrl() + '/auth/login';
   }
 
+  public getTokenRefreshUrl(): string {
+    return this.getHamsUrl() + '/auth/refreshToken';
+  }
+
+  public getUserViewRefreshUrl(): string {
+    return this.getHamsUrl() + '/auth/refreshUserView';
+  }
+
   public getNodeSearchUrl(): string {
     return this.getHamsUrl() + '/node/search';
   }
 
   public getNodeActionParameterTypeSearchUrl(): string {
-    return this.getHamsUrl() + '/actionParameter/actionParameterType/search'
+    return this.getHamsUrl() + '/actionParameterType/search'
+  }
+
+  public getActionHandlerSearchUrl(): string {
+    return this.getHamsUrl() + '/actionHandler/search'
   }
 
   public getNodesSaveUrl(): string {

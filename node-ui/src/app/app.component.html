@@ -1,29 +1,9 @@
-<div class="selector">
-  <button [ngClass]="{'selected-button': isHomeBlade}" (click)="setHomeBlade()" class="mdc-icon-button selector-button">
-    <span class="material-icons app-icon">home</span>
+<nav class="navbar">
+  <button routerLink="/login" mat-flat-button [ngClass]="{'selected-nav': router.url === '/login'}" class="nav-button">
+    <mat-icon>home</mat-icon>
   </button>
-  <button [ngClass]="{'selected-button': isNodeBlade}" (click)="setNodeBlade()" class="mdc-icon-button selector-button">
-    <span class="material-icons app-icon">grade</span>
+  <button routerLink="/dashboard" mat-flat-button [ngClass]="{'selected-nav': router.url === '/dashboard'}" class="nav-button">
+    <mat-icon>dashboard</mat-icon>
   </button>
-  <button [ngClass]="{'selected-button': isDevBlade}" (click)="setDevBlade()" class="mdc-icon-button selector-button">
-    <span class="material-icons app-icon">code</span>
-  </button>
-  <button [ngClass]="{'selected-button': isSettingsBlade}" (click)="setSettingsBlade()" class="mdc-icon-button selector-button">
-    <span class="material-icons app-icon">settings</span>
-  </button>
-  <div class="selector-bottom" style="height:100%;"></div>
-</div>
-<div class="inner-blade-container">
-  <div class="inner-blade" *ngIf="isHomeBlade">3
-    <app-home></app-home>
-  </div>
-  <div class="inner-blade" *ngIf="isNodeBlade">
-    <app-node></app-node>
-  </div>
-  <div class="inner-blade" *ngIf="isDevBlade">
-    <app-dev></app-dev>
-  </div>
-  <div class="inner-blade" *ngIf="isSettingsBlade">
-    <app-settings></app-settings>
-  </div>
-</div>
+</nav>
+<router-outlet></router-outlet>

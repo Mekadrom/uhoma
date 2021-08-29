@@ -1,37 +1,86 @@
-<table mat-table [dataSource]="datasource">
+<table mat-table class="typed-editable-table" [dataSource]="datasource">
   <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef style="text-align:left;" class="column-header">{{ nameHeader }}</th>
-    <td mat-cell *matCellDef="let rowObject" class="name-label">{{ nameGetter(rowObject) }}</td>
-  </ng-container>
-  <ng-container matColumnDef="value">
-    <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header">{{ valueHeader }}</th>
-    <td mat-cell *matCellDef="let rowObject">
-      <div [ngClass]="{'list-pushdown': isListField(rowObject)}" class="left-fill-container">
-        <input matInput class="left-fill string-input" *ngIf="isStringField(rowObject)"
-               [ngModel]="getValue(rowObject)"
-               (ngModelChange)="setValue(rowObject, $event)"
-               (click)="consumeEvent($event)">
-        <input matInput type="number" class="left-fill number-input" *ngIf="isNumberField(rowObject)"
-               [ngModel]="getValue(rowObject)"
-               (ngModelChange)="setValue(rowObject, $event)"
-               (click)="consumeEvent($event)"
-               (keypress)="onlyNumeric($event)">
-        <mat-form-field *ngIf="isListField(rowObject)" class="left-fill vertical-center" (click)="consumeEvent($event)">
-          <mat-select [ngModel]="getValue(rowObject)" (ngModelChange)="setValue(rowObject, $event)" (click)="consumeEvent($event)" class="list-input">
-            <mat-option *ngIf="listValueAllowsEmpty(rowObject)" value=""></mat-option>
-            <mat-option *ngFor="let listValue of getListValues(rowObject)" [value]="listValue">{{ listValue }}</mat-option>
+    <th mat-header-cell *matHeaderCellDef class="column-header left-column">{{ nameHeader }}</th>
+    <td mat-cell *matCellDef="let rowObject" class="left-column">
+      <div fxLayout="row" fxLayoutAlign="start center" *ngIf="editingRow !== getRow(rowObject)">
+        <button mat-flat-button
+                (click)="[toggleEditing(rowObject), commonUtilsService.consumeEvent($event)]"
+                class="icon-only-button">
+          <mat-icon>mode_edit</mat-icon>
+        </button>
+        <span>{{ rowObject[nameFieldName] }}</span>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start center" *ngIf="editingRow === getRow(rowObject)">
+        <button mat-flat-button
+                (click)="[saveEditing(rowObject), commonUtilsService.consumeEvent($event)]"
+                class="icon-only-button">
+          <mat-icon>edit_off</mat-icon>
+        </button>
+        <mat-form-field class="menu-item">
+          <mat-label>Name</mat-label>
+          <input matInput [formControl]="nonEmptyFormControl" class="namebar menu-item" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="editingName" />
+          <mat-error *ngIf="nonEmptyFormControl.hasError('required')">
+            Name is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="commonUtilsService.isStringField(typeDefGetter(rowObject))">
+          <mat-label>Default Value</mat-label>
+          <input matInput class="string-input"
+                 [(ngModel)]="editingDefaultValue"
+                 (click)="commonUtilsService.consumeEvent($event)">
+        </mat-form-field>
+        <mat-form-field *ngIf="commonUtilsService.isNumberField(typeDefGetter(rowObject))">
+          <mat-label>Default Value</mat-label>
+          <input matInput type="number" class="number-input"
+                 [(ngModel)]="editingDefaultValue"
+                 (click)="commonUtilsService.consumeEvent($event)"
+                 (keypress)="commonUtilsService.onlyNumeric(typeDefGetter($event))">
+        </mat-form-field>
+        <mat-form-field *ngIf="commonUtilsService.isListField(typeDefGetter(rowObject))" (click)="commonUtilsService.consumeEvent($event)">
+          <mat-label>Default Value</mat-label>
+          <mat-select [(ngModel)]="editingDefaultValue" (click)="commonUtilsService.consumeEvent($event)" class="list-input">
+            <mat-option *ngIf="commonUtilsService.listValueAllowsEmpty(typeDefGetter(rowObject))" value=""></mat-option>
+            <mat-option *ngFor="let listValue of commonUtilsService.getListValues(typeDefGetter(rowObject))" [value]="listValue">{{ listValue }}</mat-option>
           </mat-select>
         </mat-form-field>
-        <button mat-flat-button (click)="defaulter(rowObject); consumeEvent($event)" class="mdc-icon-button right-fixed refresh-button">
-          <span class="material-icons">cached</span>
-        </button>
       </div>
     </td>
   </ng-container>
-  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+  <ng-container matColumnDef="value">
+    <th mat-header-cell *matHeaderCellDef style="text-align:right;" class="column-header right-column">{{ valueHeader }}</th>
+    <td mat-cell fxLayout="row" fxLayoutAlign="end center" *matCellDef="let rowObject" class="right-column table-cell">
+      <mat-form-field *ngIf="commonUtilsService.isStringField(typeDefGetter(rowObject))">
+        <mat-label>Value</mat-label>
+        <input matInput class="string-input"
+               [(ngModel)]="rowObject[valueFieldName]"
+               (click)="commonUtilsService.consumeEvent($event)">
+      </mat-form-field>
+      <mat-form-field *ngIf="commonUtilsService.isNumberField(typeDefGetter(rowObject))">
+        <mat-label>Value</mat-label>
+        <input matInput type="number" class="number-input"
+               [(ngModel)]="rowObject[valueFieldName]"
+               (click)="commonUtilsService.consumeEvent($event)"
+               (keypress)="commonUtilsService.onlyNumeric(typeDefGetter($event))">
+      </mat-form-field>
+      <mat-form-field *ngIf="commonUtilsService.isListField(typeDefGetter(rowObject))" (click)="commonUtilsService.consumeEvent($event)">
+        <mat-label>Value</mat-label>
+        <mat-select [(ngModel)]="rowObject[valueFieldName]" (click)="commonUtilsService.consumeEvent($event)" class="list-input">
+          <mat-option *ngIf="commonUtilsService.listValueAllowsEmpty(typeDefGetter(rowObject))" value=""></mat-option>
+          <mat-option *ngFor="let listValue of commonUtilsService.getListValues(typeDefGetter(rowObject))" [value]="listValue">{{ listValue }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button
+              (click)="setDefault(rowObject); commonUtilsService.consumeEvent($event)"
+              class="icon-only-button">
+        <span class="material-icons">cached</span>
+      </button>
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header"></tr>
   <tr mat-row
-      [ngClass]="{'selected': getSelectedRow() == row.rowNum}"
-      (click)="highlight(row.rowNum)"
-      *matRowDef="let row; columns: displayedColumns;">
+      *matRowDef="let rowObject; columns: displayedColumns;"
+      [ngClass]="{'selected': selectedRow === getRow(rowObject)}"
+      (click)="selectedRow = getRow(rowObject)"
+      class="no-select">
   </tr>
 </table>

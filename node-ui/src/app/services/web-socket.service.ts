@@ -1,14 +1,11 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Client, Message, Stomp } from '@stomp/stompjs';
 
-import { UrlProviderService } from '../services/url-provider.service';
-import { UserProviderService } from '../services/user-provider.service';
+import { CookieService } from 'ngx-cookie-service';
 
-import { Node } from '../models/node';
-import { NodeAction } from '../models/node-action';
-import { UserView } from '../models/user-view';
-import { NodeActionRequest } from '../models/node-action-request';
-
-import { Client, Message } from '@stomp/stompjs';
+import { Action, Node, NodeActionRequest, UserView } from '../models';
+import { AuthService, UrlProviderService, UserProviderService } from '../services';
 
 @Injectable({
   providedIn: 'root'
@@ -16,56 +13,69 @@ import { Client, Message } from '@stomp/stompjs';
 export class WebSocketService {
   client?: any;
 
-  constructor(private urlProvider: UrlProviderService,
-              private userProvider: UserProviderService) { }
+  constructor(private authService: AuthService,
+              private cookieService: CookieService,
+              private urlProviderService: UrlProviderService,
+              private userProviderService: UserProviderService) {}
 
-  sendAction(nodeAction?: NodeAction): void {
-  const userView: any = this.userProvider.getUserView();
-    if (nodeAction && userView) {
+  public isConnected(): boolean {
+    return !!this.client;
+  }
+
+  attach(jwt: string | null | undefined, connectCallback?: () => void): void {
+    this.client = new Client();
+    console.log('created new client');
+    this.client.configure({
+      brokerURL: 'ws://' + this.urlProviderService.getHamsHost() + ':' + this.urlProviderService.getHamsPort() + '/socket',
+      onConnect: () => {
+        if (connectCallback) {
+          connectCallback();
+        }
+      },
+      debug: (str: string) => {
+        console.log(new Date(), str);
+      }
+    });
+    console.log('configured client');
+    this.client.activate();
+    console.log('activated client');
+  }
+
+  executeAction(action: Action): void {
+    let userView: any = this.userProviderService.getUserView();
+    if (userView) {
+      this.doExecuteAction(action, userView);
+    } else {
+      const that: any = this;
+      this.authService.refreshJwt(this.cookieService.get('refreshToken')).subscribe(
+        (resp: HttpResponse<UserView>) => {
+          that.doExecuteAction(action, resp.body);
+        }
+      );
+    }
+  }
+
+  private doExecuteAction(action: Action, userView: UserView): void {
+    console.log('sending: ' + JSON.stringify(action));
+    if (action && userView) {
       const millis = Math.round((new Date()).getTime());
       const reqMsg = {
-        fromNodeSeq: (userView.node as any).nodeSeq,
-        toNodeSeq: nodeAction.ownerNode.nodeSeq,
-        nodeActionWithActionParams: nodeAction,
+        fromNodeSeq: (userView.node as Node).nodeSeq,
+        toNodeSeq: action.ownerNode.nodeSeq,
+        actionWithParams: action,
         sentEpoch: millis
       }
       if (reqMsg.toNodeSeq) {
-        this.client?.publish({
-          destination: this.urlProvider.getHamsWebSocketEndpoint(),
-          body: reqMsg,
-          skipContentLengthHeader: true
-        });
+        if (!this.client) {
+          this.attach(this.cookieService.get('bearer'), () => this.publish(this.urlProviderService.getHamsWebSocketEndpoint(), reqMsg));
+        } else {
+          this.publish(this.urlProviderService.getHamsWebSocketEndpoint(), reqMsg);
+        }
       }
     }
   }
 
-  attach(jwt: string | null | undefined): void {
-    this.client = new Client({
-      brokerURL: 'ws://' + this.urlProvider.getHamsHost() + '/ws',
-      connectHeaders: {
-        Authorization: 'Bearer: ' + jwt
-      },
-      debug: function (str: string) {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-
-    this.init(this.client);
-  }
-
-  init(client: any): void {
-    client.onConnect = function (frame: any) {
-      client.subscribe('/user/topic/node');
-    };
-
-    client.onStompError = function (frame: any) {
-      console.log('Broker reported error: ' + frame.headers['message']);
-      console.log('Additional details: ' + frame.body);
-    };
-
-    client.activate();
+  private publish(destination: string, message: any): void {
+    this.client.publish({destination: destination, body: JSON.stringify(message), skipContentLengthHeader: true});
   }
 }

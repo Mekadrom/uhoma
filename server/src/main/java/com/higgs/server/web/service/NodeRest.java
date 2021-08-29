@@ -1,6 +1,5 @@
 package com.higgs.server.web.service;
 
-import com.higgs.server.config.security.Roles;
 import com.higgs.server.db.entity.Action;
 import com.higgs.server.db.entity.ActionParameter;
 import com.higgs.server.db.entity.Node;
@@ -17,11 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.security.RolesAllowed;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +26,6 @@ import java.util.stream.Stream;
 
 @RestController
 @AllArgsConstructor
-@RolesAllowed(Roles.ADMIN)
 @RequestMapping(value = "node")
 public class NodeRest {
     private final RestUtils restUtils;
@@ -45,9 +41,8 @@ public class NodeRest {
 
     @PostMapping(value = "upsertNodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Node[]> upsertNodes(@RequestBody(required = false) final Node[] nodes, final Principal principal) {
-        final Long accountSeq = this.restUtils.getAccountSeq(principal);
-        Arrays.stream(nodes).forEach(node -> this.upsert(node, accountSeq));
-        return ResponseEntity.ok(Stream.of(nodes).map(node -> this.upsert(node, accountSeq)).collect(Collectors.toList()).toArray(Node[]::new));
+        return ResponseEntity.ok(Stream.of(nodes).map(node -> this.upsert(node, this.restUtils.getAccountSeq(principal)))
+                .collect(Collectors.toList()).toArray(Node[]::new));
     }
 
     // TODO: convert to batch statements to reduce connections to DB
