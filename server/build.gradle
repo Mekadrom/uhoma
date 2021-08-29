@@ -6,8 +6,6 @@ repositories {
 }
 
 dependencies {
-    implementation project(":node_common")
-
     runtimeOnly 'org.postgresql:postgresql'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
