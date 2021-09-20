@@ -1,10 +1,12 @@
 package com.higgs.server.db.repo;
 
 import com.higgs.server.db.entity.Node;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface NodeRepository extends SimpleNamedSequenceRepository<Node, Long> {
+public interface NodeRepository extends JpaRepository<Node, Long>, JpaSpecificationExecutor<Node> {
 
     Node getByNodeSeqAndRoomAccountAccountSeq(Long nodeSeq, Long accountSeq);
 
