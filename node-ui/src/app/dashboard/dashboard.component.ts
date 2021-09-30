@@ -330,7 +330,7 @@ export class DashboardComponent implements AfterViewInit {
           this.toastr.error('Please enter a unique name for the new action.');
           return;
         }
-        selectedNode.actions.push({ name: this.newActionName, ownerNode: JSON.parse(JSON.stringify(selectedNode)) as Node, actionHandler: this.newActionActionHandler, parameters: [] })
+        selectedNode.actions.push({ name: this.newActionName, ownerNodeSeq: selectedNode.nodeSeq, actionHandler: this.newActionActionHandler, parameters: [] })
         selectedNode.actions = selectedNode.actions.slice(); // updates reference, forces angular view to refresh
       }
     }

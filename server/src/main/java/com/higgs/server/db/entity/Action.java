@@ -39,10 +39,8 @@ public class Action {
     private Long actionSeq;
 
     @NotNull
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "OWNER_NODE_SEQ")
-    private Node ownerNode;
+    @Column(name = "OWNER_NODE_SEQ")
+    private Long ownerNodeSeq;
 
     @NotNull
     @Column(name = "NAME")

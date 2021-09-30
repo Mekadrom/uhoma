@@ -61,7 +61,7 @@ export class WebSocketService {
       const millis = Math.round((new Date()).getTime());
       const reqMsg = {
         fromNodeSeq: (userView.node as Node).nodeSeq,
-        toNodeSeq: action.ownerNode.nodeSeq,
+        toNodeSeq: action.ownerNodeSeq,
         actionWithParams: action,
         sentEpoch: millis
       }

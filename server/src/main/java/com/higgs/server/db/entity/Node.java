@@ -43,7 +43,6 @@ public class Node {
     @JoinColumn(name = "ROOM_SEQ")
     private Room room;
 
-    @JsonManagedReference
     @JoinColumn(name = "OWNER_NODE_SEQ")
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Collection<Action> actions;
