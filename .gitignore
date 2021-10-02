@@ -6,7 +6,7 @@ dist/
 hadb/delta/schema/test_schema.sql
 hadb/delta/data/test_data.sql
 
-kafka/docker-compose.yml
+env/local/docker/kafka/docker-compose.yml
 
 .terraform.lock.hcl
 .terraform
