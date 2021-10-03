@@ -1,7 +1,3 @@
-security:
-  auth:
-    jwt:
-      signing_key: 'devsigningkey'
 server:
   servlet:
     session:

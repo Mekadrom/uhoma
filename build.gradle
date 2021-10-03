@@ -66,6 +66,22 @@ subprojects { subproject ->
 
         runtimeDependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 
+        runtimeDependency 'org.postgresql:postgresql'
+
+        runtimeDependency 'org.springframework.boot:spring-boot-starter-data-jdbc'
+        runtimeDependency 'org.springframework.boot:spring-boot-starter-data-jpa'
+        runtimeDependency 'org.springframework.boot:spring-boot-starter-jdbc'
+
+        runtimeDependency 'com.h2database:h2'
+
+        runtimeDependency('org.springframework.boot:spring-boot-starter-web') {
+            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        }
+
+        runtimeDependency group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
+        testRuntimeDependency 'com.h2database:h2'
+
         testRuntimeDependency 'org.springframework.boot:spring-boot-starter-test'
         testRuntimeDependency 'org.springframework.kafka:spring-kafka-test'
         testRuntimeDependency 'org.springframework.security:spring-security-test'
@@ -73,6 +89,8 @@ subprojects { subproject ->
         testRuntimeDependency 'org.junit.jupiter:junit-jupiter-api:5.7.0'
 
         testRuntimeDependency 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
     }
 
     test {

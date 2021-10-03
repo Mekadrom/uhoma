@@ -5,7 +5,7 @@ server:
   datasource:
     initialization-mode: always
 kafka:
-  bootstrap-address: localhost:9092
+  bootstrap-address: localhost:29092
   topics:
     node-message: node-message
   consumer:
