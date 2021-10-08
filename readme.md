@@ -17,9 +17,9 @@ Here is an up-to-date view of the standard node angular ui:
 
 Login screen:
 
-![](node-ui/src/assets/readme/login.png)
+![](frontend/src/assets/readme/login.png)
 
 
 Dashboard:
 
-![](node-ui/src/assets/readme/dashboard.png)
+![](frontend/src/assets/readme/dashboard.png)

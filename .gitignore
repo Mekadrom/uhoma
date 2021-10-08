@@ -6,6 +6,8 @@ dist/
 hadb/delta/schema/test_schema.sql
 hadb/delta/data/test_data.sql
 
+frontend/dist
+
 .terraform.lock.hcl
 .terraform
 *.tfstate*

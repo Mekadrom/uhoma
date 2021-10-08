@@ -99,12 +99,17 @@ subprojects { subproject ->
 }
 
 task buildAll {
-    dependsOn ':loginservice:build'
     dependsOn ':server:build'
 }
 
 clean.doFirst {
     delete "${distDir}"
+}
+
+task distribute {
+    dependsOn 'buildAll'
+    dependsOn hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev'
+    finalizedBy 'copyToDist'
 }
 
 task copyToDist(type: Copy) {
@@ -119,13 +124,19 @@ task copyToDist(type: Copy) {
 
     into("${distDir}")
 
-    subprojects.forEach {proj ->
-        into("${proj.name}") {
+    ['server'].forEach {proj ->
+        into("${proj}") {
             with copySpec {
-                from("${proj.name}/build/libs") {
+                from("${proj}/build/libs") {
                     exclude '*-*'
                 }
             }
+        }
+    }
+
+    into('frontend') {
+        with copySpec {
+            from('frontend/dist/frontend')
         }
     }
 
@@ -134,9 +145,4 @@ task copyToDist(type: Copy) {
             from("${runScriptsDir}")
         }
     }
-}
-
-task jarAll {
-    dependsOn 'buildAll'
-    finalizedBy 'copyToDist'
 }
