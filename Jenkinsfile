@@ -1,43 +1,86 @@
 pipeline {
     agent {
         node {
-            label 'build-docker-java17-agent'
+            label 'ha-build'
             customWorkspace 'workspace/home_assistant/'
         }
     }
     parameters {
         string(name: 'BUILD_TAG_PREFIX', defaultValue: '', description: 'A string to prefix the docker image tag names with. Optional.')
         string(name: 'BUILD_TAG_SUFFIX', defaultValue: '', description: 'A string to suffix the docker image tag names with. Optional.')
-        string(name: 'DOCKER_REPO_PREFIX', defaultValue: 'us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/', description: 'The name of the docker repository in the HomeAssistant GCP project to push images to.')
-        extendedChoice(defaultValue: 'appserver,frontend,loginserver,consumerserver', description: '', descriptionPropertyValue: 'appserver,frontend,loginserver,consumerserver', multiSelectDelimiter: ',', name: 'PUSH_IMAGES', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_MULTI_SELECT', value: 'appserver,frontend,loginserver,consumerserver', visibleItemCount: 4)
+        string(name: 'DOCKER_REPO_LOCATION', defaultValue: 'us-east1-docker.pkg.dev', description: 'The GCP location of the docker artifact registry.')
+        string(name: 'DOCKER_REPO', defaultValue: 'root-furnace-306909/hadocker-images/', description: 'The name of the docker repository in the HomeAssistant GCP project to push images to.')
+        extendedChoice(defaultValue: 'server,frontend,loginserver,actionserver', description: '', descriptionPropertyValue: 'server,frontend,loginserver,actionserver', multiSelectDelimiter: ',', name: 'PUSH_IMAGES', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_MULTI_SELECT', value: 'server,frontend,loginserver,actionserver', visibleItemCount: 4)
     }
     environment {
-        def props = readProperties  file: '${WORKSPACE}/gradle.properties'
-        VERSION = props['version']
+        BUILD_PROPS = readProperties file: "${WORKSPACE}/gradle.properties"
+        GROUP = "${env.BUILD_PROPS.group}"
+        VERSION = "${env.BUILD_PROPS.version}"
     }
     stages {
         stage ('Env health check and input sanitization') {
             steps {
-                if (env.VERSION == null) {
-                    error('Version was not set or parsed properly.')
+                script {
+                    if (env.VERSION == null) {
+                        error('Version was not set or parsed properly.')
+                    }
+                    if (env.BRANCH_NAME == null) {
+                        error('Branch name environment variable was incorrectly set.')
+                    }
+                    if (BUILD_TAG_PREFIX != '') {
+                        BUILD_TAG_PREFIX += '-'
+                    }
+                    if (BUILD_TAG_SUFFIX != '') {
+                        BUILD_TAG_SUFFIX = '-' + BUILD_TAG_SUFFIX
+                    }
+                    env.SERVER_IMAGE_FULL_NAME = "${DOCKER_REPO_LOCATION}/${DOCKER_REPO}${BUILD_TAG_PREFIX}ha-appserver${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}"
+                    env.FRONTEND_IMAGE_FULL_NAME = "${DOCKER_REPO_LOCATION}/${DOCKER_REPO}${BUILD_TAG_PREFIX}ha-appserver${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}"
+                    echo env.SERVER_IMAGE_FULL_NAME
+                    echo env.FRONTEND_IMAGE_FULL_NAME
                 }
-                if (env.BRANCH_NAME == null) {
-                    error('Branch name environment variable was incorrectly set.')
-                }
-                if (BUILD_TAG_PREFIX != '') {
-                    BUILD_TAG_PREFIX += '-'
-                }
-                if (BUILD_TAG_SUFFIX != '') {
-                    BUILD_TAG_SUFFIX = '-' + BUILD_TAG_SUFFIX
+                echo 'env: ' + sh (
+                    script: 'env|sort',
+                    returnStdout: true
+                )
+                container ('img-jdk17-gcloud') {
+                    echo 'img version: ' + sh (
+                        script: 'img --version',
+                        returnStdout: true
+                    )
+                    echo 'java version: ' + sh (
+                        script: 'java --version',
+                        returnStdout: true
+                    )
+                    echo 'gcloud version: ' + sh (
+                        script: 'gcloud --version',
+                        returnStdout: true
+                    )
+                    echo 'python version: ' + sh (
+                        script: 'python --version',
+                        returnStdout: true
+                    )
+                    echo 'npm version: ' + sh (
+                        script: 'npm --version',
+                        returnStdout: true
+                    )
+                    // authenticate once within the container for the rest of the build
+                    withCredentials ([file(credentialsId: 'hacmsa', variable: 'hacmsa')]) {
+                        writeFile file: '~/hacmsa.json', text: readFile(hacmsa)
+                    }
+                    sh (
+                        script: "gcloud auth activate-service-account --key-file=~/hacmsa.json --quiet && gcloud auth configure-docker ${DOCKER_REPO_LOCATION} --quiet"
+                    )
                 }
             }
         }
         stage ('Build artifacts') {
             steps {
-                dir ("${WORKSPACE}") {
-                    sh (
-                        script: './gradlew distribute'
-                    )
+                container ('img-jdk17-gcloud') {
+                    dir ("${WORKSPACE}") {
+                        sh (
+                            script: './gradlew distribute'
+                        )
+                    }
                 }
             }
         }
@@ -48,84 +91,85 @@ pipeline {
                 }
             }
             steps {
-                dir ("${WORKSPACE}/env/cloud/kubernetes") {
-                    dir ('appserver') {
-                        echo 'Building appserver image...'
+                container ('img-jdk17-gcloud') {
+                    dir ("${WORKSPACE}") {
+                        echo 'Building server image...'
                         sh (
-                            script: "docker build . -t '${BUILD_TAG_PREFIX}ha-appserver${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}' --build-arg artifactPath='${WORKSPACE}/dist/server/'"
+                            script: "img build . -f env/kubernetes/server/Dockerfile -t '${env.SERVER_IMAGE_FULL_NAME}' --build-arg artifactPath='dist/server/'"
                         )
-                    }
-                    dir ('frontend') {
                         echo 'Building frontend image...'
                         sh (
-                            script: "docker build . -t '${BUILD_TAG_PREFIX}ha-frontend${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}' --build-arg artifactPath='${WORKSPACE}/dist/frontend/'"
+                            script: "img build . -f env/kubernetes/frontend/Dockerfile -t '${env.FRONTEND_IMAGE_FULL_NAME}' --build-arg artifactPath='frontend'"
                         )
-                    }
-                    dir ('loginserver') {
                         echo 'Building loginserver image...'
-                        sh (
-                            script: ''
-                        )
-                    }
-                    dir ('consumerserver') {
-                        echo 'Building consumerserver image...'
-                        sh (
-                            script: ''
-                        )
+//                         sh (
+//                             script: ''
+//                         )
+                        echo 'Building action image...'
+//                         sh (
+//                             script: ''
+//                         )
                     }
                 }
             }
         }
-        stage ('Push docker images') {
+        stage ('Push server docker image') {
             when {
                 expression {
-                    BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('server')
                 }
             }
-            dir ("${WORKSPACE}/env/cloud/kubernetes") {
-                dir ('appserver') {
-                    when {
-                        expression {
-                            PUSH_IMAGES.contains('appserver')
-                        }
-                    }
-                    echo 'Pushing appserver image...'
+            steps {
+                container ('img-jdk17-gcloud') {
+                    echo 'Pushing server image...'
                     sh (
-                        script: ''
+                        script: "img push '${env.SERVER_IMAGE_FULL_NAME}'"
                     )
                 }
-                dir ('frontend') {
-                    when {
-                        expression {
-                            PUSH_IMAGES.contains('frontend')
-                        }
-                    }
+            }
+        }
+        stage ('Push frontend docker image') {
+            when {
+                expression {
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('frontend')
+                }
+            }
+            steps {
+                container ('img-jdk17-gcloud') {
                     echo 'Pushing frontend image...'
                     sh (
-                        script: ''
+                        script: "img push '${env.FRONTEND_IMAGE_FULL_NAME}'"
                     )
                 }
-                dir ('loginserver') {
-                    when {
-                        expression {
-                            PUSH_IMAGES.contains('loginserver')
-                        }
-                    }
+            }
+        }
+        stage ('Push loginserver docker image') {
+            when {
+                expression {
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('loginserver')
+                }
+            }
+            steps {
+                container ('img-jdk17-gcloud') {
                     echo 'Pushing loginserver image...'
-                    sh (
-                        script: ''
-                    )
+//                     sh (
+//                         script: ''
+//                     )
                 }
-                dir ('consumerserver') {
-                    when {
-                        expression {
-                            PUSH_IMAGES.contains('consumerserver')
-                        }
-                    }
-                    echo 'Pushing consumerserver image...'
-                    sh (
-                        script: ''
-                    )
+            }
+        }
+        stage ('Push actionserver docker image') {
+            when {
+                expression {
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('actionserver')
+                }
+            }
+            steps {
+                container ('img-jdk17-gcloud') {
+                    echo 'Pushing actionserver image...'
+//                     sh (
+//                         script: ''
+//                     )
                 }
             }
         }

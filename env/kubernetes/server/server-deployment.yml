@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: server
+      id: "o"
+  template:
+    metadata:
+      labels:
+        app: server
+        id: "o"
+    spec:
+      containers:
+        - name: server
+          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-server:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER_INTERNAL_IP
+              value: "server:8080"
+            - name: KAFKA_BROKERCONNECT
+              value: "kafka:9092"

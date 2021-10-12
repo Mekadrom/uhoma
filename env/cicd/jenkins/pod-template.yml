@@ -1,0 +1,9 @@
+metadata:
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/img-jdk17-gcloud: unconfined
+    container.seccomp.security.alpha.kubernetes.io/img-jdk17-gcloud: unconfined
+spec:
+  containers:
+    - name: img-jdk17-gcloud
+      securityContext:
+        privileged: true

@@ -1,6 +1,3 @@
-group = 'com.higgs'
-version = '1.0.0'
-
 repositories {
     mavenCentral()
 }
@@ -10,6 +7,7 @@ dependencies {
 
 bootJar {
     dependsOn processResources
+    archiveFileName = "${archiveBaseName.get()}.jar"
 }
 
 bootRun {
