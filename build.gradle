@@ -5,12 +5,8 @@ plugins {
     id 'java'
 }
 
-group = 'com.higgs'
-version = '1.0.0'
-
 ext {
     distDir = 'dist'
-    runScriptsDir = 'runscripts'
 }
 
 repositories {
@@ -18,9 +14,6 @@ repositories {
 }
 
 subprojects { subproject ->
-    group = 'com.higgs'
-    version = '1.0.0'
-
     subproject.apply plugin: 'io.spring.dependency-management'
     subproject.apply plugin: 'java'
     subproject.apply plugin: SpringBootPlugin
@@ -137,12 +130,6 @@ task copyToDist(type: Copy) {
     into('frontend') {
         with copySpec {
             from('frontend/dist/frontend')
-        }
-    }
-
-    into('') {
-        with copySpec {
-            from("${runScriptsDir}")
         }
     }
 }

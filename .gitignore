@@ -11,3 +11,5 @@ frontend/dist
 .terraform.lock.hcl
 .terraform
 *.tfstate*
+
+env/cicd/jenkins/agent-images/img-jdk17-gcloud/accesstoken

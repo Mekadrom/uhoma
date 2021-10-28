@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  labels:
+    name: server
+spec:
+  type: LoadBalancer
+  selector:
+    app: server
+    id: "o"
+  ports:
+    - port: 8080
+      name: server-port
+      protocol: TCP

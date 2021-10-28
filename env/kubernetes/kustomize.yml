@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - actionserver/actionserver-deployment.yml
+  - actionserver/actionserver-service.yml
+  - elk/elasticsearch-deployment.yml
+  - elk/elasticsearch-persistent.yml
+  - elk/elasticsearch-service.yml
+  - elk/kibana-deployment.yml
+  - elk/kibana-service.yml
+  - elk/logstash-deployment.yml
+  - elk/logstash-service.yml
+  - frontend/frontend-deployment.yml
+  - frontend/frontend-service.yml
+  - kafka/broker-deployment.yml
+  - kafka/broker-service.yml
+  - kafka/kafdrop-deployment.yml
+  - kafka/kafdrop-service.yml
+  - kafka/zookeeper-deployment.yml
+  - kafka/zookeeper-service.yml
+  - postgres/postgres-deployment.yml
+  - postgres/postgres-persistent.yml
+  - postgres/postgres-persistent-claim.yml
+  - postgres/postgres-service.yml
+  - server/server-deployment.yml
+  - server/server-service.yml
