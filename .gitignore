@@ -12,4 +12,4 @@ frontend/dist
 .terraform
 *.tfstate*
 
-env/cicd/jenkins/agent-images/img-jdk17-gcloud/accesstoken
+env/cicd/jenkins/agent-images/accesstoken

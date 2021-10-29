@@ -1,26 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server0
+  name: app-server0
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: server
+      app: app-server
       id: "o"
   template:
     metadata:
       labels:
-        app: server
+        app: app-server
         id: "o"
     spec:
       containers:
-        - name: server
-          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-server:latest
+        - name: app-server
+          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-server:1.0.0-main
           ports:
             - containerPort: 8080
           env:
             - name: SERVER_INTERNAL_IP
-              value: "server:8080"
+              value: "app-server:8080"
             - name: KAFKA_BROKERCONNECT
-              value: "kafka:9092"
+              value: "kafka-broker:9092"
+      imagePullSecrets:
+        - name: gcr-json-key

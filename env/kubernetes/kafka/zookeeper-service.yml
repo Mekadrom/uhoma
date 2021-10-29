@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: zookeeper
+  name: zookeeper-server
   labels:
-    app: zookeeper
+    app: zookeeper-server
 spec:
   type: ClusterIP
   selector:
-    app: zookeeper
+    app: zookeeper-server
   ports:
     - name: client
       port: 2181

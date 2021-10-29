@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka0
+  name: kafka-broker0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka
+      app: kafka-broker
       id: "o"
   template:
     metadata:
       labels:
-        app: kafka
+        app: kafka-broker
         id: "o"
     spec:
       containers:
-        - name: kafka
+        - name: kafka-broker
           image: confluentinc/cp-kafka:latest
           ports:
             - containerPort: 9092
           env:
             - name: KAFKA_ZOOKEEPER_CONNECT
-              value: "zookeeper:2181"
+              value: "zookeeper-server:2181"
             - name: KAFKA_ADVERTISED_LISTENERS
               value: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP

@@ -16,9 +16,11 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-frontend:latest
+          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-frontend:1.0.0-main
           ports:
             - containerPort: 4200
           env:
             - name: FRONTEND_INTERNAL_IP
               value: "frontend:9000"
+      imagePullSecrets:
+        - name: gcr-json-key

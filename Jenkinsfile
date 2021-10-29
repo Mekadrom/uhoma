@@ -33,8 +33,8 @@ pipeline {
                     if (BUILD_TAG_SUFFIX != '') {
                         BUILD_TAG_SUFFIX = '-' + BUILD_TAG_SUFFIX
                     }
-                    env.SERVER_IMAGE_FULL_NAME = "${DOCKER_REPO_LOCATION}/${DOCKER_REPO}${BUILD_TAG_PREFIX}ha-appserver${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}"
-                    env.FRONTEND_IMAGE_FULL_NAME = "${DOCKER_REPO_LOCATION}/${DOCKER_REPO}${BUILD_TAG_PREFIX}ha-appserver${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}"
+                    env.SERVER_IMAGE_FULL_NAME = "${DOCKER_REPO_LOCATION}/${DOCKER_REPO}${BUILD_TAG_PREFIX}ha-server${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}"
+                    env.FRONTEND_IMAGE_FULL_NAME = "${DOCKER_REPO_LOCATION}/${DOCKER_REPO}${BUILD_TAG_PREFIX}ha-frontend${BUILD_TAG_SUFFIX}:${env.VERSION}-${env.BRANCH_NAME}"
                     echo env.SERVER_IMAGE_FULL_NAME
                     echo env.FRONTEND_IMAGE_FULL_NAME
                 }
@@ -87,7 +87,7 @@ pipeline {
         stage ('Build docker images') {
             when {
                 expression {
-                    BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")
+                    BRANCH_NAME.equals("release") || BRANCH_NAME.contains("main")
                 }
             }
             steps {
@@ -116,7 +116,7 @@ pipeline {
         stage ('Push server docker image') {
             when {
                 expression {
-                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('server')
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("main")) && PUSH_IMAGES.contains('server')
                 }
             }
             steps {
@@ -131,7 +131,7 @@ pipeline {
         stage ('Push frontend docker image') {
             when {
                 expression {
-                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('frontend')
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("main")) && PUSH_IMAGES.contains('frontend')
                 }
             }
             steps {
@@ -146,7 +146,7 @@ pipeline {
         stage ('Push loginserver docker image') {
             when {
                 expression {
-                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('loginserver')
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("main")) && PUSH_IMAGES.contains('loginserver')
                 }
             }
             steps {
@@ -161,7 +161,7 @@ pipeline {
         stage ('Push actionserver docker image') {
             when {
                 expression {
-                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("cicdtest")) || PUSH_IMAGES.contains('actionserver')
+                    (BRANCH_NAME.equals("release") || BRANCH_NAME.contains("main")) && PUSH_IMAGES.contains('actionserver')
                 }
             }
             steps {

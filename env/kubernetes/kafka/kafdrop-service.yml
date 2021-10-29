@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafdrop-ui
+  labels:
+    name: kafdrop-ui
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      name: kafdrop-ui-port
+      protocol: TCP
+  selector:
+    app: kafdrop-ui
+    id: "o"

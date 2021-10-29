@@ -1,26 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: zookeeper0
+  name: zookeeper-server0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: zookeeper
+      app: zookeeper-server
   template:
     metadata:
       labels:
-        app: zookeeper
+        app: zookeeper-server
     spec:
       containers:
-        - name: zookeeper
+        - name: zookeeper-server
           image: confluentinc/cp-zookeeper:latest
           ports:
             - containerPort: 2181
           env:
-            - ZOOKEEPER_SERVER_ID: 1
-                ZOOKEEPER_CLIENT_PORT: 2181
-                ALLOW_ANONYMOUS_LOGIN: "yes"
             - name: ZOOKEEPER_SERVER_ID
               value: "1"
             - name: ZOOKEEPER_CLIENT_PORT
