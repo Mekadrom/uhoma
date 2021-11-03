@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres0
+  name: postgresdb0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: postgresdb
       id: "o"
   template:
     metadata:
       labels:
-        app: postgres
+        app: postgresdb
         id: "o"
     spec:
       imagePullSecrets:
         - name: gcr-json-key
       containers:
-        - name: postgres
+        - name: postgresdb
           image: postgres:latest
           ports:
             - containerPort: 5432
@@ -26,11 +26,11 @@ spec:
                 name: postgres-config
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
-              name: postgresdb
+              name: postgresdbv
           env:
             - name: DB_INTERNAL_IP
               value: "postgres:5432"
       volumes:
-      - name: postgresdb
+      - name: postgresdbv
         persistentVolumeClaim:
           claimName: postgres-pvc

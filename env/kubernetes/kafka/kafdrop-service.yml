@@ -5,11 +5,11 @@ metadata:
   labels:
     name: kafdrop-ui
 spec:
-  type: ClusterIP
+  type: LoadBalancer
+  selector:
+    app: kafdrop-ui
+    id: "o"
   ports:
     - port: 9000
       name: kafdrop-ui-port
       protocol: TCP
-  selector:
-    app: kafdrop-ui
-    id: "o"

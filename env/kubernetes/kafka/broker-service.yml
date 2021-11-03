@@ -6,10 +6,10 @@ metadata:
     name: kafka-broker
 spec:
   type: LoadBalancer
+  selector:
+    app: kafka-broker
+    id: "o"
   ports:
     - port: 9092
       name: kafka-broker-port
       protocol: TCP
-  selector:
-    app: kafka
-    id: "o"

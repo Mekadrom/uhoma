@@ -1,1 +1,3 @@
 gcloud artifacts repositories add-iam-policy-binding hadocker-images --project=root-furnace-306909 --location=us-east1 --member=serviceAccount:hacmsa@root-furnace-306909.iam.gserviceaccount.com --role=roles/artifactregistry.admin
+
+kubectl create secret docker-registry gcr-json-key --docker-server=us-east1-docker.pkg.dev --docker-username=_json_key --docker-password="$(cat json_key.json)" --docker-email=zadarimm@gmail.com

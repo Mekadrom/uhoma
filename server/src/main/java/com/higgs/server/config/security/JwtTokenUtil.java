@@ -1,12 +1,11 @@
 package com.higgs.server.config.security;
 
 import com.higgs.server.db.entity.UserLogin;
-import com.higgs.server.util.HASpringConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,6 @@ public class JwtTokenUtil implements Serializable {
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
     private static final long ACCESS_REFRESH_TOKEN_VALIDITY_SECONDS = 15 * 60 * 60;
 
-    @Value(value = HASpringConstants.SIGNING_KEY)
     private String signingKey;
 
     public String getUsernameFromToken(final String token) {
@@ -40,6 +38,7 @@ public class JwtTokenUtil implements Serializable {
     }
 
     private Claims getAllClaimsFromToken(final String token) {
+        this.ensureSigningKey();
         return Jwts.parser()
                 .setSigningKey(this.signingKey)
                 .parseClaimsJws(token)
@@ -54,7 +53,7 @@ public class JwtTokenUtil implements Serializable {
         final Claims claims = Jwts.claims().setSubject(user.getUsername());
         claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN)));
         claims.put(UserLogin.ACCOUNT_SEQ, user.getAccount().getAccountSeq());
-
+        this.ensureSigningKey();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer("hams")
@@ -78,5 +77,13 @@ public class JwtTokenUtil implements Serializable {
                 .setExpiration(new Date(System.currentTimeMillis() + JwtTokenUtil.ACCESS_REFRESH_TOKEN_VALIDITY_SECONDS * 1000))
                 .signWith(SignatureAlgorithm.HS256, this.signingKey)
                 .compact();
+    }
+
+    private void ensureSigningKey() {
+        if (this.signingKey == null) {
+            final String prop = System.getProperty("security.auth.jwt.signing-key");
+            final String env = System.getenv("HA_SERVER_SIGNING_KEY");
+            this.signingKey = Optional.ofNullable(Optional.ofNullable(prop).orElse(env)).orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
+        }
     }
 }

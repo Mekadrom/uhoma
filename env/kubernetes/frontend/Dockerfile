@@ -12,6 +12,8 @@ COPY "${artifactPath}" ~/ng-app/
 
 WORKDIR ~/ng-app
 
+RUN ng build
+
 ENTRYPOINT ["ng", "serve", "--configuration"]
 
 CMD ["production"]

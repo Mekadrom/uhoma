@@ -22,5 +22,7 @@ spec:
           env:
             - name: FRONTEND_INTERNAL_IP
               value: "frontend:9000"
+            - name: APP_SERVER_EXTERNAL_IP
+              value: "app-server:8080"
       imagePullSecrets:
         - name: gcr-json-key

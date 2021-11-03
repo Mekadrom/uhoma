@@ -22,7 +22,7 @@ spec:
           env:
             - name: SERVER_INTERNAL_IP
               value: "app-server:8080"
-            - name: KAFKA_BROKERCONNECT
-              value: "kafka-broker:9092"
+            - name: HA_SERVER_SIGNING_KEY
+              value: "bruh-momento"
       imagePullSecrets:
         - name: gcr-json-key

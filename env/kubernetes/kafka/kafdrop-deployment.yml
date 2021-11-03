@@ -19,7 +19,7 @@ spec:
             - containerPort: 9000
           env:
             - name: KAFKA_BROKERCONNECT
-              value: "kafka-broker:9092"
+              value: "kafka-broker:29092"
             - name: JVM_OPTS
               value: "-Xms32M -Xmx64M"
             - name: SERVER_SERVLET_CONTEXTPATH

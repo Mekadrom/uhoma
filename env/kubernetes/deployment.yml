@@ -55,7 +55,7 @@ spec:
   selector:
     app: kafdrop-ui
     id: o
-  type: ClusterIP
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: Service
@@ -69,7 +69,7 @@ spec:
     port: 9092
     protocol: TCP
   selector:
-    app: kafka
+    app: kafka-broker
     id: o
   type: LoadBalancer
 ---
@@ -78,13 +78,15 @@ kind: Service
 metadata:
   labels:
     app: postgres
-  name: postgres
+  name: postgresdb
 spec:
   ports:
-  - port: 5432
+  - name: postgresdb-port
+    port: 5432
+    protocol: TCP
   selector:
-    app: postgres
-  type: NodePort
+    app: postgresdb
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: Service
@@ -154,11 +156,14 @@ spec:
         id: o
     spec:
       containers:
-      - env:
+      - args:
+        - -Dspring.profiles.active=prod
+        - -Dspring.datasource.url='jdbc:postgresql://postgresdb:5432/hams_data?currentSchema=hams_data'
+        - -Dsecurity.auth.jwt.signing-key='bruh-momento'
+        - -Dkafka.bootstrap-address='kafka-broker:9092'
+        env:
         - name: SERVER_INTERNAL_IP
           value: app-server:8080
-        - name: KAFKA_BROKERCONNECT
-          value: kafka-broker:9092
         image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-server:1.0.0-main
         name: app-server
         ports:
@@ -186,6 +191,8 @@ spec:
       - env:
         - name: FRONTEND_INTERNAL_IP
           value: frontend:9000
+        - name: APP_SERVER_EXTERNAL_IP
+          value: app-server:8080
         image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-frontend:1.0.0-main
         name: frontend
         ports:
@@ -210,7 +217,7 @@ spec:
       containers:
       - env:
         - name: KAFKA_BROKERCONNECT
-          value: kafka-broker:9092
+          value: kafka-broker:29092
         - name: JVM_OPTS
           value: -Xms32M -Xmx64M
         - name: SERVER_SERVLET_CONTEXTPATH
@@ -256,17 +263,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres0
+  name: postgresdb0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: postgresdb
       id: o
   template:
     metadata:
       labels:
-        app: postgres
+        app: postgresdb
         id: o
     spec:
       containers:
@@ -277,16 +284,16 @@ spec:
         - configMapRef:
             name: postgres-config
         image: postgres:latest
-        name: postgres
+        name: postgresdb
         ports:
         - containerPort: 5432
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
-          name: postgresdb
+          name: postgresdbv
       imagePullSecrets:
       - name: gcr-json-key
       volumes:
-      - name: postgresdb
+      - name: postgresdbv
         persistentVolumeClaim:
           claimName: postgres-pvc
 ---
@@ -316,35 +323,3 @@ spec:
         name: zookeeper-server
         ports:
         - containerPort: 2181
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: app-server-ingress
-spec:
-  rules:
-  - http:
-      paths:
-      - backend:
-          service:
-            name: app-server
-            port:
-              number: 8080
-        path: /*
-        pathType: ImplementationSpecific
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: frontend-ingress
-spec:
-  rules:
-  - http:
-      paths:
-      - backend:
-          service:
-            name: frontend
-            port:
-              number: 4200
-        path: /*
-        pathType: ImplementationSpecific

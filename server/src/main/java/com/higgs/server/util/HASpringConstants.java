@@ -16,6 +16,5 @@ public final class HASpringConstants {
 
     // region variables
     public static final String SHOULD_FILTER_CONSUMER = "${kafka.consumer.should-filter-consumer}";
-    public static final String SIGNING_KEY = "${security.auth.jwt.signing-key}";
     // endregion
 }
