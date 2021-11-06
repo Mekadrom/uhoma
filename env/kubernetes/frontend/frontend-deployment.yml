@@ -7,12 +7,10 @@ spec:
   selector:
     matchLabels:
       app: frontend
-      id: "o"
   template:
     metadata:
       labels:
         app: frontend
-        id: "o"
     spec:
       containers:
         - name: frontend

@@ -13,3 +13,6 @@ frontend/dist
 *.tfstate*
 
 env/cicd/jenkins/agent-images/accesstoken
+
+env/kubernetes/nohup.out
+env/kubernetes/deployment.yml

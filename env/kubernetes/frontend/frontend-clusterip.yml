@@ -5,11 +5,10 @@ metadata:
   labels:
     name: frontend
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: frontend
-    id: "o"
   ports:
-    - port: 4200
-      name: frontend-port
-      protocol: TCP
+    - name: frontend-port
+      port: 4200
+      targetPort: 4200
