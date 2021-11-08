@@ -15,8 +15,9 @@ spec:
       containers:
         - name: frontend
           image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-frontend:1.0.0-main
+          imagePullPolicy: Always
           ports:
-            - containerPort: 4200
+            - containerPort: 80
           env:
             - name: FRONTEND_INTERNAL_IP
               value: "frontend:9000"

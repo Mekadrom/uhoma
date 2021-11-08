@@ -8,7 +8,6 @@ spec:
   type: LoadBalancer
   selector:
     app: kafka-broker
-    id: "o"
   ports:
     - port: 9092
       name: kafka-broker-port

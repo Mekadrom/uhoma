@@ -26,7 +26,8 @@ export class WebSocketService {
     this.client = new Client();
     console.log('created new client');
     this.client.configure({
-      brokerURL: 'ws://' + this.urlProviderService.getHamsHost() + ':' + this.urlProviderService.getHamsPort() + '/socket',
+      // brokerURL: 'ws://' + this.urlProviderService.getHamsHost() + ':' + this.urlProviderService.getHamsPort() + '/socket',
+      brokerURL: this.urlProviderService.getHamsWebSocketUrl(),
       onConnect: () => {
         if (connectCallback) {
           connectCallback();

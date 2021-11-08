@@ -7,15 +7,11 @@ spec:
   selector:
     matchLabels:
       app: postgresdb
-      id: "o"
   template:
     metadata:
       labels:
         app: postgresdb
-        id: "o"
     spec:
-      imagePullSecrets:
-        - name: gcr-json-key
       containers:
         - name: postgresdb
           image: postgres:latest
@@ -29,7 +25,7 @@ spec:
               name: postgresdbv
           env:
             - name: DB_INTERNAL_IP
-              value: "postgres:5432"
+              value: "postgresdb:5432"
       volumes:
       - name: postgresdbv
         persistentVolumeClaim:

@@ -1,34 +1,21 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UrlProviderService {
-  private hamsHost: string = 'localhost';
-  private hamsPort: string = '8080';
-
-  private webSocketEndpoint = '/app/send/message';
+  //private webSocketEndpoint = '/app/send/message';
+  private webSocketEndpoint: string = '/socket';
 
   constructor() { }
 
-  public getHamsHost(): string {
-    return this.hamsHost;
-  }
-
-  public setHamsHost(hamsHost: string): void {
-    this.hamsHost = hamsHost;
-  }
-
-  public getHamsPort(): string {
-    return this.hamsPort;
-  }
-
-  public setHamsPort(hamsPort: string): void {
-    this.hamsPort = hamsPort;
-  }
-
   public getHamsUrl(): string {
-    return 'http://' + this.hamsHost + ':' + this.hamsPort;
+    return 'http://' + environment.apiUrl + ':' + environment.apiPort;
+  }
+
+  public getHamsWebSocketUrl(): string {
+    return 'ws://' + environment.apiUrl + ':' + environment.apiPort + this.webSocketEndpoint;
   }
 
   public getHamsWebSocketEndpoint(): string {

@@ -3,26 +3,29 @@ kind: Deployment
 metadata:
   name: app-server0
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: app-server
-      id: "o"
   template:
     metadata:
       labels:
         app: app-server
-        id: "o"
     spec:
       containers:
         - name: app-server
           image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-server:1.0.0-main
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
             - name: SERVER_INTERNAL_IP
               value: "app-server:8080"
             - name: HA_SERVER_SIGNING_KEY
-              value: "bruh-momento"
+              value: "devsigningkey"
+            - name: KAFKA_BROKER_URL
+              value: "kafka-broker:9092"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
       imagePullSecrets:
         - name: gcr-json-key

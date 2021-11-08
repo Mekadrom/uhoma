@@ -3,9 +3,11 @@ package com.higgs.server.db.repo;
 import com.higgs.server.db.entity.Node;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface NodeRepository extends JpaRepository<Node, Long>, JpaSpecificationExecutor<Node> {
 
     Node getByNodeSeqAndRoomAccountAccountSeq(Long nodeSeq, Long accountSeq);

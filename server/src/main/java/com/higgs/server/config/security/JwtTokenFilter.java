@@ -37,7 +37,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 final String token = header.split(" ")[1].trim();
 
                 final Optional<? extends UserLogin> userDetailsOpt = this.userLoginRepository.findByUsername(this.jwtTokenUtil.getUsernameFromToken(token));
-                if (userDetailsOpt.isPresent()) {
+                if (userDetailsOpt.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
                     final UserLogin userDetails = userDetailsOpt.get();
                     if (this.jwtTokenUtil.validateToken(token, userDetails) && this.tokenClaimsHasCorrectAccount(token, userDetails)) {
                         final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

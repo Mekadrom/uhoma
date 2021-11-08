@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @SuppressWarnings("NonFinalUtilityClass")
-@ComponentScan("com.higgs.server.config.security")
+@ComponentScan({"com.higgs.server"})
 public class HomeAssistantMainServerApplication {
     public static void main(final String[] args) {
         SpringApplication.run(HomeAssistantMainServerApplication.class, args);

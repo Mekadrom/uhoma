@@ -101,7 +101,7 @@ clean.doFirst {
 
 task distribute {
     dependsOn 'buildAll'
-    dependsOn hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev'
+    dependsOn project.hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev'
     finalizedBy 'copyToDist'
 }
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-error_string="Usage: $0 -u username -p password -U URL -P port -d domain -s"
+error_string="Usage: $0 -u username -p password -U URL -P port -d domain -s schema"
 
 username=
 

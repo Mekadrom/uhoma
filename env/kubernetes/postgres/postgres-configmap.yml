@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: postgres-config
   labels:
-    app: postgres
+    app: postgresdb
 data:
   POSTGRES_DB: hams_data
   POSTGRES_USER: hams_data

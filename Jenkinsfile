@@ -78,7 +78,7 @@ pipeline {
                 container ('img-jdk17-gcloud') {
                     dir ("${WORKSPACE}") {
                         sh (
-                            script: './gradlew distribute'
+                            script: './gradlew distribute -PbuildProd'
                         )
                     }
                 }
@@ -99,7 +99,7 @@ pipeline {
                         )
                         echo 'Building frontend image...'
                         sh (
-                            script: "img build . -f env/kubernetes/frontend/Dockerfile -t '${env.FRONTEND_IMAGE_FULL_NAME}' --build-arg artifactPath='frontend'"
+                            script: "img build . -f env/kubernetes/frontend/Dockerfile -t '${env.FRONTEND_IMAGE_FULL_NAME}' --build-arg artifactPath='dist/frontend/'"
                         )
                         echo 'Building loginserver image...'
 //                         sh (

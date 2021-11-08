@@ -4,6 +4,8 @@ server:
   port: 8080
   datasource:
     initialization-mode: always
+  error:
+    include-stacktrace: always
 kafka:
   bootstrap-address: localhost:29092
   topics:

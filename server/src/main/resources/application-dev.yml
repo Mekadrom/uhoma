@@ -1,9 +1,3 @@
-server:
-  servlet:
-    session:
-      persistent: false
-  error:
-    include-stacktrace: always
 spring:
   datasource:
     url: jdbc:h2:mem:testdb
