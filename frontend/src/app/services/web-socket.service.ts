@@ -83,7 +83,6 @@ export class WebSocketService {
   }
 
   private publish(destination: string, jwt: string, message: any): void {
-    console.log('publishing: ' + JSON.stringify(message));
     this.client.publish({destination: destination, headers: {Authorization: 'Bearer ' + jwt}, body: JSON.stringify(message), skipContentLengthHeader: true});
   }
 }

@@ -49,33 +49,31 @@ public class JwtTokenUtil implements Serializable {
         return this.getExpirationDateFromToken(token).before(new Date());
     }
 
-    public String generateToken(final UserLogin user) {
-        final Claims claims = Jwts.claims().setSubject(user.getUsername());
-        claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN)));
-        claims.put(UserLogin.ACCOUNT_SEQ, user.getAccount().getAccountSeq());
-        this.ensureSigningKey();
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuer("hams")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JwtTokenUtil.ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
-                .signWith(SignatureAlgorithm.HS256, this.signingKey)
-                .setSubject(user.getUsername())
-                .compact();
-    }
-
     public Boolean validateToken(final String token, @NonNull final UserDetails userDetails) {
         final String username = this.getUsernameFromToken(token);
         return username.equals(userDetails.getUsername()) && !this.isTokenExpired(token);
     }
 
-    public String generateRefreshToken(final Map<String, Object> claims, final String subject) {
+    public String generateToken(final UserLogin userLogin) {
+        return this.generateToken(userLogin, JwtTokenUtil.ACCESS_TOKEN_VALIDITY_SECONDS);
+    }
+
+    public String generateRefreshToken(final UserLogin userLogin) {
+        return this.generateToken(userLogin, JwtTokenUtil.ACCESS_REFRESH_TOKEN_VALIDITY_SECONDS);
+    }
+
+    public String generateToken(final UserLogin userLogin, final long validityMillis) {
+        final Claims claims = Jwts.claims().setSubject(userLogin.getUsername());
+        claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN)));
+        claims.put(UserLogin.ACCOUNT_SEQ, userLogin.getAccount().getAccountSeq());
+        this.ensureSigningKey();
         return Jwts.builder()
-                .setClaims(Optional.ofNullable(claims).orElseGet(HashMap::new))
-                .setSubject(subject)
+                .setClaims(claims)
+                .setIssuer("hams")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JwtTokenUtil.ACCESS_REFRESH_TOKEN_VALIDITY_SECONDS * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + validityMillis * 1000))
                 .signWith(SignatureAlgorithm.HS256, this.signingKey)
+                .setSubject(userLogin.getUsername())
                 .compact();
     }
 

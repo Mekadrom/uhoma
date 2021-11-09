@@ -39,7 +39,7 @@ export class LoginComponent implements AfterViewInit {
   }
 
   reauth(): void {
-    const refreshToken: string = this.cookieService.get('refresh');
+    const refreshToken: string = this.cookieService.get('refreshToken');
     if(refreshToken && !this.authService.isJwtExpired(refreshToken)) {
       this.authService.refreshJwt(refreshToken);
     }

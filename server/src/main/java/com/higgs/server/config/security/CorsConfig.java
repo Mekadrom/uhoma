@@ -27,8 +27,8 @@ public class CorsConfig {
                                 .map(Enum::toString)
                                 .collect(Collectors.toList())
                                 .toArray(String[]::new))
-                        .allowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CACHE_CONTROL, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "isRefreshToken").toArray(String[]::new))
-                        .exposedHeaders(List.of(HttpHeaders.AUTHORIZATION).toArray(String[]::new))
+                        .allowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CACHE_CONTROL, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "refreshToken").toArray(String[]::new))
+                        .exposedHeaders(List.of(HttpHeaders.AUTHORIZATION, "refreshToken").toArray(String[]::new))
                         .allowCredentials(true);
             }
         };
