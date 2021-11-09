@@ -1,6 +1,8 @@
 package com.higgs.server.web.socket;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -9,6 +11,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 
 import java.util.Optional;
 
+@Configuration
 public class NodeUserInterceptor implements ChannelInterceptor {
     private static final String HEADER_NODE_NAME = "NODE_NAME";
 

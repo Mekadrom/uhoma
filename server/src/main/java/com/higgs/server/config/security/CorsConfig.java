@@ -22,13 +22,14 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(@NotNull final CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOriginPatterns("*")
                         .allowedMethods(Stream.of(HttpMethod.HEAD, HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
                                 .map(Enum::toString)
                                 .collect(Collectors.toList())
                                 .toArray(String[]::new))
                         .allowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CACHE_CONTROL, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "isRefreshToken").toArray(String[]::new))
-                        .exposedHeaders(List.of(HttpHeaders.AUTHORIZATION).toArray(String[]::new));
+                        .exposedHeaders(List.of(HttpHeaders.AUTHORIZATION).toArray(String[]::new))
+                        .allowCredentials(true);
             }
         };
     }

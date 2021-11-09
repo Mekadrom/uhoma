@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Client, Message, Stomp } from '@stomp/stompjs';
+import * as SockJS from 'sockjs-client';
 
 import { CookieService } from 'ngx-cookie-service';
 
@@ -23,11 +24,15 @@ export class WebSocketService {
   }
 
   attach(jwt: string | null | undefined, connectCallback?: () => void): void {
-    this.client = new Client();
+    this.client = Stomp.over(new SockJS(this.urlProviderService.getHamsWebSocketUrl()));
     console.log('created new client');
+    console.log('attaching socket on: ' + this.urlProviderService.getHamsWebSocketUrl());
     this.client.configure({
-      // brokerURL: 'ws://' + this.urlProviderService.getHamsHost() + ':' + this.urlProviderService.getHamsPort() + '/socket',
-      brokerURL: this.urlProviderService.getHamsWebSocketUrl(),
+//       brokerURL: 'ws://' + this.urlProviderService.getHamsHost() + ':' + this.urlProviderService.getHamsPort() + '/socket',
+//       brokerURL: this.urlProviderService.getHamsWebSocketUrl(),
+      connectHeaders: {
+        Authorization: 'Bearer ' + jwt
+      },
       onConnect: () => {
         if (connectCallback) {
           connectCallback();
@@ -61,22 +66,24 @@ export class WebSocketService {
     if (action && userView) {
       const millis = Math.round((new Date()).getTime());
       const reqMsg = {
-        fromNodeSeq: (userView.node as Node).nodeSeq,
+        fromNodeSeq: userView.node ? (userView.node as Node).nodeSeq : 0,
         toNodeSeq: action.ownerNodeSeq,
         actionWithParams: action,
         sentEpoch: millis
       }
       if (reqMsg.toNodeSeq) {
-        if (!this.client) {
-          this.attach(this.cookieService.get('bearer'), () => this.publish(this.urlProviderService.getHamsWebSocketEndpoint(), reqMsg));
+        const jwt: string = this.cookieService.get('bearer');
+        if (!this.client || !this.client.connected) {
+          this.attach(jwt, () => this.publish(this.urlProviderService.getHamsWebSocketMessageEndpoint(), jwt, reqMsg));
         } else {
-          this.publish(this.urlProviderService.getHamsWebSocketEndpoint(), reqMsg);
+          this.publish(this.urlProviderService.getHamsWebSocketMessageEndpoint(), jwt, reqMsg);
         }
       }
     }
   }
 
-  private publish(destination: string, message: any): void {
-    this.client.publish({destination: destination, body: JSON.stringify(message), skipContentLengthHeader: true});
+  private publish(destination: string, jwt: string, message: any): void {
+    console.log('publishing: ' + JSON.stringify(message));
+    this.client.publish({destination: destination, headers: {Authorization: 'Bearer ' + jwt}, body: JSON.stringify(message), skipContentLengthHeader: true});
   }
 }

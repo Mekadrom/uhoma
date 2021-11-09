@@ -46,11 +46,10 @@ public class NodeSocketController {
 //        this.producer.send(this.nodeMessageTopicName, String.valueOf(new Date().toInstant().getNano()), message, headers);
 //    }
 
-    @MessageMapping("/send/message")
-    public void sendMessage(final String user, final String message) {
-        System.out.println(user);
-        System.out.println(message);
-        this.messagingTemplate.convertAndSendToUser(user, "/message", message);
+    @MessageMapping("/nodeaction")
+    public void receiveMessage(final String message) {
+        NodeSocketController.log.error(message);
+//        this.messagingTemplate.convertAndSendToUser(user, "/message", message);
     }
 
 //    public void send(final String message, final Map<String, Object> headers) {

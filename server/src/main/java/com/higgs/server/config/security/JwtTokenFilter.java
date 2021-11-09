@@ -34,7 +34,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         try {
             final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (StringUtils.isNotBlank(header) && header.startsWith("Bearer ")) {
-                final String token = header.split(" ")[1].trim();
+                final String token = header.substring(7);
 
                 final Optional<? extends UserLogin> userDetailsOpt = this.userLoginRepository.findByUsername(this.jwtTokenUtil.getUsernameFromToken(token));
                 if (userDetailsOpt.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {

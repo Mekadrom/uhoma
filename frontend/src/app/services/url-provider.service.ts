@@ -5,8 +5,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class UrlProviderService {
-  //private webSocketEndpoint = '/app/send/message';
   private webSocketEndpoint: string = '/socket';
+  private webSocketMessageEndpoint = '/app/nodeaction';
 
   constructor() { }
 
@@ -15,15 +15,11 @@ export class UrlProviderService {
   }
 
   public getHamsWebSocketUrl(): string {
-    return 'ws://' + environment.apiUrl + ':' + environment.apiPort + this.webSocketEndpoint;
+    return 'http://' + environment.apiUrl + ':' + environment.apiPort + this.webSocketEndpoint;
   }
 
-  public getHamsWebSocketEndpoint(): string {
-    return this.webSocketEndpoint;
-  }
-
-  public setHamsWebSocketEndpoint(webSocketEndpoint: string): void {
-    this.webSocketEndpoint = webSocketEndpoint;
+  public getHamsWebSocketMessageEndpoint(): string {
+    return this.webSocketMessageEndpoint;
   }
 
   public getAuthUrl(): string {

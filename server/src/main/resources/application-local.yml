@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hams_data?currentSchema=hams_data
+    driverClassName: org.postgresql.Driver
+    username: hams_data
+    password: hams_data
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQL82Dialect
+      hibernate:
+        ddl-auto: validate
+kafka:
+  bootstrap-address: localhost:9092

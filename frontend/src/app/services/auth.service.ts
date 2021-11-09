@@ -44,7 +44,7 @@ export class AuthService {
         const newJwt: string | null = resp.headers.get('Authorization');
         const newRefreshToken: string | null = resp.headers.get('refreshToken');
         if (newJwt && newRefreshToken) {
-          this.cookieService.set('bearer', newJwt);
+          this.cookieService.set('bearer', 'Bearer: ' + newJwt);
           this.cookieService.set('refreshToken', newRefreshToken);
         }
       }
