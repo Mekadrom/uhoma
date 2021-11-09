@@ -1,6 +1,7 @@
 package com.higgs.server.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -13,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -41,5 +43,7 @@ public class ActionParameter {
     @Column(name = "DEFAULT_VALUE")
     private String defaultValue;
 
+    @Transient
+    @JsonInclude
     private String currentValue;
 }

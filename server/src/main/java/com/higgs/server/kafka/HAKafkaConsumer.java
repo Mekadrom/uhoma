@@ -16,8 +16,8 @@ import java.util.List;
 public class HAKafkaConsumer {
     private final List<? extends Handler> handlers;
 
-    @KafkaListener(topics = HASpringConstants.NODE_MESSAGE_TOPIC_NAME)
-    public void listenNodeMessageTopic(@Headers final MultiValueMap<String, String> headers, @Payload final String message) {
-        this.handlers.forEach(it -> it.handle(headers, message));
-    }
+//    @KafkaListener(topics = HASpringConstants.NODE_MESSAGE_TOPIC_NAME)
+//    public void listenNodeMessageTopic(@Headers final MultiValueMap<String, String> headers, @Payload final String message) {
+//        this.handlers.forEach(it -> it.handle(headers, message));
+//    }
 }

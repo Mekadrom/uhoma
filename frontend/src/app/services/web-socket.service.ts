@@ -66,10 +66,11 @@ export class WebSocketService {
     if (action && userView) {
       const millis = Math.round((new Date()).getTime());
       const reqMsg = {
-        fromNodeSeq: userView.node ? (userView.node as Node).nodeSeq : 0,
+        fromNodeSeq: userView.node ? (userView.node as Node).nodeSeq : null,
         toNodeSeq: action.ownerNodeSeq,
         actionWithParams: action,
-        sentEpoch: millis
+        sentEpoch: millis,
+        username: userView.username
       }
       if (reqMsg.toNodeSeq) {
         const jwt: string = this.cookieService.get('bearer');
