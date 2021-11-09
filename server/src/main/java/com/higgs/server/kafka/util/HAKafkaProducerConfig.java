@@ -1,6 +1,6 @@
 package com.higgs.server.kafka.util;
 
-import com.higgs.server.util.HASpringConstants;
+import com.higgs.server.util.HAConfiguration;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Configuration
 public class HAKafkaProducerConfig {
-    @Value(value = HASpringConstants.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
+    @Value(value = HAConfiguration.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
     private String bootstrapAddress;
 
     @Bean

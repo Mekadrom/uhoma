@@ -1,6 +1,6 @@
 package com.higgs.server.kafka.util;
 
-import com.higgs.server.util.HASpringConstants;
+import com.higgs.server.util.HAConfiguration;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -16,13 +16,13 @@ import java.util.Map;
 
 @Configuration
 public class HAKafkaConsumerConfig {
-    @Value(value = HASpringConstants.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
+    @Value(value = HAConfiguration.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
     private String bootstrapAddress;
 
-    @Value(value = HASpringConstants.VALUE_KAFKA_CONSUMER_GROUP_ID)
+    @Value(value = HAConfiguration.VALUE_KAFKA_CONSUMER_GROUP_ID)
     private String groupId;
 
-    @Value(value = HASpringConstants.SHOULD_FILTER_CONSUMER)
+    @Value(value = HAConfiguration.SHOULD_FILTER_CONSUMER)
     private boolean shouldFilterConsumer;
 
     @Bean

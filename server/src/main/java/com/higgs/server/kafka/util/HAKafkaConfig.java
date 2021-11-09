@@ -1,6 +1,6 @@
 package com.higgs.server.kafka.util;
 
-import com.higgs.server.util.HASpringConstants;
+import com.higgs.server.util.HAConfiguration;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +13,7 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class HAKafkaConfig {
-    @Value(value = HASpringConstants.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
+    @Value(value = HAConfiguration.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
     private String bootstrapAddress;
 
     @Bean
