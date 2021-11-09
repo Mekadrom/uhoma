@@ -20,7 +20,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class NodeSocketBrokerConfigurer implements WebSocketMessageBrokerConfigurer {
-    private final NodeUserInterceptor nodeUserInterceptor;
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
 
     @Override
@@ -32,7 +31,7 @@ public class NodeSocketBrokerConfigurer implements WebSocketMessageBrokerConfigu
 
     @Override
     public void configureClientInboundChannel(@NotNull final ChannelRegistration registration) {
-        registration.interceptors(this.nodeUserInterceptor, this.webSocketAuthInterceptor);
+        registration.interceptors(this.webSocketAuthInterceptor);
     }
 
     @Override

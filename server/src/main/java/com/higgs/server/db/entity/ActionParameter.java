@@ -40,4 +40,6 @@ public class ActionParameter {
 
     @Column(name = "DEFAULT_VALUE")
     private String defaultValue;
+
+    private String currentValue;
 }
