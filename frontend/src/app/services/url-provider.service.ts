@@ -26,10 +26,6 @@ export class UrlProviderService {
     return this.getHamsUrl() + '/auth/login';
   }
 
-  public getTokenRefreshUrl(): string {
-    return this.getHamsUrl() + '/auth/refreshToken';
-  }
-
   public getUserViewRefreshUrl(): string {
     return this.getHamsUrl() + '/auth/refreshUserView';
   }

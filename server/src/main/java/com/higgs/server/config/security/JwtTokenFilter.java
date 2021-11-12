@@ -1,13 +1,13 @@
 package com.higgs.server.config.security;
 
-import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
-import io.jsonwebtoken.ExpiredJwtException;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,51 +19,23 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+@Slf4j
 @Component
+@AllArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserLoginRepository userLoginRepository;
 
-    public JwtTokenFilter(final JwtTokenUtil jwtTokenUtil, final UserLoginRepository userLoginRepository) {
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.userLoginRepository = userLoginRepository;
-    }
-
     @Override
-    protected void doFilterInternal(final HttpServletRequest request, @NonNull final HttpServletResponse response, @NonNull final FilterChain chain) throws ServletException, IOException {
-        try {
-            final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-            if (StringUtils.isNotBlank(header) && header.startsWith("Bearer ")) {
-                final String token = header.substring(7);
-
-                final Optional<? extends UserLogin> userDetailsOpt = this.userLoginRepository.findByUsername(this.jwtTokenUtil.getUsernameFromToken(token));
-                if (userDetailsOpt.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    final UserLogin userDetails = userDetailsOpt.get();
-                    if (this.jwtTokenUtil.validateToken(token, userDetails) && this.tokenClaimsHasCorrectAccount(token, userDetails)) {
-                        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                }
-            }
-        } catch (final ExpiredJwtException e) {
-            final String isRefreshToken = request.getHeader("isRefreshToken");
-            final String requestUrl = request.getRequestURL().toString();
-            if (isRefreshToken != null && Boolean.getBoolean(isRefreshToken) && requestUrl.contains("refreshToken")) {
-                this.allowForRefreshToken(e, request);
-            }
+    protected void doFilterInternal(final HttpServletRequest request, @NonNull final HttpServletResponse response, @NonNull final FilterChain chain) throws IOException, ServletException {
+        final Optional<? extends UserDetails> userDetailsOpt = this.jwtTokenUtil.parseAndValidateToken(request.getHeader(HttpHeaders.AUTHORIZATION), this.userLoginRepository::findByUsername);
+        if (userDetailsOpt.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
+            final UserDetails userDetails = userDetailsOpt.get();
+            JwtTokenFilter.log.debug("Successfully validated jwt for {}", userDetails.getUsername());
+            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         chain.doFilter(request, response);
-    }
-
-    private void allowForRefreshToken(final ExpiredJwtException e, final HttpServletRequest request) {
-        final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(null, null, null);
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-        request.setAttribute("claims", e.getClaims());
-    }
-
-    private boolean tokenClaimsHasCorrectAccount(final String token, final UserLogin userLogin) {
-        final Long accountSeq = this.jwtTokenUtil.getClaimFromToken(token, claims -> claims.get(UserLogin.ACCOUNT_SEQ, Long.class));
-        return accountSeq != null && accountSeq.equals(userLogin.getAccount().getAccountSeq());
     }
 }

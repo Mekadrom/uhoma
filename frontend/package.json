@@ -28,6 +28,7 @@
     "ngx-cookie-service": "^12.0.0",
     "ngx-toastr": "^14.0.0",
     "rxjs": "~6.6.0",
+    "rxjs-compat": "^6.6.7",
     "sockjs-client": "^1.5.1",
     "stompjs": "^2.3.3",
     "tslib": "^2.1.0",

@@ -1,10 +1,9 @@
 package com.higgs.server.kafka.util;
 
-import com.higgs.server.util.HAConfiguration;
+import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -14,22 +13,19 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * todo: move consumer/handler logic out to another microservice
+ */
 @Configuration
+@AllArgsConstructor
 public class HAKafkaConsumerConfig {
-    @Value(value = HAConfiguration.VALUE_KAFKA_BOOTSTRAP_ADDRESS)
-    private String bootstrapAddress;
-
-    @Value(value = HAConfiguration.VALUE_KAFKA_CONSUMER_GROUP_ID)
-    private String groupId;
-
-    @Value(value = HAConfiguration.SHOULD_FILTER_CONSUMER)
-    private boolean shouldFilterConsumer;
+    private final HAKafkaConfig kafkaConfig;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapAddress,
-                ConsumerConfig.GROUP_ID_CONFIG, this.groupId,
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaConfig.getBootstrapAddress(),
+                ConsumerConfig.GROUP_ID_CONFIG, this.kafkaConfig.getConsumer().getGroupId(),
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
         );
@@ -39,7 +35,7 @@ public class HAKafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         final ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(this.consumerFactory());
-        if (this.shouldFilterConsumer) {
+        if (this.kafkaConfig.getConsumer().isShouldFilterConsumer()) {
             factory.setRecordFilterStrategy(record -> Arrays.stream(record.headers().toArray()).filter(this::recipientKey).anyMatch(this::recipientValue));
         }
         return factory;

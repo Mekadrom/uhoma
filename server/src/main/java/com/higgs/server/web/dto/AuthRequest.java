@@ -1,4 +1,4 @@
-package com.higgs.server.web.service.dto;
+package com.higgs.server.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,8 @@ import lombok.NonNull;
 @AllArgsConstructor
 public class AuthRequest {
     @NonNull
-    private String username;
-    @NonNull
     private String password;
+
+    @NonNull
+    private String username;
 }

@@ -71,9 +71,7 @@ export class DashboardComponent implements AfterViewInit {
               private webSocketService: WebSocketService) { }
 
   ngAfterViewInit(): void {
-    if (this.authService.isJwtExpired(this.cookieService.get('bearer'))) {
-      this.reauth();
-    }
+    const jwt: string | null | undefined = this.cookieService.get('bearer');
     if (!this.userProviderService.getUserView()) {
       this.authService.refreshUserView();
     }
@@ -81,13 +79,6 @@ export class DashboardComponent implements AfterViewInit {
       this.webSocketService.attach(this.cookieService.get('bearer'));
     }
     this.fetch();
-  }
-
-  reauth(): void {
-    const refreshToken: string = this.cookieService.get('refreshToken');
-    if(refreshToken && !this.authService.isJwtExpired(refreshToken)) {
-      this.authService.refreshJwt(refreshToken);
-    }
   }
 
   fetch(): void {
@@ -105,7 +96,6 @@ export class DashboardComponent implements AfterViewInit {
         this.loading = false;
         this.failedToLoad = false;
         this.setNodeData(resp);
-        console.log(JSON.stringify(this.savedNodes));
       },
       (err: any) => {
         this.loading = false
@@ -559,10 +549,9 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   executeAction(): void {
-    // todo: websocket integration
     const action: Action | null = this.getAction(this.getSelectedActionRow());
     if (action) {
-      this.webSocketService.executeAction(action);
+      this.webSocketService.executeAction(action, false);
     }
   }
 }

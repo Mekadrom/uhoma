@@ -1,27 +1,25 @@
 package com.higgs.server.config.security;
 
 import com.higgs.server.db.entity.UserLogin;
+import com.higgs.server.util.HAConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.NonNull;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 public class JwtTokenUtil implements Serializable {
-    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
-    private static final long ACCESS_REFRESH_TOKEN_VALIDITY_SECONDS = 15 * 60 * 60;
+    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
 
     private String signingKey;
 
@@ -58,23 +56,24 @@ public class JwtTokenUtil implements Serializable {
         return this.generateToken(userLogin, JwtTokenUtil.ACCESS_TOKEN_VALIDITY_SECONDS);
     }
 
-    public String generateRefreshToken(final UserLogin userLogin) {
-        return this.generateToken(userLogin, JwtTokenUtil.ACCESS_REFRESH_TOKEN_VALIDITY_SECONDS);
+    public String generateToken(final UserLogin userLogin, final long validityMillis) {
+        this.ensureSigningKey();
+        return this.generateToken(userLogin, validityMillis, this.signingKey);
     }
 
-    public String generateToken(final UserLogin userLogin, final long validityMillis) {
+    public String generateToken(final UserLogin userLogin, final long validityMillis, final String signingKey) {
         final Claims claims = Jwts.claims().setSubject(userLogin.getUsername());
-        claims.put("scopes", Collections.singletonList(new SimpleGrantedAuthority(Roles.ADMIN)));
         claims.put(UserLogin.ACCOUNT_SEQ, userLogin.getAccount().getAccountSeq());
-        this.ensureSigningKey();
-        return Jwts.builder()
+        final String jwt = Jwts.builder()
                 .setClaims(claims)
                 .setIssuer("hams")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + validityMillis * 1000))
-                .signWith(SignatureAlgorithm.HS256, this.signingKey)
+                .signWith(SignatureAlgorithm.HS256, signingKey)
                 .setSubject(userLogin.getUsername())
                 .compact();
+        JwtTokenUtil.log.info("Successfully generated jwt for {}", userLogin.getUsername());
+        return jwt;
     }
 
     private void ensureSigningKey() {
@@ -83,5 +82,30 @@ public class JwtTokenUtil implements Serializable {
             final String env = System.getenv("HA_SERVER_SIGNING_KEY");
             this.signingKey = Optional.ofNullable(Optional.ofNullable(prop).orElse(env)).orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
         }
+    }
+
+    public String removePrefix(final String tokenOrBearer) {
+        if (tokenOrBearer != null && tokenOrBearer.startsWith(HAConstants.BEARER_PREFIX)) {
+            return tokenOrBearer.substring(HAConstants.BEARER_PREFIX.length());
+        }
+        return tokenOrBearer;
+    }
+
+    public Optional<? extends UserDetails> parseAndValidateToken(final String bearer, final Function<String, Optional<UserLogin>> userRetriever) {
+        final String tokenNoPrefix = this.removePrefix(bearer);
+        if (StringUtils.isNotBlank(tokenNoPrefix)) {
+            final String username = this.getUsernameFromToken(tokenNoPrefix);
+            if (StringUtils.isNotBlank(username)) {
+                return userRetriever.apply(username)
+                        .filter(userDetails -> this.validateToken(tokenNoPrefix, userDetails))
+                        .filter(userLogin -> this.tokenClaimsHasCorrectAccount(tokenNoPrefix, userLogin));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean tokenClaimsHasCorrectAccount(final String token, final UserLogin userLogin) {
+        final Long accountSeq = this.getClaimFromToken(token, claims -> claims.get(UserLogin.ACCOUNT_SEQ, Long.class));
+        return accountSeq != null && accountSeq.equals(userLogin.getAccount().getAccountSeq());
     }
 }

@@ -27,21 +27,12 @@ export class LoginComponent implements AfterViewInit {
               private webSocketService: WebSocketService) { }
 
   ngAfterViewInit(): void {
-    if (this.authService.isJwtExpired(this.cookieService.get('bearer'))) {
-      this.reauth();
-    }
+    const jwt: string | null | undefined = this.cookieService.get('bearer');
     if (!this.userProviderService.getUserView()) {
       this.authService.refreshUserView();
     }
     if (this.cookieService.get('bearer') && this.userProviderService.getUserView() && !this.webSocketService.isConnected()) {
       this.webSocketService.attach(this.cookieService.get('bearer'));
-    }
-  }
-
-  reauth(): void {
-    const refreshToken: string = this.cookieService.get('refreshToken');
-    if(refreshToken && !this.authService.isJwtExpired(refreshToken)) {
-      this.authService.refreshJwt(refreshToken);
     }
   }
 

@@ -1,5 +1,4 @@
-node:
-  name: server
+name: server
 server:
   port: 8080
   datasource:
@@ -10,6 +9,10 @@ kafka:
   bootstrap-address: localhost:29092
   topics:
     node-message: node-message
+    node-telemetry: node-telemetry
   consumer:
     group-id: server-consumer
     should-filter-consumer: false
+management:
+  endpoints:
+    enabled-by-default: false

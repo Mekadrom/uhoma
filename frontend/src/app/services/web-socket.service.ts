@@ -19,19 +19,11 @@ export class WebSocketService {
               private urlProviderService: UrlProviderService,
               private userProviderService: UserProviderService) {}
 
-  public isConnected(): boolean {
-    return !!this.client;
-  }
-
   attach(jwt: string | null | undefined, connectCallback?: () => void): void {
     this.client = Stomp.over(new SockJS(this.urlProviderService.getHamsWebSocketUrl()));
-    console.log('created new client');
-    console.log('attaching socket on: ' + this.urlProviderService.getHamsWebSocketUrl());
     this.client.configure({
-//       brokerURL: 'ws://' + this.urlProviderService.getHamsHost() + ':' + this.urlProviderService.getHamsPort() + '/socket',
-//       brokerURL: this.urlProviderService.getHamsWebSocketUrl(),
       connectHeaders: {
-        Authorization: 'Bearer ' + jwt
+        'Authorization': 'Bearer ' + jwt
       },
       onConnect: () => {
         if (connectCallback) {
@@ -42,27 +34,18 @@ export class WebSocketService {
         console.log(new Date(), str);
       }
     });
-    console.log('configured client');
     this.client.activate();
-    console.log('activated client');
   }
 
-  executeAction(action: Action): void {
-    let userView: any = this.userProviderService.getUserView();
+  executeAction(action: Action, lastChance: boolean): void {
+    const userView: any = this.userProviderService.getUserView();
+    const jwt: string | null | undefined = this.cookieService.get('bearer');
     if (userView) {
       this.doExecuteAction(action, userView);
-    } else {
-      const that: any = this;
-      this.authService.refreshJwt(this.cookieService.get('refreshToken')).subscribe(
-        (resp: HttpResponse<UserView>) => {
-          that.doExecuteAction(action, resp.body);
-        }
-      );
     }
   }
 
   private doExecuteAction(action: Action, userView: UserView): void {
-    console.log('sending: ' + JSON.stringify(action));
     if (action && userView) {
       const millis = Math.round((new Date()).getTime());
       const reqMsg = {
@@ -84,6 +67,10 @@ export class WebSocketService {
   }
 
   private publish(destination: string, jwt: string, message: any): void {
-    this.client.publish({destination: destination, headers: {Authorization: 'Bearer ' + jwt}, body: JSON.stringify(message), skipContentLengthHeader: true});
+    this.client.publish({destination: destination, headers: {'Authorization': 'Bearer ' + jwt}, body: JSON.stringify(message), skipContentLengthHeader: true});
+  }
+
+  public isConnected(): boolean {
+    return this.client && this.client.connected;
   }
 }

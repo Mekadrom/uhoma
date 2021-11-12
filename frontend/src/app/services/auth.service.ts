@@ -30,20 +30,6 @@ export class AuthService {
     return obs;
   }
 
-  public refreshJwt(refreshToken: string): Observable<HttpResponse<UserView>> {
-    const obs = this.http.post<UserView>(this.urlProviderService.getTokenRefreshUrl(), {}, { observe: 'response' }).pipe(
-      retry(1),
-      catchError(this.handleError),
-      shareReplay(1)
-    );
-    obs.subscribe(
-      (resp: HttpResponse<UserView>) => {
-        this.processResponse(resp);
-      }
-    );
-    return obs;
-  }
-
   public refreshUserView(): Observable<HttpResponse<UserView>> | null {
     const jwt: string | null | undefined = this.cookieService.get('bearer');
     if (jwt) {
@@ -64,11 +50,10 @@ export class AuthService {
 
   private processResponse(resp: HttpResponse<any>): void {
     const jwt: string | null | undefined = resp.headers.get('Authorization');
-    const refreshToken: string | null | undefined = resp.headers.get('refreshToken');
-    if (jwt && refreshToken) {
+    if (jwt) {
       this.cookieService.set('bearer', jwt);
-      this.cookieService.set('refreshToken', refreshToken);
     }
+    this.userProviderService.setUserView(resp.body as UserView);
   }
 
   private handleError(error: any): Observable<any> {

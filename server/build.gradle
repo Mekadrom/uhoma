@@ -11,7 +11,7 @@ bootJar {
 }
 
 bootRun {
-    jvmArgs = ["-Dlog4j.debug"]
+    jvmArgs = ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
 }
 
 processResources {

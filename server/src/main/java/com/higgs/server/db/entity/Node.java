@@ -48,6 +48,7 @@ public class Node {
 
     /**
      * Don't let lombok generate this in order to avoid stack overflow errors when the entity is saved.
+     *
      * @return hashcode
      */
     @Override

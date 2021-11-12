@@ -3,11 +3,12 @@ package com.higgs.server.kafka.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * todo: maybe unnecessary after pulling the consumer out?
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HAKafkaConstants {
-    public static final String HEADER_RECEIVING_NODE_SEQ = "RECEIVING_NODE_SEQ";
+    public static final String HEADER_SENDING_NODE_SEQ = "from_node_seq";
 
-    public static final String HEADER_SENDING_NODE_SEQ = "SENDING_NODE_SEQ";
-
-    public static final String HEADER_PRODUCER_EVENT_KEY = "PRODUCER_EVENT_KEY";
+    public static final String HEADER_RECEIVING_NODE_SEQ = "to_node_seq";
 }
