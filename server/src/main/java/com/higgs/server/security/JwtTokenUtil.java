@@ -1,4 +1,4 @@
-package com.higgs.server.config.security;
+package com.higgs.server.security;
 
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.util.HAConstants;

@@ -1,0 +1,11 @@
+server:
+  name: actionserver
+kafka:
+  bootstrap-address: localhost:29092
+  topics:
+    node-action: node-action
+    node-response: node-response
+    node-telemetry: node-telemetry
+  consumer:
+    group-id: action-consumer
+    should-filter-consumer: true

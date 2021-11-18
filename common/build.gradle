@@ -1,0 +1,32 @@
+plugins {
+    id "maven-publish"
+}
+
+processResources {
+    filesMatching('**/*.yml') {
+        expand(project.properties)
+        expand(ext.properties)
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
+bootJarMainClassName {
+    enabled = false
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'common'
+
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+        // todo: google artifact repository maven publish using service account (action/jenkins)
+    }
+}

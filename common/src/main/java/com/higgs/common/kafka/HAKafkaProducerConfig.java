@@ -1,4 +1,4 @@
-package com.higgs.server.kafka.util;
+package com.higgs.common.kafka;
 
 import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;

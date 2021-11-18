@@ -1,4 +1,4 @@
-package com.higgs.server.config.security;
+package com.higgs.server.security;
 
 import com.higgs.server.db.repo.UserLoginRepository;
 import lombok.AllArgsConstructor;

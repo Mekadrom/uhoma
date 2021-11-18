@@ -1,0 +1,19 @@
+bootJar {
+    dependsOn processResources
+    archiveFileName = "${archiveBaseName.get()}.jar"
+}
+
+bootRun {
+    jvmArgs = ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
+}
+
+processResources {
+    filesMatching('**/*.yml') {
+        expand(project.properties)
+        expand(ext.properties)
+    }
+}
+
+springBoot {
+    buildInfo()
+}

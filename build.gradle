@@ -1,5 +1,11 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version '2.5.0'
     id 'java'
@@ -10,6 +16,7 @@ ext {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -34,6 +41,7 @@ subprojects { subproject ->
     }
 
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
@@ -71,6 +79,10 @@ subprojects { subproject ->
 
         runtimeDependency group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 
+        runtimeDependency group: 'com.higgs', name: 'common', version: version
+
+        implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
+
         testRuntimeDependency 'com.h2database:h2'
 
         testRuntimeDependency 'org.springframework.boot:spring-boot-starter-test'
@@ -90,7 +102,11 @@ subprojects { subproject ->
 }
 
 task buildAll {
+    dependsOn ':common:build'
+    dependsOn ':common:publishToMavenLocal'
     dependsOn ':server:build'
+    dependsOn ':actionserver:build'
+    dependsOn ':actionserver:bootJar'
 }
 
 clean.doFirst {
@@ -115,7 +131,8 @@ task copyToDist(type: Copy) {
 
     into("${distDir}")
 
-    ['server'].forEach {proj ->
+    // only include fatjars
+    ['server', 'actionserver'].forEach {proj ->
         into("${proj}") {
             with copySpec {
                 from("${proj}/build/libs") {
@@ -125,6 +142,16 @@ task copyToDist(type: Copy) {
         }
     }
 
+    // include all libs
+    ['common'].forEach {proj ->
+        into("${proj}") {
+            with copySpec {
+                from("${proj}/build/libs")
+            }
+        }
+    }
+
+    // not a jar
     into('frontend') {
         with copySpec {
             from('frontend/dist/frontend')

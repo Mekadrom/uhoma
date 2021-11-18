@@ -1,3 +1,5 @@
 rootProject.name = 'HomeAssistant'
 include 'server'
 include 'frontend'
+include 'actionserver'
+include 'common'

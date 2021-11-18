@@ -1,4 +1,4 @@
-package com.higgs.server.kafka.util;
+package com.higgs.common.kafka;
 
 import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -13,9 +13,6 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import java.util.Arrays;
 import java.util.Map;
 
-/**
- * todo: move consumer/handler logic out to another microservice
- */
 @Configuration
 @AllArgsConstructor
 public class HAKafkaConsumerConfig {
@@ -36,16 +33,18 @@ public class HAKafkaConsumerConfig {
         final ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(this.consumerFactory());
         if (this.kafkaConfig.getConsumer().isShouldFilterConsumer()) {
-            factory.setRecordFilterStrategy(record -> Arrays.stream(record.headers().toArray()).filter(this::recipientKey).anyMatch(this::recipientValue));
+            factory.setRecordFilterStrategy(record -> Arrays.stream(record.headers().toArray())
+                    .filter(this::toNodeSeqHeaderName)
+                    .anyMatch(this::toNodeSeqHeaderValue));
         }
         return factory;
     }
 
-    private <T extends Header> boolean recipientKey(final T header) {
+    private <T extends Header> boolean toNodeSeqHeaderName(final T header) {
         return header.key().equalsIgnoreCase(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ);
     }
 
-    private <T extends Header> boolean recipientValue(final T header) {
+    private <T extends Header> boolean toNodeSeqHeaderValue(final T header) {
         return new String(header.value()).equalsIgnoreCase("0");
     }
 }

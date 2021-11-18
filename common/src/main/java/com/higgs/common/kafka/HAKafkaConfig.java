@@ -1,4 +1,4 @@
-package com.higgs.server.kafka.util;
+package com.higgs.common.kafka;
 
 import lombok.Getter;
 import lombok.Setter;

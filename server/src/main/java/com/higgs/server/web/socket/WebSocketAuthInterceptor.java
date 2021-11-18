@@ -1,6 +1,6 @@
 package com.higgs.server.web.socket;
 
-import com.higgs.server.config.security.JwtTokenUtil;
+import com.higgs.server.security.JwtTokenUtil;
 import com.higgs.server.web.svc.AuthenticationService;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;

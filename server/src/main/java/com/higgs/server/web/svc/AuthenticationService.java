@@ -1,6 +1,6 @@
 package com.higgs.server.web.svc;
 
-import com.higgs.server.config.security.JwtTokenUtil;
+import com.higgs.server.security.JwtTokenUtil;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
 import com.higgs.server.web.dto.AuthResult;
