@@ -34,15 +34,15 @@ public class ActionServerConsumer {
     }
 
     private void handleResponses(final List<? extends HandlerResponse> responses) {
-        responses.forEach(response -> {
-            try {
-                if (response.isExpected()) {
-                    this.serverProducer.send(KafkaTopicEnum.NODE_RESPONSE, response, this.buildResponseHeaders(response));
-                }
-            } catch (final IOException e) {
-                ActionServerConsumer.log.error(String.format("Error occurred during response handling: %s", response), e);
-            }
-        });
+        responses.stream().filter(HandlerResponse::isExpected).forEach(this::sendResponse);
+    }
+
+    private void sendResponse(final HandlerResponse response) {
+        try {
+            this.serverProducer.send(KafkaTopicEnum.NODE_RESPONSE, response, this.buildResponseHeaders(response));
+        } catch (final IOException e) {
+            ActionServerConsumer.log.error(String.format("Error occurred during response handling: %s", response), e);
+        }
     }
 
     private Map<String, Object> buildResponseHeaders(final HandlerResponse response) {
