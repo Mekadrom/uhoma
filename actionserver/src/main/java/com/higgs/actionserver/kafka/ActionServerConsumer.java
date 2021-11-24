@@ -1,12 +1,10 @@
 package com.higgs.actionserver.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.higgs.common.handler.HandlerHandler;
 import com.higgs.common.handler.HandlerResponse;
 import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.kafka.KafkaTopicEnum;
 import com.higgs.common.kafka.ServerProducer;
-import com.higgs.common.util.CommonUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -26,7 +24,7 @@ public class ActionServerConsumer {
     private final ServerProducer serverProducer;
     private final HandlerHandler handlerHandler;
 
-    @KafkaListener(topics = "#{kafka.topics." + KafkaTopicEnum.NODE_ACTION_TOPIC_KEY + ":node_action}")
+    @KafkaListener(topics = "${kafka.topics." + KafkaTopicEnum.NODE_ACTION_TOPIC_KEY + ":node_action}")
     public void listenNodeMessageTopic(@Headers final MultiValueMap<String, String> headers, @Payload final String message) {
         try {
             this.handleResponses(this.handlerHandler.process(headers, message));
@@ -51,7 +49,8 @@ public class ActionServerConsumer {
         return Map.of(
                 HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, response.getToNodeSeq(),
                 HAKafkaConstants.HEADER_SENDING_NODE_SEQ, response.getFromNodeSeq(),
-                HAKafkaConstants.HEADER_SENDING_USER_NAME, response.getFromUserName()
+                HAKafkaConstants.HEADER_RECEIVING_USER_NAME, response.getToUsername(),
+                HAKafkaConstants.HEADER_SENDING_USER_NAME, response.getFromUsername()
         );
     }
 }

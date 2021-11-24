@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 public class ActionRequest {
     private Action actionWithParams;
-    private Long fromNodeSeq;
     private Long toNodeSeq;
-    private String username;
+    private Long fromNodeSeq;
+    private String toUsername;
+    private String fromUsername;
 }

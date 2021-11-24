@@ -1,20 +1,53 @@
-plugins {
-    id "maven-publish"
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'maven-publish'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: SpringBootPlugin
+
+repositories {
+    mavenCentral()
 }
+
+dependencies {
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
+
+    implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.8'
+    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.7.6'
+
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+
+    implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+bootJar.enabled = false
+bootRun.enabled = false
+bootJarMainClassName.enabled = false
 
 processResources {
     filesMatching('**/*.yml') {
         expand(project.properties)
         expand(ext.properties)
     }
-}
-
-bootJar {
-    enabled = false
-}
-
-bootJarMainClassName {
-    enabled = false
 }
 
 publishing {
@@ -29,4 +62,22 @@ publishing {
         mavenLocal()
         // todo: google artifact repository maven publish using service account (action/jenkins)
     }
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports.html.destination file("${distDir}/jacocoHtml")
+
+    executionData test
+    sourceSets sourceSets.test
+}
+
+jacoco {
+    toolVersion = "0.8.7"
 }

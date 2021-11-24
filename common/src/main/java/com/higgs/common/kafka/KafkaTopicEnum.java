@@ -6,9 +6,6 @@ import lombok.Getter;
 
 import java.util.function.Function;
 
-/**
- * todo: refactor to api project
- */
 @Getter
 @AllArgsConstructor
 public enum KafkaTopicEnum {

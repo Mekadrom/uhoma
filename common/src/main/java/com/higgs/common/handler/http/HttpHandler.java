@@ -1,9 +1,10 @@
 package com.higgs.common.handler.http;
 
 import com.higgs.common.handler.Handler;
-import com.higgs.common.util.CommonUtil;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -18,26 +19,29 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
 @AllArgsConstructor
-public class HttpHandler implements Handler<HandlerHttpRequest, HandlerHttpResponse> {
-    private static final String HTTP_HANDLER = "http_handler";
+public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerResponse> {
+    static final String HTTP_HANDLER = "http_handler";
 
-    private static final String METHOD_FIELD = "method";
-    private static final String CONNECT_TYPE_FIELD = "connect_type";
-    private static final String URL_FIELD = "url";
-    private static final String PORT_FIELD = "port";
-    private static final String ENDPOINT_FIELD = "endpoint";
-    private static final String QUERY_PARAMS_FIELD = "query_params";
-    private static final String HEADERS_FIELD = "headers";
-    private static final String BODY_FIELD = "body";
+    static final String METHOD_FIELD = "method";
+    static final String CONNECT_TYPE_FIELD = "connect_type";
+    static final String URL_FIELD = "url";
+    static final String PORT_FIELD = "port";
+    static final String ENDPOINT_FIELD = "endpoint";
+    static final String QUERY_PARAMS_FIELD = "query_params";
+    static final String HEADERS_FIELD = "headers";
+    static final String BODY_FIELD = "body";
+
+    private final HttpHandlerUtil httpHandlerUtil;
 
     @Override
-    public HandlerHttpResponse handle(final HandlerHttpRequest request) {
+    public HttpHandlerResponse handle(@NonNull final HttpHandlerRequest request) {
         HttpURLConnection connection = null;
-        final String fullUrl = request.getFullUrl();
+        final String fullUrl = this.httpHandlerUtil.getFullUrl(request);
         try {
             final URL url = new URL(fullUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -63,8 +67,8 @@ public class HttpHandler implements Handler<HandlerHttpRequest, HandlerHttpRespo
         return null;
     }
 
-    private HandlerHttpResponse buildResponse(final int responseCode, final HttpURLConnection connection, final HandlerHttpRequest request) {
-        final HandlerHttpResponse handlerResponse = new HandlerHttpResponse(request);
+    private HttpHandlerResponse buildResponse(final int responseCode, final HttpURLConnection connection, final HttpHandlerRequest request) {
+        final HttpHandlerResponse handlerResponse = new HttpHandlerResponse(request);
         handlerResponse.setResponseCode(responseCode);
 
         final String response = this.getResponse(connection, request);
@@ -73,40 +77,45 @@ public class HttpHandler implements Handler<HandlerHttpRequest, HandlerHttpRespo
         return handlerResponse;
     }
 
-    private String getResponse(final HttpURLConnection connection, final HandlerHttpRequest request) {
+    private String getResponse(final HttpURLConnection connection, final HttpHandlerRequest request) {
         try {
             final InputStream is = connection.getInputStream();
             try (final BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-
-                final List<String> lines = new ArrayList<>();
-
                 String line;
+                final List<String> lines = new ArrayList<>();
                 while ((line = br.readLine()) != null) {
                     lines.add(line);
                 }
                 return String.join("\n", lines);
             }
         } catch (final IOException e) {
-            HttpHandler.log.error(String.format("couldn't response for url %s", request.getFullUrl()), e);
+            HttpHandler.log.error(String.format("couldn't response for url %s", this.httpHandlerUtil.getFullUrl(request)), e);
         }
         return null;
     }
 
-    private void writeRequest(final HttpURLConnection connection, final HandlerHttpRequest request) {
-        try (final DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream())) {
-            dataOutputStream.writeBytes(request.getBody());
-        } catch (final IOException e) {
-            HttpHandler.log.error(String.format("couldn't write request for url %s: %s", request.getFullUrl(), request.getBody()));
+    private void writeRequest(final HttpURLConnection connection, final HttpHandlerRequest request) {
+        final String requestBody = request.getBody();
+        if (StringUtils.isNotBlank(requestBody)) {
+            this.writeRequest(connection, this.httpHandlerUtil.getFullUrl(request), request.getBody());
         }
     }
 
-    private void setHeaders(final HttpURLConnection connection, final Map<String, String> headers) {
-        headers.forEach(connection::setRequestProperty);
+    private void writeRequest(final HttpURLConnection connection, final String url, final String requestBody) {
+        try (final DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream())) {
+            dataOutputStream.writeBytes(requestBody);
+        } catch (final IOException e) {
+            HttpHandler.log.error(String.format("couldn't write request for url %s: %s", url, requestBody));
+        }
+    }
+
+    void setHeaders(final HttpURLConnection connection, final Map<String, String> headers) {
+        Optional.ofNullable(headers).ifPresent(it -> it.forEach(connection::setRequestProperty));
     }
 
     @Override
-    public HandlerHttpRequest requestBodyToRequestObj(final Map<String, Object> requestBody) {
-        final HandlerHttpRequest request = new HandlerHttpRequest();
+    public HttpHandlerRequest requestBodyToRequestObj(@NonNull final Map<String, Object> requestBody) {
+        final HttpHandlerRequest request = new HttpHandlerRequest();
         request.setHttpMethod(HttpMethod.valueOf(String.valueOf(requestBody.get(HttpHandler.METHOD_FIELD))));
         request.setConnectType(String.valueOf(requestBody.get(HttpHandler.CONNECT_TYPE_FIELD)));
         request.setUrl(String.valueOf(requestBody.get(HttpHandler.URL_FIELD)));
@@ -119,7 +128,7 @@ public class HttpHandler implements Handler<HandlerHttpRequest, HandlerHttpRespo
     }
 
     @Override
-    public boolean qualifies(final Map<String, Object> handlerDef) {
-        return Boolean.TRUE.equals(Boolean.valueOf(String.valueOf(handlerDef.get(Handler.IS_BUILTIN)))) && HttpHandler.HTTP_HANDLER.equals(String.valueOf(handlerDef.get(Handler.BUILTIN_TYPE)));
+    public boolean qualifies(@NonNull final Map<String, Object> handlerDef) {
+        return (this.isBuiltin(handlerDef) && this.builtinTypeIs(handlerDef, HttpHandler.HTTP_HANDLER)) || this.extendsFrom(handlerDef, HttpHandler.HTTP_HANDLER);
     }
 }

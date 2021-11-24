@@ -14,5 +14,5 @@ frontend/dist
 
 env/cicd/jenkins/agent-images/accesstoken
 
-env/kubernetes/nohup.out
+**/nohup.out
 env/kubernetes/deployment.yml

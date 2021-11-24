@@ -29,6 +29,21 @@ export class WebSocketService {
         if (connectCallback) {
           connectCallback();
         }
+        const userView: UserView | null | undefined = this.userProviderService.getUserView();
+        if (userView) {
+          const nodeSeq: number | null = userView.node.nodeSeq;
+          const userLoginSeq: number | null = userView.userLoginSeq;
+          if (nodeSeq) {
+            this.client.subscribe("/${nodeSeq}/queue/reply", (message: any) => {
+              console.log("node response: " + message.body);
+            });
+          }
+          if (userLoginSeq) {
+            this.client.subscribe("/${userLoginSeq}/queue/reply", (message: any) => {
+              console.log("user response: " + message.body);
+            });
+          }
+        }
       },
       debug: (str: string) => {
         console.log(new Date(), str);

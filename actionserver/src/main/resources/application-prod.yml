@@ -1,0 +1,2 @@
+kafka:
+  bootstrap-address: kafka-broker:9092

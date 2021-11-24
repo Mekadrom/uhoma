@@ -46,7 +46,8 @@ public class NodeSocket {
                 HAKafkaConstants.HEADER_ACTION_HANDLER_DEF, message.getActionWithParams().getActionHandler().getDefinition(),
                 HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, message.getToNodeSeq(),
                 HAKafkaConstants.HEADER_SENDING_NODE_SEQ, message.getFromNodeSeq(),
-                HAKafkaConstants.HEADER_SENDING_USER_NAME, message.getUsername()
+                HAKafkaConstants.HEADER_RECEIVING_USER_NAME, message.getToUsername(),
+                HAKafkaConstants.HEADER_SENDING_USER_NAME, message.getFromUsername()
         );
     }
 

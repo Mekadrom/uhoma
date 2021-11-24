@@ -1,9 +1,10 @@
 import { Action } from '../models';
 
 export interface NodeActionRequest {
-  fromNodeSeq?: number;
-  toNodeSeq: number;
   actionWithParams: Action;
   sentEpoch: number;
-  username?: string;
+  toNodeSeq?: number;
+  fromNodeSeq?: number;
+  toUserSeq?: number;
+  fromUserSeq?: number;
 }

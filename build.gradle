@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 buildscript {
     repositories {
         mavenLocal()
@@ -9,7 +7,11 @@ buildscript {
 plugins {
     id 'org.springframework.boot' version '2.5.0'
     id 'java'
+    id "io.freefair.lombok" version "6.3.0"
 }
+
+sourceCompatibility = 17
+targetCompatibility = 17
 
 ext {
     distDir = 'dist'
@@ -18,87 +20,6 @@ ext {
 repositories {
     mavenLocal()
     mavenCentral()
-}
-
-subprojects { subproject ->
-    subproject.apply plugin: 'io.spring.dependency-management'
-    subproject.apply plugin: 'java'
-    subproject.apply plugin: SpringBootPlugin
-
-    sourceCompatibility = 17
-    targetCompatibility = 17
-
-    configurations {
-        compileOnly {
-            extendsFrom annotationProcessor
-        }
-        runtimeDependency {
-            canBeResolved = true
-        }
-        testRuntimeDependency {
-            canBeResolved = true
-        }
-    }
-
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-
-    dependencies {
-        configurations.implementation.extendsFrom(configurations.runtimeDependency)
-        configurations.testImplementation.extendsFrom(configurations.testRuntimeDependency)
-
-        annotationProcessor 'org.projectlombok:lombok'
-
-        runtimeDependency 'org.projectlombok:lombok'
-
-        runtimeDependency group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
-
-        runtimeDependency group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-
-        runtimeDependency group: 'org.springframework', name: 'spring-webmvc', version: '5.3.8'
-        runtimeDependency 'org.springframework.boot:spring-boot-starter-oauth2-client'
-        runtimeDependency 'org.springframework.boot:spring-boot-starter-security'
-        runtimeDependency 'org.springframework.kafka:spring-kafka'
-        runtimeDependency 'org.springframework.boot:spring-boot-starter-websocket'
-
-        runtimeDependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
-        runtimeDependency 'org.postgresql:postgresql'
-
-        runtimeDependency 'org.springframework.boot:spring-boot-starter-data-jdbc'
-        runtimeDependency 'org.springframework.boot:spring-boot-starter-data-jpa'
-        runtimeDependency 'org.springframework.boot:spring-boot-starter-jdbc'
-
-        runtimeDependency 'com.h2database:h2'
-
-        runtimeDependency('org.springframework.boot:spring-boot-starter-web') {
-            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-        }
-
-        runtimeDependency group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-
-        runtimeDependency group: 'com.higgs', name: 'common', version: version
-
-        implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
-
-        testRuntimeDependency 'com.h2database:h2'
-
-        testRuntimeDependency 'org.springframework.boot:spring-boot-starter-test'
-        testRuntimeDependency 'org.springframework.kafka:spring-kafka-test'
-        testRuntimeDependency 'org.springframework.security:spring-security-test'
-
-        testRuntimeDependency 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-
-        testRuntimeDependency 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-
-        developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    }
-
-    test {
-        useJUnitPlatform()
-    }
 }
 
 task buildAll {
@@ -157,4 +78,11 @@ task copyToDist(type: Copy) {
             from('frontend/dist/frontend')
         }
     }
+}
+
+test {
+    dependsOn ':actionserver:test'
+    dependsOn ':common:test'
+    dependsOn ':frontend:test'
+    dependsOn ':server:test'
 }

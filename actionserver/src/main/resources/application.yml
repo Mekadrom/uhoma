@@ -1,7 +1,8 @@
 server:
   name: actionserver
+  port: 8081
 kafka:
-  bootstrap-address: localhost:29092
+  bootstrap-address: localhost:9092
   topics:
     node-action: node-action
     node-response: node-response

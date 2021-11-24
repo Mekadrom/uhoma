@@ -8,13 +8,15 @@ import lombok.NoArgsConstructor;
 public abstract class HandlerResponse {
     public HandlerResponse(final HandlerRequest requestFor) {
         this.setExpected(requestFor.getReturnResponse());
-        this.setFromNodeSeq(requestFor.getFromNodeSeq());
-        this.setFromUserName(requestFor.getFromUserName());
         this.setToNodeSeq(requestFor.getToNodeSeq());
+        this.setFromNodeSeq(requestFor.getFromNodeSeq());
+        this.setToUserSeq(requestFor.getToUserSeq());
+        this.setFromUserSeq(requestFor.getFromUserSeq());
     }
 
     private boolean isExpected;
-    private Long fromNodeSeq;
-    private String fromUserName;
     private Long toNodeSeq;
+    private Long fromNodeSeq;
+    private Long toUserSeq;
+    private Long fromUserSeq;
 }
