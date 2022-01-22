@@ -23,7 +23,8 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 ext {
-    gcpArtifactRoot = 'us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images'
+    artifactoryUrl = 'us-east1-docker.pkg.dev'
+    gcpArtifactRoot = "${artifactoryUrl}/root-furnace-306909/hadocker-images"
     serverArtifactName = 'ha-server'
     frontendArtifactName = 'ha-frontend'
     distDir = 'dist'
@@ -31,6 +32,14 @@ ext {
     kubeCmdExec = '/usr/local/bin/kubectl'
     clusterExec = '/usr/bin/minikube'
     clusterNodeCount = '3'
+    secretPath = '~/json_key.json'
+    dockerEmail = ''
+    dbUsername = 'hams_data'
+    dbPassword = 'hams_data'
+    dbUrl = 'localhost'
+    dbPort = '5432'
+    dbDomain = 'hams_data'
+    dbSchema = 'hams_data'
 }
 
 repositories {
@@ -177,6 +186,11 @@ task kustomize(type: Exec) {
     args = [ 'kustomize', '-o', 'deployment.yml' ]
 }
 
+task createSecret(type: Exec) {
+    executable = "${kubeCmdExec}"
+    args = [ 'create', 'secret', 'docker-registry', 'gcr-json-key', "--docker-server=${artifactoryUrl}", '--docker-username=_json_key', '--docker-password="$(cat ~/json_key.json)"', "--docker-email=${dockerEmail}" ]
+}
+
 task kubeApply(type: Exec) {
     workingDir = 'env/kubernetes/'
     executable = "${kubeCmdExec}"
@@ -201,5 +215,17 @@ task stopMinikube(type: Exec) {
 }
 
 task fullClusterSetup {
-    dependsOn ordered(':buildAndPushImages', ':kustomize', ':startMinikube', ':kubeApply')
+    dependsOn ordered(':buildAndPushImages', ':kustomize', ':startMinikube', ':createSecret', ':kubeApply')
+}
+
+task initDb(type: Exec) {
+    workingDir = 'hadb/'
+    executable = "./initdb.sh"
+    args = [ '-u', "${dbUsername}", '-p', "${dbPassword}", '-U', "${dbUrl}", '-P', "${dbPort}", '-d', "${dbDomain}", '-s', "${dbSchema}" ]
+}
+
+task deltaRun(type: Exec) {
+    workingDir = 'hadb/'
+    executable = "./deltarun.sh"
+    args = [ '-u', "${dbUsername}", '-p', "${dbPassword}", '-U', "${dbUrl}", '-P', "${dbPort}", '-d', "${dbDomain}" ]
 }
