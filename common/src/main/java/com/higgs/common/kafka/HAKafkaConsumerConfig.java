@@ -45,6 +45,6 @@ public class HAKafkaConsumerConfig {
     }
 
     private <T extends Header> boolean toNodeSeqHeaderValue(final T header) {
-        return new String(header.value()).equalsIgnoreCase("0");
+        return "0".equalsIgnoreCase(new String(header.value()));
     }
 }

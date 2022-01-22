@@ -18,3 +18,7 @@ task buildFrontend(type: NpmTask, dependsOn: 'npmInstall') {
   description = 'Compile client side assets for production'
   args = ['run', 'build']
 }
+
+task clean(type: Delete) {
+  delete "${projectDir}/dist"
+}

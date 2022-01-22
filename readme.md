@@ -9,7 +9,7 @@ Here's how to set up HomeAssistant for yourself using kubernetes (read all steps
             2. `img build . -f env/kubernetes/server/Dockerfile -t <build_tag> --build-arg artifactPath='dist/server/'`
     2. frontend
         1. Run either of the following commands (depending on if you prefer to use img or docker) in the root of the repository:
-            1. `docker build . -f env/kubernetes/server/Dockerfile -t <build_tag> --build-arg artifactPath='dist/frontend/'`
+            1. `docker build . -f env/kubernetes/frontend/Dockerfile -t <build_tag> --build-arg artifactPath='dist/frontend/'`
             2. `img build . -f env/kubernetes/frontend/Dockerfile -t <build_tag> --build-arg artifactPath='dist/frontend/'`
 3. If you prefer to use a remote artifact registry (like GCR or Google Artifact Registry), tag the images in the commands from the previous step according to your repo's location.
     1. Eg. for my GCP Artifact Registry, I would tag each image with `us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-<app_name>:1.0.0-main` in order to push up.

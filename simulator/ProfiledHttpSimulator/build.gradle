@@ -1,81 +1,55 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'java'
-apply plugin: SpringBootPlugin
-apply plugin: 'jacoco'
-apply plugin: 'pmd'
-
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    annotationProcessor 'org.projectlombok:lombok'
 
-    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    implementation 'org.projectlombok:lombok'
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
 
+    implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+
+    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
     implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.8'
-    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.7.6'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    implementation 'org.postgresql:postgresql'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    implementation 'com.h2database:h2'
 
     implementation('org.springframework.boot:spring-boot-starter-web') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
 
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
     implementation group: 'com.higgs', name: 'common', version: version
 
     implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
 
+    testImplementation 'com.h2database:h2'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.security:spring-security-test'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-}
-
-bootJar {
-    dependsOn processResources
-    archiveFileName = "${archiveBaseName.get()}.jar"
-}
-
-bootRun {
-    jvmArgs = ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
-}
-
-processResources {
-    filesMatching('**/*.yml') {
-        expand(project.properties)
-        expand(ext.properties)
-    }
-}
-
-springBoot {
-    buildInfo()
-}
-
-test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-    dependsOn test
-
-    reports.html.destination file("${distDir}/jacocoHtml")
-
-    executionData test
-    sourceSets sourceSets.test
-}
-
-jacoco {
-    toolVersion = "0.8.7"
 }

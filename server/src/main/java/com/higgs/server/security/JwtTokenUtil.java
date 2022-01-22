@@ -11,14 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
 @Component
-public class JwtTokenUtil implements Serializable {
+public class JwtTokenUtil {
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
 
     private String signingKey;

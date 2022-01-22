@@ -1,5 +1,13 @@
 rootProject.name = 'HomeAssistant'
-include 'server'
-include 'frontend'
-include 'actionserver'
-include 'common'
+includeProject('server')
+includeProject('frontend')
+includeProject('actionserver')
+includeProject('common')
+includeProject('simulator')
+
+includeProject('simulator:ProfiledHttpSimulator')
+
+def includeProject(projectName) {
+    include projectName
+    project(':' + projectName).projectDir = file(projectName.replace(":", File.separator))
+}

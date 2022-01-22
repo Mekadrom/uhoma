@@ -4,6 +4,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'java'
 apply plugin: SpringBootPlugin
 apply plugin: 'jacoco'
+apply plugin: 'pmd'
 
 repositories {
     mavenLocal()
@@ -97,4 +98,9 @@ jacocoTestReport {
 
 jacoco {
     toolVersion = "0.8.7"
+}
+
+pmd {
+    ruleSets = []
+    ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
 }

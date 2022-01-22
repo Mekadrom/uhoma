@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-frontend:1.0.0-main
+          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-frontend:${version}
           imagePullPolicy: Always
           ports:
             - containerPort: 80

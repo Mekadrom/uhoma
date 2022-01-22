@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public abstract class HandlerResponse {
+public class HandlerResponse {
     public HandlerResponse(final HandlerRequest requestFor) {
         this.setExpected(requestFor.getReturnResponse());
         this.setToNodeSeq(requestFor.getToNodeSeq());

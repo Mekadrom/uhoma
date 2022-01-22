@@ -8,13 +8,29 @@ plugins {
     id 'org.springframework.boot' version '2.5.0'
     id 'java'
     id "io.freefair.lombok" version "6.3.0"
+    id 'pmd'
+}
+
+def ordered(String... dependencyPaths) {
+    def dependencies = dependencyPaths.collect { tasks.getByPath(it) }
+    for (int i = 0; i < dependencies.size() - 1; i++) {
+        dependencies[i + 1].mustRunAfter(dependencies[i])
+    }
+    return dependencies
 }
 
 sourceCompatibility = 17
 targetCompatibility = 17
 
 ext {
+    gcpArtifactRoot = 'us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images'
+    serverArtifactName = 'ha-server'
+    frontendArtifactName = 'ha-frontend'
     distDir = 'dist'
+    imgBuildExec = '/usr/bin/docker'
+    kubeCmdExec = '/usr/local/bin/kubectl'
+    clusterExec = '/usr/bin/minikube'
+    clusterNodeCount = '3'
 }
 
 repositories {
@@ -26,22 +42,29 @@ task buildAll {
     dependsOn ':common:build'
     dependsOn ':common:publishToMavenLocal'
     dependsOn ':server:build'
+    dependsOn ':server:bootJar'
+    dependsOn ':simulator:build'
     dependsOn ':actionserver:build'
     dependsOn ':actionserver:bootJar'
 }
 
-clean.doFirst {
-    delete "${distDir}"
+clean {
+    dependsOn ':common:clean'
+    dependsOn ':server:clean'
+    dependsOn ':simulator:clean'
+    dependsOn ':actionserver:clean'
+    dependsOn ':frontend:clean'
+    doFirst {
+        delete "${distDir}"
+    }
 }
 
 task distribute {
-    dependsOn 'buildAll'
-    dependsOn project.hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev'
+    dependsOn ordered(':clean', ':buildAll', project.hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev')
     finalizedBy 'copyToDist'
 }
 
 task copyToDist(type: Copy) {
-    dependsOn clean
     doFirst {
         mkdir "${distDir}"
 
@@ -85,4 +108,98 @@ test {
     dependsOn ':common:test'
     dependsOn ':frontend:test'
     dependsOn ':server:test'
+}
+
+pmdMain {
+    dependsOn ':common:pmdMain'
+    dependsOn ':server:pmdMain'
+    dependsOn ':simulator:pmdMain'
+    dependsOn ':actionserver:pmdMain'
+}
+
+pmdTest {
+    dependsOn ':common:pmdTest'
+    dependsOn ':server:pmdTest'
+    dependsOn ':simulator:pmdTest'
+    dependsOn ':actionserver:pmdTest'
+}
+
+task buildServerImage(type: Exec) {
+    dependsOn distribute
+    executable = "${imgBuildExec}"
+    args = [ 'build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gcpArtifactRoot}/${serverArtifactName}:${version}", '--build-arg', "artifactPath=${distDir}/server/" ]
+}
+
+task buildFrontendImage(type: Exec) {
+    dependsOn distribute
+    executable = "${imgBuildExec}"
+    args = [ 'build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${gcpArtifactRoot}/${frontendArtifactName}:${version}", '--build-arg', "artifactPath=${distDir}/frontend/" ]
+}
+
+task pushServerImage(type: Exec) {
+    executable = "${imgBuildExec}"
+    args = [ 'push', "${gcpArtifactRoot}/${serverArtifactName}:${version}" ]
+}
+
+task pushFrontendImage(type: Exec) {
+    executable = "${imgBuildExec}"
+    args = [ 'push', "${gcpArtifactRoot}/${frontendArtifactName}:${version}" ]
+}
+
+task buildImages {
+    dependsOn buildServerImage
+    dependsOn buildFrontendImage
+}
+
+task pushImages {
+    dependsOn pushServerImage
+    dependsOn pushFrontendImage
+}
+
+task buildAndPushImages {
+    dependsOn buildImages
+    dependsOn pushImages
+}
+
+task copyKustomizationFiles(type: Copy) {
+    from ('env/kubernetes/') {
+        include '**/*.yml'
+        expand(project.properties)
+        expand(ext.properties)
+    }
+    into 'dist/kubernetes'
+}
+
+task kustomize(type: Exec) {
+    dependsOn copyKustomizationFiles
+    workingDir = 'dist/kubernetes/'
+    executable = "${kubeCmdExec}"
+    args = [ 'kustomize', '-o', 'deployment.yml' ]
+}
+
+task kubeApply(type: Exec) {
+    workingDir = 'env/kubernetes/'
+    executable = "${kubeCmdExec}"
+    args = [ 'apply', '-f', 'deployment.yml' ]
+}
+
+task buildAndDeploy(type: Exec) {
+    dependsOn distribute
+    dependsOn buildAndPushImages
+    dependsOn kustomize
+    dependsOn kubeApply
+}
+
+task startMinikube(type: Exec) {
+    executable = "${clusterExec}"
+    args = [ 'start', "--nodes=${clusterNodeCount}" ]
+}
+
+task stopMinikube(type: Exec) {
+    executable = "${clusterExec}"
+    args = [ 'stop' ]
+}
+
+task fullClusterSetup {
+    dependsOn ordered(':buildAndPushImages', ':kustomize', ':startMinikube', ':kubeApply')
 }

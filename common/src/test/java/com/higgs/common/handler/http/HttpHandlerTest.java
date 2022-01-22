@@ -1,5 +1,6 @@
 package com.higgs.common.handler.http;
 
+import com.higgs.common.handler.HandlerDefinition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -60,6 +61,7 @@ class HttpHandlerTest {
     }
 
     @Test
+    @SuppressWarnings("ConstantConditions")
     void testRequestBodyToRequestObjNull() {
         assertThrows(IllegalArgumentException.class, () -> this.httpHandler.requestBodyToRequestObj(null));
     }
@@ -104,39 +106,65 @@ class HttpHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestQualifiesNonNullParams")
-    void testQualifiesNonNull(final Map<String, Object> handlerDef, final boolean expectedResult) {
+    void testQualifiesNonNull(final HandlerDefinition handlerDef, final boolean expectedResult) {
         assertThat(this.httpHandler.qualifies(handlerDef), is(equalTo(expectedResult)));
     }
 
     static Stream<Arguments> getTestQualifiesNonNullParams() {
         return Stream.of(
                 Arguments.of(
-                        Map.of("is_builtin", true, "builtin_type", "http_handler"),
+                        new HandlerDefinition(Map.of("is_builtin", true, "builtin_type", "http_handler"), null),
                         true
                 ),
                 Arguments.of(
-                        Map.of("extends_from", "http_handler"),
-                        true
-                ),
-                Arguments.of(
-                        Map.of("extends_from", "not_http_handler"),
+                        new HandlerDefinition(Map.of("extends_from", "http_handler"), null),
                         false
                 ),
                 Arguments.of(
-                        Map.of("is_builtin", false, "builtin_type", "http_handler"),
+                        new HandlerDefinition(Map.of("extends_from", "not_http_handler"), null),
                         false
                 ),
                 Arguments.of(
-                        Map.of("is_builtin", true, "builtin_type", "not_http_handler"),
+                        new HandlerDefinition(Map.of("is_builtin", false, "builtin_type", "http_handler"), null),
                         false
                 ),
                 Arguments.of(
-                        Map.of("is_builtin", true),
+                        new HandlerDefinition(Map.of("is_builtin", true, "builtin_type", "not_http_handler"), null),
                         false
                 ),
                 Arguments.of(
-                        Map.of("is_builtin", true, "extends_from", "http_handler"),
-                        true
+                        new HandlerDefinition(Map.of("is_builtin", true), null),
+                        false
+                ),
+                Arguments.of(
+                        new HandlerDefinition(Map.of("is_builtin", true, "extends_from", "http_handler"), null),
+                        false
+                )
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestMergeMapsParams")
+    void testMergeMaps(final HandlerDefinition handlerDef, final Map<String, Object> requestBody, final Map<String, Object> expected) {
+        assertThat(this.httpHandler.mergeValuesOntoDefTemplate(handlerDef, requestBody), is(equalTo(expected)));
+    }
+
+    static Stream<Arguments> getTestMergeMapsParams() {
+        return Stream.of(
+                Arguments.of(
+                        new HandlerDefinition(null, Map.of("testfield", "string", "other", "string")),
+                        Map.of("testfield", "bruh", "other", "breh"),
+                        Map.of("testfield", "bruh", "other", "breh")
+                ),
+                Arguments.of(
+                        new HandlerDefinition(null, Map.of("testfield", "string", "other", "string")),
+                        Map.of("testfield", "bruh", "notother", "breh"),
+                        Map.of("testfield", "bruh")
+                ),
+                Arguments.of(
+                        new HandlerDefinition(null, Map.of("testfield", "string", "other", "string")),
+                        Map.of("nottestfield", "bruh", "notother", "breh"),
+                        Map.of()
                 )
         );
     }

@@ -5,11 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpMethod;
 
+import java.io.Serial;
 import java.util.Map;
 
 @Getter
 @Setter
 public class HttpHandlerRequest extends HandlerRequest {
+    @Serial
+    private static final long serialVersionUID = 214L;
+
     private HttpMethod httpMethod;
     private String connectType;
     private String url;

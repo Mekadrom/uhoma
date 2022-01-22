@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +30,9 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "USER_LOGIN")
 public class UserLogin implements UserDetails {
+    @Serial
+    private static final long serialVersionUID = 236L;
+
     public static final String ACCOUNT_SEQ = "ACCOUNT_SEQ";
 
     @PrePersist

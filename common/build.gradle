@@ -5,6 +5,7 @@ apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: SpringBootPlugin
+apply plugin: 'pmd'
 
 repositories {
     mavenCentral()
@@ -28,6 +29,8 @@ dependencies {
     }
 
     implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
+
+    implementation group: 'com.hubspot.jinjava', name: 'jinjava', version: '2.6.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
@@ -80,4 +83,9 @@ jacocoTestReport {
 
 jacoco {
     toolVersion = "0.8.7"
+}
+
+pmd {
+    ruleSets = []
+    ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
 }

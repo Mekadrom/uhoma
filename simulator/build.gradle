@@ -1,0 +1,75 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'java'
+apply plugin: SpringBootPlugin
+apply plugin: 'jacoco'
+apply plugin: 'pmd'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+subprojects {
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+    apply plugin: SpringBootPlugin
+    apply plugin: 'jacoco'
+    apply plugin: 'pmd'
+
+    bootJar {
+        dependsOn processResources
+        archiveFileName = "${archiveBaseName.get()}.jar"
+    }
+
+    processResources {
+        filesMatching('**/*.yml') {
+            expand(project.properties)
+            expand(ext.properties)
+        }
+    }
+
+    springBoot {
+        buildInfo()
+    }
+
+    test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    jacocoTestReport {
+        dependsOn test
+
+        reports.html.destination file("${distDir}/jacocoHtml")
+
+        executionData test
+        sourceSets sourceSets.test
+    }
+
+    jacoco {
+        toolVersion = "0.8.7"
+    }
+
+    pmd {
+        ruleSets = []
+        ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
+bootRun {
+    enabled = false
+}
+
+pmdMain {
+    dependsOn 'ProfiledHttpSimulator:pmdMain'
+}
+
+pmdTest {
+    dependsOn 'ProfiledHttpSimulator:pmdTest'
+}

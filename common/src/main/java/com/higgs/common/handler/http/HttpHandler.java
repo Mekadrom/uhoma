@@ -1,6 +1,8 @@
 package com.higgs.common.handler.http;
 
 import com.higgs.common.handler.Handler;
+import com.higgs.common.handler.HandlerDefinition;
+import com.higgs.common.handler.HandlerHandler;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,10 +40,30 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     static final String HEADERS_FIELD = "headers";
     static final String BODY_FIELD = "body";
 
+    private static final String STRING_TYPE = "string";
+    private static final String OBJECT_TYPE = "object";
+
+    static final HandlerDefinition PROTOTYPE_HANDLER_DEF = new HandlerDefinition(
+            Map.of(Handler.IS_BUILTIN, true, Handler.BUILTIN_TYPE, HttpHandler.HTTP_HANDLER),
+            Map.of(
+                    HttpHandler.METHOD_FIELD, HttpHandler.STRING_TYPE,
+                    HttpHandler.CONNECT_TYPE_FIELD, HttpHandler.STRING_TYPE,
+                    HttpHandler.URL_FIELD, HttpHandler.STRING_TYPE,
+                    HttpHandler.PORT_FIELD, HttpHandler.STRING_TYPE,
+                    HttpHandler.ENDPOINT_FIELD, HttpHandler.STRING_TYPE,
+                    HttpHandler.QUERY_PARAMS_FIELD, HttpHandler.OBJECT_TYPE,
+                    HttpHandler.HEADERS_FIELD, HttpHandler.OBJECT_TYPE,
+                    HttpHandler.BODY_FIELD, HttpHandler.STRING_TYPE
+            )
+    );
+
     private final HttpHandlerUtil httpHandlerUtil;
 
     @Override
-    public HttpHandlerResponse handle(@NonNull final HttpHandlerRequest request) {
+    public List<HttpHandlerResponse> handle(@Nullable final HandlerDefinition handlerDefinition,
+                                            @NonNull final Map<String, List<String>> headers,
+                                            @NonNull final HttpHandlerRequest request,
+                                            @NonNull final HandlerHandler handlerHandler) {
         HttpURLConnection connection = null;
         final String fullUrl = this.httpHandlerUtil.getFullUrl(request);
         try {
@@ -53,7 +77,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
             this.writeRequest(connection, request);
             final int responseCode = connection.getResponseCode(); // actually does request
             if (request.getReturnResponse()) {
-                return this.buildResponse(responseCode, connection, request);
+                return List.of(this.buildResponse(responseCode, connection, request));
             }
         } catch (final MalformedURLException e) {
             HttpHandler.log.error(String.format("couldn't create url %s", fullUrl), e);
@@ -116,19 +140,35 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     @Override
     public HttpHandlerRequest requestBodyToRequestObj(@NonNull final Map<String, Object> requestBody) {
         final HttpHandlerRequest request = new HttpHandlerRequest();
-        request.setHttpMethod(HttpMethod.valueOf(String.valueOf(requestBody.get(HttpHandler.METHOD_FIELD))));
-        request.setConnectType(String.valueOf(requestBody.get(HttpHandler.CONNECT_TYPE_FIELD)));
-        request.setUrl(String.valueOf(requestBody.get(HttpHandler.URL_FIELD)));
-        request.setPort(String.valueOf(requestBody.get(HttpHandler.PORT_FIELD)));
-        request.setEndpoint(String.valueOf(requestBody.get(HttpHandler.ENDPOINT_FIELD)));
-        request.setQueryParams((Map<String, String>) requestBody.get(HttpHandler.QUERY_PARAMS_FIELD));
-        request.setHeaders((Map<String, String>) requestBody.get(HttpHandler.HEADERS_FIELD));
-        request.setBody(String.valueOf(requestBody.get(HttpHandler.BODY_FIELD)));
+        final Map<String, Object> valueMap = this.mergeValuesOntoDefTemplate(HttpHandler.PROTOTYPE_HANDLER_DEF, requestBody);
+        request.setHttpMethod(HttpMethod.valueOf(String.valueOf(valueMap.get(HttpHandler.METHOD_FIELD))));
+        request.setConnectType(String.valueOf(valueMap.get(HttpHandler.CONNECT_TYPE_FIELD)));
+        request.setUrl(String.valueOf(valueMap.get(HttpHandler.URL_FIELD)));
+        request.setPort(String.valueOf(valueMap.get(HttpHandler.PORT_FIELD)));
+        request.setEndpoint(String.valueOf(valueMap.get(HttpHandler.ENDPOINT_FIELD)));
+        request.setQueryParams((Map<String, String>) valueMap.get(HttpHandler.QUERY_PARAMS_FIELD));
+        request.setHeaders((Map<String, String>) valueMap.get(HttpHandler.HEADERS_FIELD));
+        request.setBody(String.valueOf(valueMap.get(HttpHandler.BODY_FIELD)));
         return request;
     }
 
+    Map<String, Object> mergeValuesOntoDefTemplate(final HandlerDefinition handlerDef, final Map<String, Object> requestBody) {
+        final Map<String, Object> map = new HashMap<>();
+        // only put keys which exist in the handler def
+        requestBody.entrySet().stream()
+                .filter(e -> handlerDef.getDef().containsKey(e.getKey()))
+                .filter(e -> this.httpHandlerUtil.typeMatches(handlerDef.getDef().get(e.getKey()), e.getValue()))
+                .forEach(e -> map.put(e.getKey(), e.getValue()));
+        return map;
+    }
+
     @Override
-    public boolean qualifies(@NonNull final Map<String, Object> handlerDef) {
-        return (this.isBuiltin(handlerDef) && this.builtinTypeIs(handlerDef, HttpHandler.HTTP_HANDLER)) || this.extendsFrom(handlerDef, HttpHandler.HTTP_HANDLER);
+    public String getName() {
+        return HttpHandler.HTTP_HANDLER;
+    }
+
+    @Override
+    public HandlerDefinition getPrototypeHandlerDef() {
+        return HttpHandler.PROTOTYPE_HANDLER_DEF;
     }
 }

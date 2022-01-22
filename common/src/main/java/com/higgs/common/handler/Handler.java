@@ -1,5 +1,6 @@
 package com.higgs.common.handler;
 
+import com.higgs.common.handler.http.HttpHandler;
 import com.higgs.common.kafka.HAKafkaConstants;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -11,12 +12,13 @@ import java.util.Map;
 public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     String BUILTIN_TYPE = "builtin_type";
     String IS_BUILTIN = "is_builtin";
+    String IS_EXTENSION = "is_extension";
     String EXTENDS_FROM = "extends_from";
 
-    R handle(@NonNull T request);
+    List<R> handle(@NonNull HandlerDefinition handlerDefinition, @NonNull Map<String, List<String>> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
 
-    default R handle(@NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
-        return this.handle(this.processRequest(headers, requestBody));
+    default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
+        return this.handle(handlerDef, headers, this.processRequest(headers, requestBody));
     }
 
     private T processRequest(@NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
@@ -38,17 +40,40 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
 
     T requestBodyToRequestObj(@NonNull Map<String, Object> requestBody);
 
-    boolean qualifies(@NonNull Map<String, Object> handlerDef);
-
-    default boolean isBuiltin(@NonNull final Map<String, Object> handlerDef) {
-        return Boolean.TRUE.equals(Boolean.valueOf(String.valueOf(handlerDef.get(Handler.IS_BUILTIN))));
+    default boolean qualifies(@NonNull final HandlerDefinition handlerDef) {
+        return (this.isBuiltin(handlerDef) && this.builtinTypeIs(handlerDef, this.getName())) || this.extendsFrom(handlerDef, this.getName());
     }
 
-    default boolean builtinTypeIs(@NonNull final Map<String, Object> handlerDef, @NonNull final String fieldValue) {
-        return fieldValue.equals(String.valueOf(handlerDef.get(Handler.BUILTIN_TYPE)));
+    default boolean isBuiltin(@NonNull final HandlerDefinition handlerDef) {
+        return this.isBuiltin(handlerDef.getMetadata());
     }
 
-    default boolean extendsFrom(@NonNull final Map<String, Object> handlerDef, @NonNull final String fieldValue) {
+    private boolean isBuiltin(@NonNull final Map<String, Object> metadataMap) {
+        return Boolean.TRUE.equals(Boolean.valueOf(String.valueOf(metadataMap.get(Handler.IS_BUILTIN))));
+    }
+
+    default boolean builtinTypeIs(@NonNull final HandlerDefinition handlerDef, @NonNull final String fieldValue) {
+        return this.builtinTypeIs(handlerDef.getMetadata(), fieldValue);
+    }
+
+    private boolean builtinTypeIs(@NonNull final Map<String, Object> metadataMap, @NonNull final String fieldValue) {
+        return fieldValue.equals(String.valueOf(metadataMap.get(Handler.BUILTIN_TYPE)));
+    }
+
+    default boolean extendsFrom(@NonNull final HandlerDefinition handlerDef, @NonNull final String fieldValue) {
+        return this.isExtension(handlerDef) && this.extendsFrom(handlerDef.getMetadata(), fieldValue);
+    }
+
+    default boolean isExtension(@NonNull final HandlerDefinition handlerDef) {
+        return Boolean.TRUE.equals(handlerDef.getMetadata().get(Handler.IS_EXTENSION));
+    }
+
+    private boolean extendsFrom(@NonNull final Map<String, Object> handlerDef, @NonNull final String fieldValue) {
         return fieldValue.equals(String.valueOf(handlerDef.get(Handler.EXTENDS_FROM)));
     }
+
+    String getName();
+
+    HandlerDefinition getPrototypeHandlerDef();
+
 }

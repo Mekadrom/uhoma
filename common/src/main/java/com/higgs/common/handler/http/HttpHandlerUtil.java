@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -24,12 +25,37 @@ public class HttpHandlerUtil {
         return StringUtils.EMPTY;
     }
 
-    private String getFormattedEndpoint(@NonNull final HttpHandlerRequest request) {
+    private String getFormattedEndpoint(final HttpHandlerRequest request) {
         if (StringUtils.isNotBlank(request.getEndpoint())) {
             String formattedEndpoint = request.getEndpoint().charAt(0) == '/' ? request.getEndpoint().substring(1) : request.getEndpoint();
             formattedEndpoint = formattedEndpoint.charAt(formattedEndpoint.length() - 1) == '/' ? formattedEndpoint.substring(0, formattedEndpoint.length() - 1) : formattedEndpoint;
             return formattedEndpoint;
         }
         return StringUtils.EMPTY;
+    }
+
+    public boolean typeMatches(final Object expectedType, final Object value) {
+        if (expectedType instanceof String expectedTypeString) {
+            return this.typeMatches(expectedTypeString, value);
+        } else if (expectedType instanceof Class expectedTypeClass) {
+            // noinspection unchecked
+            return expectedTypeClass.isAssignableFrom(value.getClass());
+        } else {
+            return expectedType.getClass().isAssignableFrom(value.getClass());
+        }
+    }
+
+    private boolean typeMatches(final String expectedType, final Object value) {
+        return switch (expectedType) {
+            case "string", "STRING" -> String.class.isAssignableFrom(value.getClass());
+            case "number", "NUMBER" -> this.isAssignableFromAny(value.getClass(), Number.class, int.class, double.class, byte.class, short.class, long.class);
+            case "object", "OBJECT" -> Map.class.isAssignableFrom(value.getClass());
+            case "boolean", "BOOLEAN", "bool", "BOOL" -> this.isAssignableFromAny(value.getClass(), Boolean.class, boolean.class);
+            default -> throw new IllegalArgumentException("unexpected template data type");
+        };
+    }
+
+    private boolean isAssignableFromAny(final Class<?> actualClass, final Class<?>... classes) {
+        return Arrays.stream(classes).anyMatch(cla$$ -> cla$$.isAssignableFrom(actualClass));
     }
 }

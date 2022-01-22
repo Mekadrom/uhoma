@@ -49,8 +49,8 @@ public class ActionServerConsumer {
         return Map.of(
                 HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, response.getToNodeSeq(),
                 HAKafkaConstants.HEADER_SENDING_NODE_SEQ, response.getFromNodeSeq(),
-                HAKafkaConstants.HEADER_RECEIVING_USER_NAME, response.getToUsername(),
-                HAKafkaConstants.HEADER_SENDING_USER_NAME, response.getFromUsername()
+                HAKafkaConstants.HEADER_RECEIVING_USER_SEQ, response.getToUserSeq(),
+                HAKafkaConstants.HEADER_SENDING_USER_SEQ, response.getFromUserSeq()
         );
     }
 }

@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -153,6 +155,87 @@ class HttpHandlerUtilTest {
                                 null
                         ),
                         "http://other-url.com:8080/rest/api/v2"
+                )
+        );
+    }
+
+    @Test
+    void testTypeMatchesThrows() {
+        assertThrows(IllegalArgumentException.class, () -> this.httpHandlerUtil.typeMatches("not a type", "valid value"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestTypeMatchesParams")
+    void testTypeMatches(final Object type, final Object value, final boolean expectedMatches) {
+        assertThat(this.httpHandlerUtil.typeMatches(type, value), is(equalTo(expectedMatches)));
+    }
+
+    static Stream<Arguments> getTestTypeMatchesParams() {
+        return Stream.of(
+                Arguments.of(
+                        "string",
+                        "testvalue",
+                        true
+                ),
+                Arguments.of(
+                        "number",
+                        1,
+                        true
+                ),
+                Arguments.of(
+                        "number",
+                        1.2,
+                        true
+                ),
+                Arguments.of(
+                        "boolean",
+                        true,
+                        true
+                ),
+                Arguments.of(
+                        "bool",
+                        false,
+                        true
+                ),
+                Arguments.of(
+                        "BOOLEAN",
+                        "testvalue",
+                        false
+                ),
+                Arguments.of(
+                        "object",
+                        new HashMap<>(),
+                        true
+                ),
+                Arguments.of(
+                        String.class,
+                        "testvalue",
+                        true
+                ),
+                Arguments.of(
+                        Number.class,
+                        1L,
+                        true
+                ),
+                Arguments.of(
+                        Number.class,
+                        new BigDecimal("1"),
+                        true
+                ),
+                Arguments.of(
+                        Number.class,
+                        "2",
+                        false
+                ),
+                Arguments.of(
+                        2,
+                        2,
+                        true
+                ),
+                Arguments.of(
+                        2,
+                        "2",
+                        false
                 )
         );
     }
