@@ -15,7 +15,7 @@ BEGIN
             user_login_seq,
             username,
             "password",
-            auths,
+            roles,
             last_login,
             created
         ) VALUES (

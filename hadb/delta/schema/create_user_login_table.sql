@@ -34,7 +34,7 @@ BEGIN
             is_enabled BOOLEAN DEFAULT TRUE,
             is_expired BOOLEAN DEFAULT FALSE,
             is_credentials_expired BOOLEAN DEFAULT FALSE,
-            auths VARCHAR(1024) NOT NULL,
+            roles VARCHAR(1024) NOT NULL,
             last_login TIMESTAMP WITH TIME ZONE,
             created TIMESTAMP WITH TIME ZONE NOT NULL,
             PRIMARY KEY (user_login_seq),
