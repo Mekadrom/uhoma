@@ -3,10 +3,12 @@ package com.higgs.server.web.svc;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
 import com.higgs.server.security.JwtTokenUtils;
+import com.higgs.server.security.Role;
 import com.higgs.server.web.dto.AuthResult;
 import com.higgs.server.web.svc.util.UserAlreadyExistsException;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -31,7 +35,10 @@ public class AuthenticationService {
         final Optional<UserLogin> userLoginOpt = this.userLoginRepository.findByUsername(user.getUsername());
         if (userLoginOpt.isPresent()) {
             final UserLogin userLogin = userLoginOpt.get();
-            return new AuthResult(this.jwtTokenUtil.generateToken(userLogin), userLogin);
+            final String token = this.jwtTokenUtil.generateToken(userLogin);
+            if (StringUtils.isNotBlank(token)) {
+                return new AuthResult(token, this.userLoginRepository.save(userLogin.setLastLogin(Date.from(OffsetDateTime.now().toInstant()))));
+            }
         }
         throw new UsernameNotFoundException(user.getUsername());
     }
@@ -53,7 +60,10 @@ public class AuthenticationService {
             throw new UserAlreadyExistsException(username);
         }
 
-        final UserLogin userLogin = this.userLoginRepository.save(new UserLogin().setUsername(username).setPassword(this.passwordEncoder.encode(password)));
+        final UserLogin userLogin = this.userLoginRepository.save(new UserLogin()
+                .setUsername(username)
+                .setPassword(this.passwordEncoder.encode(password))
+                .addRole(Role.USER));
         return new AuthResult(this.jwtTokenUtil.generateToken(userLogin), userLogin);
     }
 }

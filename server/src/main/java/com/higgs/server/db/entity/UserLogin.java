@@ -1,12 +1,15 @@
 package com.higgs.server.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.higgs.server.db.converter.RoleListConverter;
+import com.higgs.server.security.Role;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,9 +23,13 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -37,10 +44,6 @@ public class UserLogin implements UserDetails {
         this.setCreated(Date.from(OffsetDateTime.now().toInstant()));
     }
 
-    @PostLoad
-    public void onLoad() {
-        this.setLastLogin(Date.from(OffsetDateTime.now().toInstant()));
-    }
 
     @Id
     @NotNull
@@ -69,8 +72,9 @@ public class UserLogin implements UserDetails {
     @Column(name = "IS_CREDENTIALS_EXPIRED")
     private boolean isCredentialsExpired;
 
-    @Column(name = "AUTHS")
-    private String auths;
+    @Column(name = "ROLES")
+    @Convert(converter = RoleListConverter.class)
+    private List<Role> roles;
 
     @Column(name = "LAST_LOGIN")
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -81,9 +85,14 @@ public class UserLogin implements UserDetails {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date created;
 
+    public UserLogin addRole(final Role role) {
+        this.setRoles(Optional.ofNullable(this.getRoles()).orElseGet(() -> new ArrayList<>(Collections.singletonList(role))));
+        return this;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(this.getAuths().split(",")).map(stringAuth -> (GrantedAuthority) () -> stringAuth).collect(Collectors.toList());
+        return this.getRoles().stream().map(role -> (GrantedAuthority) role::getRoleName).collect(Collectors.toList());
     }
 
     @Override
