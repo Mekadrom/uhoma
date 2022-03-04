@@ -86,13 +86,19 @@ export class DashboardComponent implements AfterViewInit {
     if (this.cookieService.get('bearer') && this.userProviderService.getUserView() && !this.webSocketService.isConnected()) {
       this.webSocketService.attach(this.cookieService.get('bearer'));
     }
-    this.fetch();
+    this.fetch(false);
   }
 
-  fetch(): void {
+  fetch(skipHomeFetch: boolean): void {
     this.loading = true;
     this.failedToLoad = false;
-    this.fetchHomes();
+    if (skipHomeFetch) {
+      this.fetchRooms();
+      this.fetchActionHandlers();
+      this.fetchParameterTypes();
+    } else {
+      this.fetchHomes();
+    }
   }
 
   fetchHomes(): void {
@@ -117,7 +123,8 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   fetchRooms(): void {
-    this.roomService.getRooms(this.homeSearchCriteria).subscribe(
+    const searchCriteria: Home = this.homeSearchCriteria ? this.homeSearchCriteria : this.homes[0];
+    this.roomService.getRooms(searchCriteria).subscribe(
       (resp: Room[]) => {
         this.rooms = resp;
         if (this.rooms && this.rooms.length > 0) {
@@ -157,7 +164,7 @@ export class DashboardComponent implements AfterViewInit {
         this.failedToLoad = true;
         this.toastr.error(err.message, 'Failure fetching action handlers');
       }
-    )
+    );
   }
 
   fetchParameterTypes(): void {
@@ -176,10 +183,6 @@ export class DashboardComponent implements AfterViewInit {
   setNodeData(nodes: Node[]): void {
     this.savedNodes = nodes;
     this.mutableNodes = JSON.parse(JSON.stringify(this.savedNodes)) as Node[];
-  }
-
-  refresh(): void {
-    this.fetch();
   }
 
   // region nodes
@@ -317,7 +320,7 @@ export class DashboardComponent implements AfterViewInit {
   clearNodeSearchCriteriaAndRefresh(): void {
     this.nodeNameSearchCriteria = '';
     this.roomSearchCriteria = undefined;
-    this.refresh();
+    this.fetch(true);
   }
 
   clearActionSearchCriteria(): void {
@@ -614,7 +617,7 @@ export class DashboardComponent implements AfterViewInit {
     if (name) {
       this.homeService.createNewHome(name).subscribe(
         (resp: any) => {
-          this.fetch();
+          this.fetch(true);
         },
         (err: any) => {
           this.toastr.error(err.message, 'New home creation failed');

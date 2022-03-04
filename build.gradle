@@ -250,6 +250,21 @@ task deleteImageDeployments {
     dependsOn deleteFrontendImageDeployment
 }
 
+task deleteServerContainerService(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['delete', 'service', 'app-server']
+}
+
+task deleteFrontendContainerService(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['delete', 'service', 'frontend']
+}
+
+task deleteImageServices {
+    dependsOn deleteServerContainerService
+    dependsOn deleteFrontendContainerService
+}
+
 task fullClusterSetup {
     dependsOn ordered(':buildAndPushImages', ':kustomize', ':startMinikube', ':tagWorkers', ':createSecret', ':kubeApply')
 }
@@ -260,6 +275,10 @@ task fullClusterSetupLocal {
 
 task reloadCluster {
     dependsOn ordered(':buildImages', ':kustomize', ':deleteImageDeployments', ':pushImagesToMinikube', ':kubeApply')
+}
+
+task takeDownProjectContainers {
+    dependsOn ordered(':deleteImageDeployments', ':deleteImageServices')
 }
 
 task initDb(type: Exec) {
