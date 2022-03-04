@@ -17,7 +17,21 @@ export class AuthService {
               private cookieService: CookieService) { }
 
   public login(username: string, password: string): Observable<HttpResponse<UserView>> {
-    const obs = this.http.post<UserView>(this.urlProviderService.getAuthUrl(), { username, password }, { observe: 'response' }).pipe(
+    const obs = this.http.post<UserView>(this.urlProviderService.getLoginUrl(), { username, password }, { observe: 'response' }).pipe(
+      retry(1),
+      catchError(this.handleError),
+      shareReplay(1)
+    );
+    obs.subscribe(
+      (resp: HttpResponse<UserView>) => {
+        this.processResponse(resp);
+      }
+    );
+    return obs;
+  }
+
+  public register(username: string, password: string): Observable<HttpResponse<UserView>> {
+    const obs = this.http.post<UserView>(this.urlProviderService.getRegistrationUrl(), { username, password }, { observe: 'response' }).pipe(
       retry(1),
       catchError(this.handleError),
       shareReplay(1)

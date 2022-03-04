@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError, shareReplay } from 'rxjs/operators';
 
-import { ActionHandler } from '../models';
+import { ActionHandler, Home } from '../models';
 import { UrlProviderService } from '../services';
 
 @Injectable({

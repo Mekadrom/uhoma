@@ -3,6 +3,7 @@ export { ActionHandlerService } from './services/action-handler.service';
 export { ActionParameterTypeService } from './services/action-parameter-type.service';
 export { AuthInterceptorService } from './services/auth-interceptor.service';
 export { CommonUtilsService } from './services/common-utils.service';
+export { HomeService } from './services/home.service';
 export { NodeService } from './services/node.service';
 export { RoomService } from './services/room.service';
 export { UrlProviderService } from './services/url-provider.service';

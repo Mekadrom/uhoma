@@ -1,8 +1,8 @@
 package com.higgs.server.db.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
@@ -21,6 +19,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -33,16 +32,14 @@ public class UserLogin implements UserDetails {
     @Serial
     private static final long serialVersionUID = 236L;
 
-    public static final String ACCOUNT_SEQ = "ACCOUNT_SEQ";
-
     @PrePersist
     public void onInsert() {
-        this.setCreated(new Date());
+        this.setCreated(Date.from(OffsetDateTime.now().toInstant()));
     }
 
     @PostLoad
     public void onLoad() {
-        this.setLastLogin(new Date());
+        this.setLastLogin(Date.from(OffsetDateTime.now().toInstant()));
     }
 
     @Id
@@ -57,11 +54,8 @@ public class UserLogin implements UserDetails {
 
     @NotNull
     @JsonIgnore
+    @ToString.Exclude
     private String password;
-
-    @ManyToOne
-    @JoinColumn(name = "NODE_SEQ")
-    private Node node;
 
     @Column(name = "IS_LOCKED")
     private boolean isLocked;
@@ -86,12 +80,6 @@ public class UserLogin implements UserDetails {
     @Column(name = "CREATED")
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date created;
-
-    @NotNull
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = UserLogin.ACCOUNT_SEQ)
-    private Account account;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

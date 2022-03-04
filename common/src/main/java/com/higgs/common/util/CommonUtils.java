@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class CommonUtil {
+public class CommonUtils {
     @Getter
     private final ObjectMapper defaultMapper = new ObjectMapper();
 

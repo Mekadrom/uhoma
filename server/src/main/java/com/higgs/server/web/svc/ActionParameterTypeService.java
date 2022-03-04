@@ -18,14 +18,13 @@ public class ActionParameterTypeService {
      * Performs a search of action parameter types in both the set of corporate type definitions and the user specific defs
      * todo: implement criteria filtering
      *
-     * @param accountSeq     the account sequence to filter by
      * @param searchCriteria search criteria to filter action parameter types by
-     * @return a set of {@link ActionParameterType} representations of action parameter type definitions in both the corporate domain and account domain
+     * @return a set of {@link ActionParameterType} representations of action parameter type definitions in both the corporate domain and home domain
      */
-    public Set<ActionParameterType> performActionParameterTypeSearch(final Long accountSeq, final ActionParameterType searchCriteria) {
+    public Set<ActionParameterType> performActionParameterTypeSearch(final ActionParameterType searchCriteria) {
         return Stream.concat(
-                this.actionParameterTypeRepository.getByAccountAccountSeq(accountSeq).stream(), // account specific action parameter types
-                this.actionParameterTypeRepository.getByAccountAccountSeq(1L).stream() // corporate action parameter types
+                this.actionParameterTypeRepository.getByHomeHomeSeq(searchCriteria.getHomeSeq()).stream(), // home specific action parameter types
+                this.actionParameterTypeRepository.getByHomeHomeSeq(1L).stream() // corporate action parameter types
         ).collect(Collectors.toSet());
     }
 }

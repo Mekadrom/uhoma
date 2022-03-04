@@ -29,10 +29,10 @@ BEGIN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             room_seq BIGINT NOT NULL,
             name VARCHAR(256),
-            account_seq BIGINT NOT NULL,
-            UNIQUE (name, account_seq),
+            home_seq BIGINT NOT NULL,
+            UNIQUE (name, home_seq),
             PRIMARY KEY (room_seq),
-            FOREIGN KEY (account_seq) REFERENCES account (account_seq)
+            FOREIGN KEY (home_seq) REFERENCES home (home_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

@@ -19,11 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommonUtilTest {
-    private final CommonUtil commonUtil = new CommonUtil();
+    private final CommonUtils commonUtils = new CommonUtils();
 
     @Test
     void testParseMap() throws JsonProcessingException {
-        final Map<String, Object> actualMap = this.commonUtil.parseMap("{\"bruh\": 1, \"herb\": true}");
+        final Map<String, Object> actualMap = this.commonUtils.parseMap("{\"bruh\": 1, \"herb\": true}");
         final Map<String, Object> expectedMap = Stream.of(
                 new AbstractMap.SimpleEntry<>("bruh", 1),
                 new AbstractMap.SimpleEntry<>("herb", true)
@@ -35,19 +35,19 @@ class CommonUtilTest {
     void testToObjectMapNonNull() {
         final Map<String, String> map = Map.of("hello", "world", "world", "1");
         final Map<String, Object> expectedMap = Map.of("hello", "world", "world", "1");
-        assertThat(this.commonUtil.toObjectMap(map), is(equalTo(expectedMap)));
+        assertThat(this.commonUtils.toObjectMap(map), is(equalTo(expectedMap)));
     }
 
     @Test
     @SuppressWarnings("ConstantConditions")
     void testToObjectMapNull() {
-        assertThrows(IllegalArgumentException.class, () -> this.commonUtil.toObjectMap(null));
+        assertThrows(IllegalArgumentException.class, () -> this.commonUtils.toObjectMap(null));
     }
 
     @ParameterizedTest
     @MethodSource("getTestFlattenMapParams")
     <K, V> void testFlattenMap(final Map<K, List<V>> input, final Map<K, V> expected) {
-        assertThat(this.commonUtil.flattenMap(input), is(equalTo(expected)));
+        assertThat(this.commonUtils.flattenMap(input), is(equalTo(expected)));
     }
 
     static Stream<Arguments> getTestFlattenMapParams() {
@@ -65,6 +65,6 @@ class CommonUtilTest {
 
     @Test
     void getDefaultMapper() {
-        assertNotNull(this.commonUtil.getDefaultMapper());
+        assertNotNull(this.commonUtils.getDefaultMapper());
     }
 }

@@ -26,18 +26,22 @@ public class NodeRest {
 
     @PostMapping(value = "upsertNode", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Node> upsertNode(@RequestBody(required = false) final Node node, @NonNull final Principal principal) {
-        return ResponseEntity.ok(this.nodeService.upsert(node, this.restUtils.getAccountSeq(principal)));
+        this.restUtils.filterInvalidRequest(principal, node);
+        return ResponseEntity.ok(this.nodeService.upsert(node));
     }
 
     @PostMapping(value = "upsertNodes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Node[]> upsertNodes(@RequestBody(required = false) final Node[] nodes, @NonNull final Principal principal) {
-        return ResponseEntity.ok(Stream.of(nodes).map(node -> this.nodeService.upsert(node, this.restUtils.getAccountSeq(principal)))
+        for (final Node node : nodes) {
+            this.restUtils.filterInvalidRequest(principal, node);
+        }
+        return ResponseEntity.ok(Stream.of(nodes).map(this.nodeService::upsert)
                 .collect(Collectors.toList())
                 .toArray(Node[]::new));
     }
 
     @PostMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Node>> search(@RequestBody(required = false) final Node searchCriteria, @NonNull final Principal principal) {
-        return ResponseEntity.ok(this.nodeService.performNodeSearch(this.restUtils.getAccountSeq(principal), searchCriteria));
+        return ResponseEntity.ok(this.nodeService.performNodeSearch(searchCriteria, this.restUtils.getHomeSeqs(principal)));
     }
 }

@@ -13,16 +13,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Data
 @Entity
 @Table(name = "ROOM")
-public class Room {
+public class Room implements DtoFilter {
     @Id
     @NotNull
     @Column(name = "ROOM_SEQ")
-    @SequenceGenerator(name = "SQ_ROOM")
     @GeneratedValue(generator = "SQ_ROOM", strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "SQ_ROOM", sequenceName = "SQ_ROOM", allocationSize = 1)
     private Long roomSeq;
 
     @NotNull
@@ -30,7 +31,11 @@ public class Room {
     private String name;
 
     @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "ACCOUNT_SEQ")
-    private Account account;
+    @JoinColumn(name = "HOME_SEQ")
+    private Home home;
+
+    @Override
+    public Long getHomeSeq() {
+        return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
+    }
 }

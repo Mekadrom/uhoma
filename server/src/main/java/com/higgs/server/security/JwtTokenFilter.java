@@ -23,7 +23,7 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
     private final UserLoginRepository userLoginRepository;
 
     @Override

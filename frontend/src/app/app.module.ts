@@ -5,10 +5,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 
@@ -24,6 +26,7 @@ import { DevComponent } from './dev/dev.component';
 import { SettingsComponent } from './settings/settings.component';
 import { FourOhFourComponent } from './fourohfour/fourohfour.component';
 import { TypedEditableTableComponent } from './typed-editable-table/typed-editable-table.component';
+import { NewHomeDialogComponent } from './new-home-dialog/new-home-dialog.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +36,8 @@ import { TypedEditableTableComponent } from './typed-editable-table/typed-editab
     DevComponent,
     SettingsComponent,
     FourOhFourComponent,
-    TypedEditableTableComponent
+    TypedEditableTableComponent,
+    NewHomeDialogComponent
   ],
   imports: [
     AppRoutingModule,
@@ -44,10 +48,12 @@ import { TypedEditableTableComponent } from './typed-editable-table/typed-editab
     HttpClientModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatDialogModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
     MatTableModule,
+    MatTabsModule,
     MatTooltipModule,
     ReactiveFormsModule.withConfig({warnOnNgModelWithFormControl: 'never'}),
     ToastrModule.forRoot()

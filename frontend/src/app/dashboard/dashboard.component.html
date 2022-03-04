@@ -1,6 +1,14 @@
 <div class="blade-container">
   <div class="menubar-container">
     <div class="breadcrumbs-container">
+      <mat-form-field class="menu-item">
+        <mat-label>Home</mat-label>
+        <mat-select [(ngModel)]="homeSearchCriteria">
+          <mat-option (click)="clearNodeSearchCriteriaAndRefresh()" *ngFor="let home of homes" [value]="home" class="home-selection">{{ home.name }}</mat-option>
+<!--          <mat-option class="home-selection">All Homes</mat-option>-->
+          <mat-option (click)="createNewHomeDialog(); clearNodeSearchCriteriaAndRefresh()" class="home-selection">Create New Home</mat-option>
+        </mat-select>
+      </mat-form-field>
       <span class="breadcrumb-trail-mark">►</span>
       <span *ngIf="!getNode(getSelectedNodeRow())?.name" class="breadcrumb-trail-mark">None selected</span>
       <span class="breadcrumb-text">{{ getNode(getSelectedNodeRow())?.room?.name }}</span>
@@ -49,9 +57,9 @@
         </mat-form-field>
         <mat-form-field class="menu-item">
           <mat-label>Location</mat-label>
-          <mat-select [(ngModel)]="roomNameSearchCriteria">
+          <mat-select [(ngModel)]="roomSearchCriteria">
             <mat-option value="" class="room-selection"></mat-option>
-            <mat-option *ngFor="let room of rooms" [value]="room.name" class="room-selection">{{ room.name }}</mat-option>
+            <mat-option *ngFor="let room of rooms" [value]="room" class="room-selection">{{ room.name }}</mat-option>
           </mat-select>
         </mat-form-field>
         <button mat-flat-button

@@ -1,5 +1,5 @@
- name: server
 server:
+  name: server
   port: 8080
   datasource:
     initialization-mode: always

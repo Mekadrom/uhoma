@@ -31,7 +31,7 @@ export class WebSocketService {
         }
         const userView: UserView | null | undefined = this.userProviderService.getUserView();
         if (userView) {
-          const nodeSeq: number | null = userView.node.nodeSeq;
+          const nodeSeq: number | null | undefined = userView.node?.nodeSeq;
           const userLoginSeq: number | null = userView.userLoginSeq;
           if (nodeSeq) {
             this.client.subscribe("/${nodeSeq}/queue/reply", (message: any) => {

@@ -13,16 +13,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Data
 @Entity
 @Table(name = "ACTION_PARAMETER_TYPE")
-public class ActionParameterType {
+public class ActionParameterType implements DtoFilter {
     @Id
     @NotNull
     @Column(name = "ACTION_PARAMETER_TYPE_SEQ")
-    @SequenceGenerator(name = "SQ_ACTION_PARAMETER_TYPE")
     @GeneratedValue(generator = "SQ_ACTION_PARAMETER_TYPE", strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "SQ_ACTION_PARAMETER_TYPE", sequenceName = "SQ_ACTION_PARAMETER_TYPE", allocationSize = 1)
     private Long actionParameterTypeSeq;
 
     @NotNull
@@ -35,6 +36,11 @@ public class ActionParameterType {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "ACCOUNT_SEQ")
-    private Account account;
+    @JoinColumn(name = "HOME_SEQ")
+    private Home home;
+
+    @Override
+    public Long getHomeSeq() {
+        return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
+    }
 }

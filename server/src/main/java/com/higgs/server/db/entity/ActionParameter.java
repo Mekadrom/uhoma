@@ -24,8 +24,8 @@ public class ActionParameter {
     @Id
     @NotNull
     @Column(name = "ACTION_PARAMETER_SEQ")
-    @SequenceGenerator(name = "SQ_ACTION_PARAMETER")
     @GeneratedValue(generator = "SQ_ACTION_PARAMETER", strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "SQ_ACTION_PARAMETER", sequenceName = "SQ_ACTION_PARAMETER", allocationSize = 1)
     private Long actionParameterSeq;
 
     @Column(name = "NAME")

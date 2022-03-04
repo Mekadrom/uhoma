@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] UNAUTHORIZED_ENDPOINT_ANTMATCHERS = {
             "/auth/login",
+            "/auth/register",
             "/socket",
             "/socket/**"
     };

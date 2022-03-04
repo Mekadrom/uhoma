@@ -8,8 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SuppressWarnings("NonFinalUtilityClass")
 @ComponentScan({ "com.higgs.actionserver", "com.higgs.common" })
 public class HomeAssistantActionServerApplication {
-    public static void main(final String[] args) {
+    public static void main(final String... args) {
         SpringApplication.run(HomeAssistantActionServerApplication.class, args);
     }
 }
-

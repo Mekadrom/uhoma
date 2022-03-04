@@ -1,9 +1,10 @@
 package com.higgs.server.web.svc;
 
-import com.higgs.server.security.JwtTokenUtil;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
+import com.higgs.server.security.JwtTokenUtils;
 import com.higgs.server.web.dto.AuthResult;
+import com.higgs.server.web.svc.util.UserAlreadyExistsException;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +21,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
+    private final PasswordEncoder passwordEncoder;
     private final UserLoginRepository userLoginRepository;
 
     public AuthResult getTokens(final String username, final String password) {
@@ -43,5 +46,14 @@ public class AuthenticationService {
 
     public boolean validate(final String bearer) {
         return this.jwtTokenUtil.parseAndValidateToken(bearer, this.userLoginRepository::findByUsername).isPresent();
+    }
+
+    public AuthResult register(final String username, final String password) {
+        if (this.userLoginRepository.findByUsername(username).isPresent()) {
+            throw new UserAlreadyExistsException(username);
+        }
+
+        final UserLogin userLogin = this.userLoginRepository.save(new UserLogin().setUsername(username).setPassword(this.passwordEncoder.encode(password)));
+        return new AuthResult(this.jwtTokenUtil.generateToken(userLogin), userLogin);
     }
 }

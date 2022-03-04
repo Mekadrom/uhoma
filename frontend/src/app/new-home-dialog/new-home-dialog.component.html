@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>Create New Home</h1>
+<div mat-dialog-content>
+    <p>Enter name of new home:</p>
+    <mat-form-field>
+        <mat-label>New Home Name</mat-label>
+        <input cdkFocusInitial matInput [(ngModel)]="newHomeName">
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="newHomeName">Ok</button>
+    <button mat-button (click)="onNoClick()">Cancel</button>
+</div>

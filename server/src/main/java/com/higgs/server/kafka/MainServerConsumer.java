@@ -2,7 +2,7 @@ package com.higgs.server.kafka;
 
 import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.kafka.KafkaTopicEnum;
-import com.higgs.common.util.CommonUtil;
+import com.higgs.common.util.CommonUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -14,7 +14,7 @@ import org.springframework.util.MultiValueMap;
 @Service
 @AllArgsConstructor
 public class MainServerConsumer {
-    private final CommonUtil commonUtil;
+    private final CommonUtils commonUtils;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @KafkaListener(topics = "${kafka.topics." + KafkaTopicEnum.NODE_RESPONSE_TOPIC_KEY + ":node_response}")
@@ -23,7 +23,7 @@ public class MainServerConsumer {
     }
 
     private void transmit(final MultiValueMap<String, String> headers, final String message) {
-        this.simpMessagingTemplate.convertAndSendToUser(this.extractUser(headers), "queue/reply", message, this.commonUtil.toObjectMap(this.commonUtil.flattenMap(headers)));
+        this.simpMessagingTemplate.convertAndSendToUser(this.extractUser(headers), "queue/reply", message, this.commonUtils.toObjectMap(this.commonUtils.flattenMap(headers)));
     }
 
     private String extractUser(final MultiValueMap<String, String> headers) {

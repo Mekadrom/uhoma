@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 
     implementation 'org.postgresql:postgresql'
 
@@ -75,6 +76,7 @@ processResources {
     filesMatching('**/*.yml') {
         expand(project.properties)
         expand(ext.properties)
+        expand(gradle.ext.properties)
     }
 }
 
@@ -90,7 +92,7 @@ test {
 jacocoTestReport {
     dependsOn test
 
-    reports.html.destination file("${distDir}/jacocoHtml")
+    reports.html.destination file("${gradle.ext.distDir}/jacocoHtml")
 
     executionData test
     sourceSets sourceSets.test

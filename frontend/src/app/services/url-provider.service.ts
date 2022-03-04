@@ -22,12 +22,24 @@ export class UrlProviderService {
     return this.webSocketMessageEndpoint;
   }
 
-  public getAuthUrl(): string {
+  public getLoginUrl(): string {
     return this.getHamsUrl() + '/auth/login';
+  }
+
+  public getRegistrationUrl(): string {
+    return this.getHamsUrl() + '/auth/register';
   }
 
   public getUserViewRefreshUrl(): string {
     return this.getHamsUrl() + '/auth/refreshUserView';
+  }
+
+  public getHomeSearchUrl(): string {
+    return this.getHamsUrl() + '/home/search';
+  }
+
+  public getHomeCreateUrl(): string {
+    return this.getHamsUrl() + '/home/create';
   }
 
   public getNodeSearchUrl(): string {

@@ -3,7 +3,7 @@ package com.higgs.common.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.higgs.common.kafka.HAKafkaConstants;
-import com.higgs.common.util.CommonUtil;
+import com.higgs.common.util.CommonUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
@@ -17,13 +17,13 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class HandlerHandler {
-    private final CommonUtil commonUtil;
+    private final CommonUtils commonUtils;
     private final List<? extends Handler<? extends HandlerRequest, ? extends HandlerResponse>> handlers;
     private final ProxyHandlerGenerator proxyHandlerGenerator;
 
     public List<HandlerResponse> process(@NonNull final Map<String, List<String>> kafkaHeaders,
                                          @NonNull final String body) throws IOException {
-        return this.process(kafkaHeaders, this.commonUtil.parseMap(body));
+        return this.process(kafkaHeaders, this.commonUtils.parseMap(body));
     }
 
     private List<HandlerResponse> process(@NonNull final Map<String, List<String>> headers,
@@ -32,7 +32,7 @@ public class HandlerHandler {
     }
 
     private HandlerDefinition parseHandlerDef(final String handlerDef) throws JsonProcessingException {
-        final ObjectMapper mapper = this.commonUtil.getDefaultMapper();
+        final ObjectMapper mapper = this.commonUtils.getDefaultMapper();
         return mapper.readValue(handlerDef, HandlerDefinition.class);
     }
 

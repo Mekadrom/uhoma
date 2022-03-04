@@ -20,8 +20,8 @@ public class RoomLink {
     @Id
     @NotNull
     @Column(name = "ROOM_LINK_SEQ")
-    @SequenceGenerator(name = "SQ_ROOM_LINK")
     @GeneratedValue(generator = "SQ_ROOM_LINK", strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "SQ_ROOM_LINK", sequenceName = "SQ_ROOM_LINK", allocationSize = 1)
     private Long roomLinkSeq;
 
     @NotNull

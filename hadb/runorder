@@ -1,4 +1,6 @@
-schema/create_account_table.sql
+schema/create_user_login_table.sql
+schema/create_home_table.sql
+schema/create_home_user_link_table.sql
 schema/create_action_handler_table.sql
 schema/create_room_table.sql
 schema/create_node_table.sql
@@ -7,11 +9,8 @@ schema/create_action_parameter_type_table.sql
 schema/create_action_parameter_table.sql
 schema/create_room_link_table.sql
 schema/test_schema.sql
-schema/create_account_table.sql
-schema/create_user_login_table.sql
-schema/add_user_login_account_foreign_constraint.sql
-data/insert_corporate_account.sql
+data/insert_test_user.sql
+data/insert_test_home.sql
 data/insert_action_handlers.sql
 data/insert_action_parameter_types.sql
-data/insert_admin_user.sql
 data/test_data.sql

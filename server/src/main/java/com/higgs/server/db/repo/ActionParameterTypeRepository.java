@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ActionParameterTypeRepository extends JpaRepository<ActionParameterType, Long>, JpaSpecificationExecutor<ActionParameterType> {
-
-    List<ActionParameterType> getByAccountAccountSeq(Long accountSeq);
-
+    List<ActionParameterType> getByHomeHomeSeq(Long homeSeq);
 }

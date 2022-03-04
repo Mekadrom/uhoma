@@ -7,27 +7,23 @@ BEGIN
     SELECT EXISTS(
         SELECT
           FROM user_login
-         WHERE UPPER(username) = UPPER('admin')
+         WHERE UPPER(username) = UPPER('test')
     ) INTO v_row_exists;
 
     IF NOT v_row_exists THEN
         INSERT INTO user_login (
             user_login_seq,
-            account_seq,
             username,
             "password",
             auths,
-            node_seq,
             last_login,
             created
         ) VALUES (
-            nextval('sq_user_login'),
-            1,
+            NEXTVAL('sq_user_login'),
             'admin',
             '$2y$12$8.WZVLPGTsg42OjSd.zjkecWxjZRYjDLOTsSRyao.LQzHJ0aeJ24q',
             'ROLE_ADMIN',
-            null,
-            null,
+            NULL,
             NOW()
         );
     END IF;

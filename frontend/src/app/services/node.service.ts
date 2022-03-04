@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError, shareReplay } from 'rxjs/operators';
 
-import { Node } from '../models';
+import { Home, Node } from '../models';
 import { UrlProviderService } from '../services';
 
 @Injectable({
@@ -13,8 +13,8 @@ export class NodeService {
   constructor(private http: HttpClient,
               private urlProviderService: UrlProviderService) { }
 
-  public getNodes(): Observable<Node[]> {
-    return this.http.post<Node[]>(this.urlProviderService.getNodeSearchUrl(), {}).pipe(
+  public getNodes(homeSearchCriteria?: Home): Observable<Node[]> {
+    return this.http.post<Node[]>(this.urlProviderService.getNodeSearchUrl(), {homeSeq: homeSearchCriteria?.homeSeq}).pipe(
       retry(1),
       catchError(this.handleError),
       shareReplay()

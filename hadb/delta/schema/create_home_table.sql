@@ -1,8 +1,8 @@
 DO $$
 DECLARE
     c_schema_name VARCHAR(32) := 'hams_data';
-    c_table_name VARCHAR(32) := 'account';
-    c_sequence_name VARCHAR(32) := 'sq_account';
+    c_table_name VARCHAR(32) := 'home';
+    c_sequence_name VARCHAR(32) := 'sq_home';
 
     v_table_exists BOOLEAN;
     v_sequence_exists BOOLEAN;
@@ -27,10 +27,13 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            account_seq BIGINT NOT NULL,
+            home_seq BIGINT NOT NULL,
             created TIMESTAMP WITH TIME ZONE NOT NULL,
+            name VARCHAR NOT NULL,
             type VARCHAR NOT NULL,
-            PRIMARY KEY (account_seq)
+            owner_user_login_seq BIGINT NOT NULL,
+            PRIMARY KEY (home_seq),
+            FOREIGN KEY (owner_user_login_seq) REFERENCES user_login (user_login_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

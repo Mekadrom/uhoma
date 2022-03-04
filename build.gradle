@@ -5,9 +5,9 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.5.0'
     id 'java'
     id "io.freefair.lombok" version "6.3.0"
+    id 'org.springframework.boot' version '2.5.0'
     id 'pmd'
 }
 
@@ -23,23 +23,7 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 ext {
-    artifactoryUrl = 'us-east1-docker.pkg.dev'
-    gcpArtifactRoot = "${artifactoryUrl}/root-furnace-306909/hadocker-images"
-    serverArtifactName = 'ha-server'
-    frontendArtifactName = 'ha-frontend'
-    distDir = 'dist'
-    imgBuildExec = '/usr/bin/docker'
-    kubeCmdExec = '/usr/local/bin/kubectl'
-    clusterExec = '/usr/bin/minikube'
-    clusterNodeCount = '3'
-    secretPath = '~/json_key.json'
-    dockerEmail = ''
-    dbUsername = 'hams_data'
-    dbPassword = 'hams_data'
-    dbUrl = 'localhost'
-    dbPort = '5432'
-    dbDomain = 'hams_data'
-    dbSchema = 'hams_data'
+    secretContents = new File(gradle.ext.secretPath).text
 }
 
 repositories {
@@ -64,7 +48,7 @@ clean {
     dependsOn ':actionserver:clean'
     dependsOn ':frontend:clean'
     doFirst {
-        delete "${distDir}"
+        delete "${gradle.ext.distDir}"
     }
 }
 
@@ -75,17 +59,17 @@ task distribute {
 
 task copyToDist(type: Copy) {
     doFirst {
-        mkdir "${distDir}"
+        mkdir "${gradle.ext.distDir}"
 
         subprojects.stream().forEach {
-            mkdir "${distDir}/${it.name}"
+            mkdir "${gradle.ext.distDir}/${it.name}"
         }
     }
 
-    into("${distDir}")
+    into("${gradle.ext.distDir}")
 
     // only include fatjars
-    ['server', 'actionserver'].forEach {proj ->
+    ['server', 'actionserver'].forEach { proj ->
         into("${proj}") {
             with copySpec {
                 from("${proj}/build/libs") {
@@ -96,7 +80,7 @@ task copyToDist(type: Copy) {
     }
 
     // include all libs
-    ['common'].forEach {proj ->
+    ['common'].forEach { proj ->
         into("${proj}") {
             with copySpec {
                 from("${proj}/build/libs")
@@ -135,24 +119,39 @@ pmdTest {
 
 task buildServerImage(type: Exec) {
     dependsOn distribute
-    executable = "${imgBuildExec}"
-    args = [ 'build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gcpArtifactRoot}/${serverArtifactName}:${version}", '--build-arg', "artifactPath=${distDir}/server/" ]
+    executable = "${gradle.ext.imgBuildExec}"
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir}/server/"]
 }
 
 task buildFrontendImage(type: Exec) {
     dependsOn distribute
-    executable = "${imgBuildExec}"
-    args = [ 'build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${gcpArtifactRoot}/${frontendArtifactName}:${version}", '--build-arg', "artifactPath=${distDir}/frontend/" ]
+    executable = "${gradle.ext.imgBuildExec}"
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir}/frontend/"]
+}
+
+task pushServerImageToMinikube(type: Exec) {
+    executable = "${gradle.ext.clusterExec}"
+    args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}"]
+}
+
+task pushFrontendImageToMinikube(type: Exec) {
+    executable = "${gradle.ext.clusterExec}"
+    args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}"]
+}
+
+task pushImagesToMinikube() {
+    dependsOn pushServerImageToMinikube
+    dependsOn pushFrontendImageToMinikube
 }
 
 task pushServerImage(type: Exec) {
-    executable = "${imgBuildExec}"
-    args = [ 'push', "${gcpArtifactRoot}/${serverArtifactName}:${version}" ]
+    executable = "${gradle.ext.imgBuildExec}"
+    args = ['push', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}"]
 }
 
 task pushFrontendImage(type: Exec) {
-    executable = "${imgBuildExec}"
-    args = [ 'push', "${gcpArtifactRoot}/${frontendArtifactName}:${version}" ]
+    executable = "${gradle.ext.imgBuildExec}"
+    args = ['push', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}"]
 }
 
 task buildImages {
@@ -171,10 +170,11 @@ task buildAndPushImages {
 }
 
 task copyKustomizationFiles(type: Copy) {
-    from ('env/kubernetes/') {
+    from('env/kubernetes/') {
         include '**/*.yml'
         expand(project.properties)
         expand(ext.properties)
+        expand(gradle.ext.properties)
     }
     into 'dist/kubernetes'
 }
@@ -182,19 +182,19 @@ task copyKustomizationFiles(type: Copy) {
 task kustomize(type: Exec) {
     dependsOn copyKustomizationFiles
     workingDir = 'dist/kubernetes/'
-    executable = "${kubeCmdExec}"
-    args = [ 'kustomize', '-o', 'deployment.yml' ]
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['kustomize', '-o', 'deployment.yml']
 }
 
 task createSecret(type: Exec) {
-    executable = "${kubeCmdExec}"
-    args = [ 'create', 'secret', 'docker-registry', 'gcr-json-key', "--docker-server=${artifactoryUrl}", '--docker-username=_json_key', '--docker-password="$(cat ~/json_key.json)"', "--docker-email=${dockerEmail}" ]
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['create', 'secret', 'docker-registry', 'gcr-json-key', "--docker-server=${gradle.ext.artifactoryUrl}", '--docker-username=_json_key', "--docker-password='${secretContents}'", "--docker-email=${gradle.ext.dockerEmail}"]
 }
 
 task kubeApply(type: Exec) {
-    workingDir = 'env/kubernetes/'
-    executable = "${kubeCmdExec}"
-    args = [ 'apply', '-f', 'deployment.yml' ]
+    workingDir = "${gradle.ext.distDir}/kubernetes/"
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['apply', '-f', 'deployment.yml']
 }
 
 task buildAndDeploy(type: Exec) {
@@ -205,27 +205,77 @@ task buildAndDeploy(type: Exec) {
 }
 
 task startMinikube(type: Exec) {
-    executable = "${clusterExec}"
-    args = [ 'start', "--nodes=${clusterNodeCount}" ]
+    executable = "${gradle.ext.clusterExec}"
+    args = ['start', "--nodes=${gradle.ext.clusterNodeCount}"]
+}
+
+task tagWorker2(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['label', 'node', 'minikube-m02', 'node-role.kubernetes.io/worker=worker']
+}
+
+task tagWorker3(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['label', 'node', 'minikube-m03', 'node-role.kubernetes.io/worker=worker']
+}
+
+task tagWorkers {
+    dependsOn tagWorker2
+    dependsOn tagWorker3
 }
 
 task stopMinikube(type: Exec) {
-    executable = "${clusterExec}"
-    args = [ 'stop' ]
+    executable = "${gradle.ext.clusterExec}"
+    args = ['stop']
+}
+
+task deleteMinikube(type: Exec) {
+    dependsOn stopMinikube
+    executable = "${gradle.ext.clusterExec}"
+    args = ['delete']
+}
+
+task deleteServerImageDeployment(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['delete', 'deployment', 'app-server0']
+}
+
+task deleteFrontendImageDeployment(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['delete', 'deployment', 'frontend0']
+}
+
+task deleteImageDeployments {
+    dependsOn deleteServerImageDeployment
+    dependsOn deleteFrontendImageDeployment
 }
 
 task fullClusterSetup {
-    dependsOn ordered(':buildAndPushImages', ':kustomize', ':startMinikube', ':createSecret', ':kubeApply')
+    dependsOn ordered(':buildAndPushImages', ':kustomize', ':startMinikube', ':tagWorkers', ':createSecret', ':kubeApply')
+}
+
+task fullClusterSetupLocal {
+    dependsOn ordered(':buildImages', ':kustomize', ':startMinikube', ':pushImagesToMinikube', ':tagWorkers', ':createSecret', ':kubeApply')
+}
+
+task reloadCluster {
+    dependsOn ordered(':buildImages', ':kustomize', ':deleteImageDeployments', ':pushImagesToMinikube', ':kubeApply')
 }
 
 task initDb(type: Exec) {
     workingDir = 'hadb/'
     executable = "./initdb.sh"
-    args = [ '-u', "${dbUsername}", '-p', "${dbPassword}", '-U', "${dbUrl}", '-P', "${dbPort}", '-d', "${dbDomain}", '-s', "${dbSchema}" ]
+    args = ['-u', "${gradle.ext.dbUsername}", '-p', "${gradle.ext.dbPassword}", '-U', "${gradle.ext.dbUrl}", '-P', "${gradle.ext.dbPort}", '-d', "${gradle.ext.dbDomain}", '-s', "${gradle.ext.dbSchema}"]
+}
+
+task cleanDb(type: Exec) {
+    workingDir = 'hadb/'
+    executable = './cleandb.sh'
+    args = ['-u', "${gradle.ext.dbUsername}", '-p', "${gradle.ext.dbPassword}", '-U', "${gradle.ext.dbUrl}", '-P', "${gradle.ext.dbPort}", '-d', "${gradle.ext.dbDomain}", '-s', "${gradle.ext.dbSchema}"]
 }
 
 task deltaRun(type: Exec) {
     workingDir = 'hadb/'
-    executable = "./deltarun.sh"
-    args = [ '-u', "${dbUsername}", '-p', "${dbPassword}", '-U', "${dbUrl}", '-P', "${dbPort}", '-d', "${dbDomain}" ]
+    executable = './deltarun.sh'
+    args = ['-u', "${gradle.ext.dbUsername}", '-p', "${gradle.ext.dbPassword}", '-U', "${gradle.ext.dbUrl}", '-P', "${gradle.ext.dbPort}", '-d', "${gradle.ext.dbDomain}"]
 }

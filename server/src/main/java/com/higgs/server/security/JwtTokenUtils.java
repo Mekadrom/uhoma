@@ -1,26 +1,37 @@
 package com.higgs.server.security;
 
+import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.util.HAConstants;
+import com.higgs.server.util.ServerUtils;
+import com.higgs.server.web.svc.HomeService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class JwtTokenUtil {
+@RequiredArgsConstructor
+public class JwtTokenUtils {
+    public static final String ALLOWED_HOMES_CLAIM = "allowed_homes";
+
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
 
     private String signingKey;
+
+    private final HomeService homeService;
 
     public String getUsernameFromToken(final String token) {
         return this.getClaimFromToken(token, Claims::getSubject);
@@ -52,34 +63,32 @@ public class JwtTokenUtil {
     }
 
     public String generateToken(final UserLogin userLogin) {
-        return this.generateToken(userLogin, JwtTokenUtil.ACCESS_TOKEN_VALIDITY_SECONDS);
+        return this.generateToken(userLogin, JwtTokenUtils.ACCESS_TOKEN_VALIDITY_SECONDS);
     }
 
-    public String generateToken(final UserLogin userLogin, final long validityMillis) {
+    public String generateToken(final UserLogin userLogin, final long validitySeconds) {
         this.ensureSigningKey();
-        return this.generateToken(userLogin, validityMillis, this.signingKey);
+        return this.generateToken(userLogin, validitySeconds, this.signingKey);
     }
 
-    public String generateToken(final UserLogin userLogin, final long validityMillis, final String signingKey) {
+    public String generateToken(final UserLogin userLogin, final long validitySeconds, final String signingKey) {
         final Claims claims = Jwts.claims().setSubject(userLogin.getUsername());
-        claims.put(UserLogin.ACCOUNT_SEQ, userLogin.getAccount().getAccountSeq());
+        claims.put(JwtTokenUtils.ALLOWED_HOMES_CLAIM, this.homeService.getHomesForUser(userLogin).stream().map(Home::getHomeSeq).collect(Collectors.toSet()));
         final String jwt = Jwts.builder()
                 .setClaims(claims)
                 .setIssuer("hams")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + validityMillis * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + validitySeconds * 1000))
                 .signWith(SignatureAlgorithm.HS256, signingKey)
                 .setSubject(userLogin.getUsername())
                 .compact();
-        JwtTokenUtil.log.info("Successfully generated jwt for {}", userLogin.getUsername());
+        JwtTokenUtils.log.info("Successfully generated jwt for {}", userLogin.getUsername());
         return jwt;
     }
 
     private void ensureSigningKey() {
         if (this.signingKey == null) {
-            final String prop = System.getProperty("security.auth.jwt.signing-key");
-            final String env = System.getenv("HA_SERVER_SIGNING_KEY");
-            this.signingKey = Optional.ofNullable(Optional.ofNullable(prop).orElse(env)).orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
+            this.signingKey = ServerUtils.getSigningKey().orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
         }
     }
 
@@ -95,16 +104,9 @@ public class JwtTokenUtil {
         if (StringUtils.isNotBlank(tokenNoPrefix)) {
             final String username = this.getUsernameFromToken(tokenNoPrefix);
             if (StringUtils.isNotBlank(username)) {
-                return userRetriever.apply(username)
-                        .filter(userDetails -> this.validateToken(tokenNoPrefix, userDetails))
-                        .filter(userLogin -> this.tokenClaimsHasCorrectAccount(tokenNoPrefix, userLogin));
+                return userRetriever.apply(username).filter(userDetails -> this.validateToken(tokenNoPrefix, userDetails));
             }
         }
         return Optional.empty();
-    }
-
-    private boolean tokenClaimsHasCorrectAccount(final String token, final UserLogin userLogin) {
-        final Long accountSeq = this.getClaimFromToken(token, claims -> claims.get(UserLogin.ACCOUNT_SEQ, Long.class));
-        return accountSeq != null && accountSeq.equals(userLogin.getAccount().getAccountSeq());
     }
 }

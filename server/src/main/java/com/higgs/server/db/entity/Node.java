@@ -19,6 +19,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -27,17 +28,23 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "NODE")
-public class Node {
+public class Node implements DtoFilter {
     @Id
     @NotNull
     @Column(name = "NODE_SEQ")
-    @SequenceGenerator(name = "SQ_NODE")
     @GeneratedValue(generator = "SQ_NODE", strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "SQ_NODE", sequenceName = "SQ_NODE", allocationSize = 1)
     private Long nodeSeq;
 
     @Column(name = "NAME", unique = true)
     private String name;
 
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "HOME_SEQ")
+    private Home home;
+
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "ROOM_SEQ")
     private Room room;
@@ -54,5 +61,10 @@ public class Node {
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    @Override
+    public Long getHomeSeq() {
+        return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
     }
 }

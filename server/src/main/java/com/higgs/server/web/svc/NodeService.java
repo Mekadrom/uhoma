@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,14 +19,20 @@ import java.util.stream.Collectors;
 public class NodeService {
     private final ActionParameterService actionParameterService;
     private final ActionService actionService;
+    private final HomeService homeService;
     private final NodeRepository nodeRepository;
 
     @Transactional
-    public Node upsert(final Node node, final Long accountSeq) {
+    public Node upsert(final Node node) {
         // grab existing state of node in DB in order to remove deleted child entities
-        final Node saved = this.nodeRepository.getByNodeSeqAndRoomAccountAccountSeq(node.getNodeSeq(), accountSeq);
+        final Optional<Node> savedOpt = this.nodeRepository.findById(node.getNodeSeq());
 
-        final Collection<Action> savedActions = saved.getActions();
+        node.setHome(this.homeService.getHome(node.getRoom().getHomeSeq()));
+        if (savedOpt.isEmpty()) {
+            this.nodeRepository.saveAndFlush(node);
+        }
+
+        final Collection<Action> savedActions = savedOpt.map(Node::getActions).orElse(Collections.emptyList());
         final Collection<Action> updatedActions = node.getActions();
         final Collection<ActionParameter> savedActionParameters = this.getAllParametersForNode(savedActions);
         final Collection<ActionParameter> updatedActionParameters = this.getAllParametersForNode(updatedActions);
@@ -51,22 +59,25 @@ public class NodeService {
                 .collect(Collectors.toList());
     }
 
-    public List<Node> performNodeSearch(final Long accountSeq, final Node searchCriteria) {
+    public List<Node> performNodeSearch(final Node searchCriteria, final Collection<Long> homeSeqs) {
         if (searchCriteria != null) {
             if (searchCriteria.getNodeSeq() != null) {
-                return List.of(this.nodeRepository.getByNodeSeqAndRoomAccountAccountSeq(searchCriteria.getNodeSeq(), accountSeq));
+                return List.of(this.nodeRepository.getById(searchCriteria.getNodeSeq()));
             }
             if (searchCriteria.getRoom() != null && searchCriteria.getRoom().getRoomSeq() != null) {
                 if (searchCriteria.getName() != null) {
-                    return this.nodeRepository.getByNameContainingIgnoreCaseAndRoomRoomSeqAndRoomAccountAccountSeq(searchCriteria.getName(), searchCriteria.getRoom().getRoomSeq(), accountSeq);
+                    return this.nodeRepository.getByNameContainingIgnoreCaseAndRoomRoomSeqAndHomeHomeSeq(searchCriteria.getName(), searchCriteria.getRoom().getRoomSeq(), searchCriteria.getHomeSeq());
                 }
-                return this.nodeRepository.getByRoomRoomSeqAndRoomAccountAccountSeq(searchCriteria.getRoom().getRoomSeq(), accountSeq);
+                return this.nodeRepository.getByRoomRoomSeqAndHomeHomeSeq(searchCriteria.getRoom().getRoomSeq(), searchCriteria.getHomeSeq());
             } else {
+                if (searchCriteria.getHomeSeq() != null) {
+                    return this.nodeRepository.getByHomeHomeSeqIn(List.of(searchCriteria.getHomeSeq()));
+                }
                 if (searchCriteria.getName() != null) {
-                    return this.nodeRepository.getByNameAndRoomAccountAccountSeq(searchCriteria.getName(), accountSeq);
+                    return this.nodeRepository.getByNameAndHomeHomeSeq(searchCriteria.getName(), searchCriteria.getHomeSeq());
                 }
             }
         }
-        return this.nodeRepository.getByRoomAccountAccountSeq(accountSeq);
+        return this.nodeRepository.getByHomeHomeSeqIn(homeSeqs);
     }
 }

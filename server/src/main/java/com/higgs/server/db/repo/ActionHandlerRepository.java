@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ActionHandlerRepository extends JpaRepository<ActionHandler, Long>, JpaSpecificationExecutor<ActionHandler> {
-
-    List<ActionHandler> getByAccountAccountSeq(Long accountSeq);
-
+    List<ActionHandler> getByHomeHomeSeq(Long homeSeq);
 }

@@ -30,10 +30,10 @@ BEGIN
             action_handler_seq BIGINT NOT NULL,
             handler_def VARCHAR(65536),
             name VARCHAR(256),
-            account_seq BIGINT NOT NULL,
-            UNIQUE (name, account_seq),
+            home_seq BIGINT,
+            UNIQUE (name, home_seq),
             PRIMARY KEY (action_handler_seq),
-            FOREIGN KEY (account_seq) REFERENCES account (account_seq)
+            FOREIGN KEY (home_seq) REFERENCES home (home_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

@@ -1,0 +1,53 @@
+// copy this file, rename to 'settings.gradle' and modify the properties starting with 'gradle.ext'
+
+rootProject.name = 'HomeAssistant'
+includeProject('server')
+includeProject('frontend')
+includeProject('actionserver')
+includeProject('common')
+includeProject('simulator')
+
+includeProject('simulator:ProfiledHttpSimulator')
+
+def includeProject(projectName) {
+    include projectName
+    project(':' + projectName).projectDir = file(projectName.replace(":", File.separator))
+}
+
+// executable paths
+gradle.ext.imgBuildExec = '/usr/bin/docker' // can be img as they are mostly interchangeable
+gradle.ext.kubeCmdExec = '/usr/bin/kubectl' // currently only supports kubectl
+gradle.ext.clusterExec = '/usr/bin/minikube' // currently only supports minikube
+
+// example url for google artifact repository (GCR)
+gradle.ext.artifactoryUrl = ''
+
+// change to path for your project's GCR root
+gradle.ext.gcpArtifactRoot = "${gradle.ext.artifactoryUrl}".toString()
+
+// base name of image for main server
+gradle.ext.serverArtifactName = 'ha-server'
+
+// base name of image for frontend
+gradle.ext.frontendArtifactName = 'ha-frontend'
+
+// this shouldn't change
+gradle.ext.distDir = 'dist'
+
+// two worker nodes and one control plane node
+gradle.ext.clusterNodeCount = '3'
+
+// {content_root}/json_key.json is .gitignored, download the json key file for the service account that can access your GCR and place it at this location
+gradle.ext.secretPath = 'json_key.json'
+
+// your email address, for storing the kubernetes imagePullSecret
+gradle.ext.dockerEmail = ''
+
+// database credentials; these are currently unchangeable from here because the kubernetes config isn't processed through gradle yet
+// supports having a postgres db not inside the kubernetes cluster
+gradle.ext.dbUsername = 'hams_data'
+gradle.ext.dbPassword = 'hams_data'
+gradle.ext.dbUrl = 'localhost'
+gradle.ext.dbPort = '5432'
+gradle.ext.dbDomain = 'hams_data'
+gradle.ext.dbSchema = 'hams_data'

@@ -1,9 +1,53 @@
 <div class="blade-container login-outer-container">
-  <div class="login-inner-container vertical-center">
-    <input matInput id="username" maxlength="32" placeholder="username" class="login-input" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="username"/>
-    <input matInput type="password" id="password" maxlength="32" placeholder="password" class="login-input" (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="password"/>
-    <button mat-flat-button (click)="login()" class="mdc-icon-button text-button">
-      <span>Login</span>
-    </button>
-  </div>
+  <mat-tab-group class="vertical-center" mat-align-tabs="start">
+    <mat-tab label="Login">
+      <div class="login-inner-container">
+        <input matInput id="username" maxlength="32" placeholder="username" class="login-input"
+               (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="username"/>
+        <input matInput type="password" id="password" maxlength="32" placeholder="password" class="login-input"
+               (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="password"/>
+        <button mat-flat-button (click)="login()" class="mdc-icon-button text-button">
+          <span>Login</span>
+        </button>
+      </div>
+    </mat-tab>
+    <mat-tab label="Register">
+      <div class="login-inner-container">
+        <input matInput id="username-register" maxlength="32" placeholder="username" class="login-input"
+               (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="usernameRegister"/>
+        <form [formGroup]="form" (ngSubmit)="register()">
+          <input
+            matInput
+            formControlName="passwordRegister"
+            type="password"
+            id="passwordRegister"
+            maxlength="32"
+            placeholder="password"
+            class="login-input"
+            (keypress)="commonUtilsService.omitSpecialChar($event)"
+            [(ngModel)]="passwordRegister"/>
+          <div *ngIf="formControls.passwordRegister.touched && formControls.passwordRegister.invalid" class="alert alert-danger">
+            <div *ngIf="formControls.passwordRegister.errors.required">Password is required.</div>
+          </div>
+          <input
+            matInput
+            formControlName="passwordRegisterConfirm"
+            type="password"
+            id="passwordRegisterConfirm"
+            maxlength="32"
+            placeholder="confirm password"
+            class="login-input"
+            (keypress)="commonUtilsService.omitSpecialChar($event)"
+            [(ngModel)]="passwordRegisterConfirm"/>
+          <div *ngIf="formControls.passwordRegisterConfirm.touched && formControls.passwordRegisterConfirm.invalid" class="alert alert-danger">
+            <div *ngIf="formControls.passwordRegisterConfirm.errors.required">Password is required.</div>
+            <div *ngIf="formControls.passwordRegisterConfirm.errors.confirmedValidator">Password and Confirmation Password must be match.</div>
+          </div>
+          <button mat-flat-button type="submit" class="mdc-icon-button text-button" [disabled]="!form.valid">
+            <span>Register</span>
+          </button>
+        </form>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

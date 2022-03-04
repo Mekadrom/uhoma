@@ -31,6 +31,7 @@ public class RoomRest {
     @SneakyThrows
     @PostMapping(value = "search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Room>> search(@RequestBody(required = false) final Room searchCriteria, @NonNull final Principal principal) {
-        return ResponseEntity.ok(this.roomService.performRoomSearch(this.restUtils.getAccountSeq(principal), searchCriteria));
+        this.restUtils.filterInvalidRequest(principal, searchCriteria);
+        return ResponseEntity.ok(this.roomService.performRoomSearch(searchCriteria, this.restUtils.getHomeSeqs(principal)));
     }
 }

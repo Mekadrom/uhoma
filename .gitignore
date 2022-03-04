@@ -16,3 +16,7 @@ env/cicd/jenkins/agent-images/accesstoken
 
 **/nohup.out
 env/kubernetes/deployment.yml
+
+json_key.json
+
+settings.gradle

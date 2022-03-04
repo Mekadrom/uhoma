@@ -13,11 +13,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Data
 @Entity
 @Table(name = "ACTION_HANDLER")
-public class ActionHandler {
+public class ActionHandler implements DtoFilter {
     @Id
     @NotNull
     @Column(name = "ACTION_HANDLER_SEQ")
@@ -34,6 +35,11 @@ public class ActionHandler {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "ACCOUNT_SEQ")
-    private Account account;
+    @JoinColumn(name = "HOME_SEQ")
+    private Home home;
+
+    @Override
+    public Long getHomeSeq() {
+        return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
+    }
 }

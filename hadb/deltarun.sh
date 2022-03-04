@@ -12,6 +12,8 @@ port=
 
 domain=
 
+set -e
+
 while getopts u:p:U:P:d: o
 do
 	case "${o}" in
@@ -35,6 +37,6 @@ else
 		# shellcheck disable=SC2034
 		delta_path=$(realpath delta/"$delta")
 		echo running delta "$delta"
-		psql "$connection_url" -f "$delta_path"
+		psql -v ON_ERROR_STOP=1 -v AUTOCOMMIT=ON "$connection_url" -f "$delta_path"
 	done
 fi

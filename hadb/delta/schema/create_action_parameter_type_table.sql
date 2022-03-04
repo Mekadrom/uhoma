@@ -30,9 +30,9 @@ BEGIN
             action_parameter_type_seq BIGINT NOT NULL,
             name VARCHAR(1024),
             type_def VARCHAR(2048),
-            account_seq BIGINT NOT NULL,
+            home_seq BIGINT NOT NULL,
             PRIMARY KEY (action_parameter_type_seq),
-            FOREIGN KEY (account_seq) REFERENCES account (account_seq)
+            FOREIGN KEY (home_seq) REFERENCES home (home_seq)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

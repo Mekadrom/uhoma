@@ -1,6 +1,6 @@
 package com.higgs.server.web.socket;
 
-import com.higgs.server.security.JwtTokenUtil;
+import com.higgs.server.security.JwtTokenUtils;
 import com.higgs.server.web.svc.AuthenticationService;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
     private final AuthenticationService authenticationService;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
 
     @Override
     public Message<?> preSend(@NotNull final Message<?> message, @NotNull final MessageChannel channel) {

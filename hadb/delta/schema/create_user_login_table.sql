@@ -28,7 +28,6 @@ BEGIN
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
             user_login_seq BIGINT NOT NULL,
-            account_seq BIGINT NOT NULL,
             username VARCHAR(256),
             password VARCHAR(1024),
             is_locked BOOLEAN DEFAULT FALSE,
@@ -36,13 +35,10 @@ BEGIN
             is_expired BOOLEAN DEFAULT FALSE,
             is_credentials_expired BOOLEAN DEFAULT FALSE,
             auths VARCHAR(1024) NOT NULL,
-            node_seq BIGINT,
             last_login TIMESTAMP WITH TIME ZONE,
             created TIMESTAMP WITH TIME ZONE NOT NULL,
             PRIMARY KEY (user_login_seq),
-            UNIQUE (username),
-            UNIQUE (node_seq),
-            FOREIGN KEY (node_seq) REFERENCES node (node_seq)
+            UNIQUE (username)
         );';
     END IF;
 END $$ LANGUAGE plpgsql;

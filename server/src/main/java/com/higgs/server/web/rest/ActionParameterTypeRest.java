@@ -20,10 +20,9 @@ import java.util.Set;
 @RequestMapping(value = "actionParameterType")
 public class ActionParameterTypeRest {
     private final ActionParameterTypeService actionParameterTypeService;
-    private final RestUtils restUtils;
 
     @PostMapping(value = "search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<ActionParameterType>> search(@RequestBody final ActionParameterType searchCriteria, @NonNull final Principal principal) {
-        return ResponseEntity.ok(this.actionParameterTypeService.performActionParameterTypeSearch(this.restUtils.getAccountSeq(principal), searchCriteria));
+        return ResponseEntity.ok(this.actionParameterTypeService.performActionParameterTypeSearch(searchCriteria));
     }
 }

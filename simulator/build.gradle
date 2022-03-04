@@ -27,6 +27,7 @@ subprojects {
         filesMatching('**/*.yml') {
             expand(project.properties)
             expand(ext.properties)
+            expand(gradle.ext.properties)
         }
     }
 
@@ -42,7 +43,7 @@ subprojects {
     jacocoTestReport {
         dependsOn test
 
-        reports.html.destination file("${distDir}/jacocoHtml")
+        reports.html.destination file("${gradle.ext.distDir}/jacocoHtml")
 
         executionData test
         sourceSets sourceSets.test

@@ -1,10 +1,12 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Inject, Component, AfterViewInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 
-import { Node, Room, Action, ActionHandler, ActionParameter, ActionParameterType } from '../models';
-import { ActionHandlerService, ActionParameterTypeService, AuthService, CommonUtilsService, NodeService, RoomService, UserProviderService, WebSocketService } from '../services';
+import { NewHomeDialogComponent } from '../new-home-dialog/new-home-dialog.component';
+import { Action, ActionHandler, ActionParameter, ActionParameterType, Home, Node, Room } from '../models';
+import { ActionHandlerService, ActionParameterTypeService, AuthService, CommonUtilsService, HomeService, NodeService, RoomService, UserProviderService, WebSocketService } from '../services';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,8 +22,9 @@ export class DashboardComponent implements AfterViewInit {
   actionDisplayedColumns: string[] = [ 'name', 'actionHandler' ];
   parameterDisplayedColumns: string[] = [ 'name', 'value' ];
 
-  nodeNameSearchCriteria = '';
-  roomNameSearchCriteria = '';
+  homeSearchCriteria?: Home;
+  roomSearchCriteria?: Room;
+  nodeNameSearchCriteria: string = '';
 
   editingNodeRow: number = -1;
   editingActionRow: number = -1;
@@ -31,6 +34,7 @@ export class DashboardComponent implements AfterViewInit {
   savedNodes: Node[] = [];
   mutableNodes: Node[] = [];
 
+  homes: Home[] = [];
   rooms: Room[] = [];
 
   actionHandlers: ActionHandler[] = [];
@@ -41,6 +45,8 @@ export class DashboardComponent implements AfterViewInit {
 
   loading: boolean = true;
   failedToLoad: boolean = false;
+
+  newHomeName: string = '';
 
   newActionName: string = '';
   newActionActionHandler?: ActionHandler;
@@ -64,6 +70,8 @@ export class DashboardComponent implements AfterViewInit {
               private authService: AuthService,
               public commonUtilsService: CommonUtilsService,
               private cookieService: CookieService,
+              private dialog: MatDialog,
+              private homeService: HomeService,
               private nodeService: NodeService,
               private roomService: RoomService,
               private toastr: ToastrService,
@@ -84,14 +92,48 @@ export class DashboardComponent implements AfterViewInit {
   fetch(): void {
     this.loading = true;
     this.failedToLoad = false;
-    this.fetchNodes();
-    this.fetchRooms();
-    this.fetchActionHandlers();
-    this.fetchParameterTypes();
+    this.fetchHomes();
+  }
+
+  fetchHomes(): void {
+    this.homeService.getHomes().subscribe(
+      (resp: Home[]) => {
+        this.homes = resp;
+        if (this.homes && this.homes.length > 0) {
+          if (!this.homeSearchCriteria) {
+            this.homeSearchCriteria = this.homes[0];
+          }
+          this.fetchRooms();
+          this.fetchActionHandlers();
+          this.fetchParameterTypes();
+        }
+      },
+      (err: any) => {
+        this.loading = false
+        this.failedToLoad = true;
+        this.toastr.error(err.message, 'Failure fetching homes');
+      }
+    )
+  }
+
+  fetchRooms(): void {
+    this.roomService.getRooms(this.homeSearchCriteria).subscribe(
+      (resp: Room[]) => {
+        this.rooms = resp;
+        if (this.rooms && this.rooms.length > 0) {
+          this.fetchNodes();
+        }
+      },
+      (err: any) => {
+        this.loading = false
+        this.failedToLoad = true;
+        this.toastr.error(err.message, 'Failure fetching rooms');
+      }
+    );
   }
 
   fetchNodes(): void {
-    this.nodeService.getNodes().subscribe(
+    this.nodeService.getNodes(this.homeSearchCriteria).subscribe(
       (resp: Node[]) => {
         this.loading = false;
         this.failedToLoad = false;
@@ -100,18 +142,7 @@ export class DashboardComponent implements AfterViewInit {
       (err: any) => {
         this.loading = false
         this.failedToLoad = true;
-        this.toastr.error(err.message, 'Failure to fetch data');
-      }
-    );
-  }
-
-  fetchRooms(): void {
-    this.roomService.getRooms({ name: '' }).subscribe(
-      (resp: Room[]) => {
-        this.rooms = resp;
-      },
-      (err: any) => {
-        // swallow, any error here is likely already printed with the failure to fetch node data
+        this.toastr.error(err.message, 'Failure fetching nodes');
       }
     );
   }
@@ -122,7 +153,9 @@ export class DashboardComponent implements AfterViewInit {
         this.actionHandlers = resp;
       },
       (err: any) => {
-        // ||
+        this.loading = false
+        this.failedToLoad = true;
+        this.toastr.error(err.message, 'Failure fetching action handlers');
       }
     )
   }
@@ -133,7 +166,9 @@ export class DashboardComponent implements AfterViewInit {
         this.actionParameterTypes = resp;
       },
       (err: any) => {
-        // ||
+        this.loading = false
+        this.failedToLoad = true;
+        this.toastr.error(err.message, 'Failure fetching parameter types');
       }
     );
   }
@@ -179,8 +214,13 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   showNode(node: Node): boolean {
+    const roomName: string | undefined = this.roomSearchCriteria?.name;
+    let roomNameSearch: string = '';
+    if (roomName) {
+      roomNameSearch = roomName.toUpperCase();
+    }
     return (this.nodeNameSearchCriteria === '' || node.name.toUpperCase().indexOf(this.nodeNameSearchCriteria.toUpperCase()) !== -1)
-            && (this.roomNameSearchCriteria === '' || node.room.name.toUpperCase().indexOf(this.roomNameSearchCriteria.toUpperCase()) !== -1);
+            && (this.roomSearchCriteria?.name === '' || node.room.name.toUpperCase().indexOf(roomNameSearch) !== -1);
   }
 
   getNodeName(node: Node): string {
@@ -276,7 +316,7 @@ export class DashboardComponent implements AfterViewInit {
 
   clearNodeSearchCriteriaAndRefresh(): void {
     this.nodeNameSearchCriteria = '';
-    this.roomNameSearchCriteria = '';
+    this.roomSearchCriteria = undefined;
     this.refresh();
   }
 
@@ -552,6 +592,34 @@ export class DashboardComponent implements AfterViewInit {
     const action: Action | null = this.getAction(this.getSelectedActionRow());
     if (action) {
       this.webSocketService.executeAction(action, false);
+    }
+  }
+
+  createNewHomeDialog(): void {
+    const dialogRef = this.dialog.open(NewHomeDialogComponent, {
+      width: '250px',
+      data: this.newHomeName,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.createNewHome(result);
+      } else {
+        this.homeSearchCriteria = this.homes[0];
+      }
+    });
+  }
+
+  createNewHome(name: string): void {
+    if (name) {
+      this.homeService.createNewHome(name).subscribe(
+        (resp: any) => {
+          this.fetch();
+        },
+        (err: any) => {
+          this.toastr.error(err.message, 'New home creation failed');
+        }
+      );
     }
   }
 }
