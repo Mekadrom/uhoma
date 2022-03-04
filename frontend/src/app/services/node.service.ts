@@ -14,7 +14,7 @@ export class NodeService {
               private urlProviderService: UrlProviderService) { }
 
   public getNodes(homeSearchCriteria?: Home): Observable<Node[]> {
-    return this.http.post<Node[]>(this.urlProviderService.getNodeSearchUrl(), {homeSeq: homeSearchCriteria?.homeSeq}).pipe(
+    return this.http.post<Node[]>(this.urlProviderService.getNodeSearchUrl(), {home: homeSearchCriteria}).pipe(
       retry(1),
       catchError(this.handleError),
       shareReplay()
