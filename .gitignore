@@ -19,4 +19,4 @@ env/kubernetes/deployment.yml
 
 json_key.json
 
-settings.gradle
+env.gradle

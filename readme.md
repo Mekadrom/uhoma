@@ -9,12 +9,13 @@ Here's how to set up HomeAssistant for yourself using kubernetes (read all steps
 
 ### Setup
 #### If using GCR (Google Container Registry) or GAR (Google Artifact Registry)
-1. Configure properties in settings.gradle.
-2. If using GCR (Google Container Registry) or GAR (Google Artifact Registry), download JSON key file for a service account that has access to the registry, place it at the root of this repo. If working with local images, skip this step.
-3. Run `./gradlew fullClusterSetup`.
-4. Run ./mtunnel.sh to be able connect to the minikube cluster.
-5. Once every pod has a state of "Running", run `./gradlew initDb`. This will create the schema for the main server.
-6. After `initDb` is done, run `./gradlew deltaRun` to initialize the schema and load seed data.
+1. Make a copy of env.gradle.example and remove the .example extension.
+2. Configure properties in env.gradle.
+3. If using GCR (Google Container Registry) or GAR (Google Artifact Registry), download JSON key file for a service account that has access to the registry, place it at the root of this repo. If working with local images, skip this step.
+4. Run `./gradlew fullClusterSetup`.
+5. Run ./mtunnel.sh to be able connect to the minikube cluster.
+6. Once every pod has a state of "Running", run `./gradlew initDb`. This will create the schema for the main server.
+7. After `initDb` is done, run `./gradlew deltaRun` to initialize the schema and load seed data.
 
 After following these instructions, HomeAssistant should be ready for use. The default password using the JWT signing key of 'devsigningkey' is automatically inserted into the database. You can run an UpdatableBCrypt simulation with another signing key and update the record to change the password in order to log in and use the app (recommended).
 
