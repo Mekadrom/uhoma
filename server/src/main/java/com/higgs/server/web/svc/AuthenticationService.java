@@ -44,7 +44,8 @@ public class AuthenticationService {
             if (StringUtils.isNotBlank(token)) {
                 return new AuthResult(token, this.userLoginService.save(userLogin.setLastLogin(Date.from(OffsetDateTime.now().toInstant()))));
             } else {
-                throw new JwtException("Failed to generate token");
+                throw new JwtException(String.format("Failed to generate token for user %s", user.getUsername()));
+
             }
         }
         throw new UsernameNotFoundException(user.getUsername());
