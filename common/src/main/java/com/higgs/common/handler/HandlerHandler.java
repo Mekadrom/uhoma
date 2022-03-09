@@ -50,7 +50,7 @@ public class HandlerHandler {
                                                          @NonNull final Map<String, Object> body) {
         return this.handlers.stream()
                 .filter(handler -> handler.qualifies(handlerDef))
-                .map(handler -> handler.handle(handlerDef, headers, body))
+                .map(handler -> handler.handle(handlerDef, headers, body, this))
                 .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
@@ -58,7 +58,7 @@ public class HandlerHandler {
                                                            @NonNull final Map<String, List<String>> headers,
                                                            @NonNull final Map<String, Object> body) {
         return this.proxyHandlerGenerator.buildProxyHandlers(handlerDef).stream()
-                .map(handler -> handler.handle(handlerDef, headers, body))
+                .map(handler -> handler.handle(handlerDef, headers, body, this))
                 .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
