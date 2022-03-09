@@ -35,13 +35,11 @@ repositories {
 }
 
 task buildAll {
-    dependsOn ':common:build'
-    dependsOn ':common:publishToMavenLocal'
-    dependsOn ':server:build'
-    dependsOn ':server:bootJar'
-    dependsOn ':simulator:build'
-    dependsOn ':actionserver:build'
-    dependsOn ':actionserver:bootJar'
+    dependsOn ordered(':common:build', ':common:publishToMavenLocal', ':server:bootJar', ':simulator:build', ':actionserver:bootJar')
+}
+
+compileJava {
+    enabled = false
 }
 
 clean {

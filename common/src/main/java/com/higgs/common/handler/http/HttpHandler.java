@@ -20,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     private final HttpHandlerUtil httpHandlerUtil;
 
     @Override
-    public List<HttpHandlerResponse> handle(@Nullable final HandlerDefinition handlerDefinition,
+    public List<HttpHandlerResponse> handle(@Nullable final HandlerDefinition handlerDef,
                                             @NonNull final Map<String, List<String>> headers,
                                             @NonNull final HttpHandlerRequest request,
                                             @NonNull final HandlerHandler handlerHandler) {
@@ -88,7 +89,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
                 connection.disconnect();
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private HttpHandlerResponse buildResponse(final int responseCode, final HttpURLConnection connection, final HttpHandlerRequest request) {
@@ -138,6 +139,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public HttpHandlerRequest requestBodyToRequestObj(@NonNull final Map<String, Object> requestBody) {
         final HttpHandlerRequest request = new HttpHandlerRequest();
         final Map<String, Object> valueMap = this.mergeValuesOntoDefTemplate(HttpHandler.PROTOTYPE_HANDLER_DEF, requestBody);

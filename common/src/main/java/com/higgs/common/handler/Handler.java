@@ -14,10 +14,10 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     String IS_EXTENSION = "is_extension";
     String EXTENDS_FROM = "extends_from";
 
-    List<R> handle(@NonNull HandlerDefinition handlerDefinition, @NonNull Map<String, List<String>> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
+    List<R> handle(@NonNull HandlerDefinition handlerDef, @NonNull Map<String, List<String>> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
 
-    default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
-        return this.handle(handlerDef, headers, this.processRequest(headers, requestBody));
+    default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody, @NonNull final HandlerHandler handlerHandler) {
+        return this.handle(handlerDef, headers, this.processRequest(headers, requestBody), handlerHandler);
     }
 
     private T processRequest(@NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
