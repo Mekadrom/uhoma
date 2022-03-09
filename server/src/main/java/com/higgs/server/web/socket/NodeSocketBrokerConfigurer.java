@@ -1,6 +1,7 @@
 package com.higgs.server.web.socket;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -19,19 +20,19 @@ public class NodeSocketBrokerConfigurer implements WebSocketMessageBrokerConfigu
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
 
     @Override
-    public void registerStompEndpoints(@NotNull final StompEndpointRegistry registry) {
+    public void registerStompEndpoints(@NonNull final StompEndpointRegistry registry) {
         registry.addEndpoint("/socket")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 
     @Override
-    public void configureClientInboundChannel(@NotNull final ChannelRegistration registration) {
+    public void configureClientInboundChannel(@NonNull final ChannelRegistration registration) {
         registration.interceptors(this.webSocketAuthInterceptor);
     }
 
     @Override
-    public void configureMessageBroker(@NotNull final MessageBrokerRegistry registry) {
+    public void configureMessageBroker(@NonNull final MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app")
                 .enableSimpleBroker("/topic");
     }

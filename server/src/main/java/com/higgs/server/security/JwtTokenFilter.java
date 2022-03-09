@@ -2,10 +2,12 @@ package com.higgs.server.security;
 
 import com.higgs.server.db.repo.UserLoginRepository;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -27,14 +29,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserLoginRepository userLoginRepository;
 
     @Override
-    protected void doFilterInternal(final HttpServletRequest request, @NonNull final HttpServletResponse response, @NonNull final FilterChain chain) throws IOException, ServletException {
+    protected void doFilterInternal(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response, @NonNull final FilterChain chain) throws IOException, ServletException {
+        this.doFilterInternal(request, response, chain, SecurityContextHolder.getContext());
+    }
+
+    void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain, final SecurityContext securityContext) throws IOException, ServletException {
         final Optional<? extends UserDetails> userDetailsOpt = this.jwtTokenUtil.parseAndValidateToken(request.getHeader(HttpHeaders.AUTHORIZATION), this.userLoginRepository::findByUsername);
-        if (userDetailsOpt.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (userDetailsOpt.isPresent() && securityContext.getAuthentication() == null) {
             final UserDetails userDetails = userDetailsOpt.get();
             JwtTokenFilter.log.debug("Successfully validated jwt for {}", userDetails.getUsername());
             final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            securityContext.setAuthentication(authentication);
         }
         chain.doFilter(request, response);
     }

@@ -37,7 +37,7 @@ public class AuthenticationRest {
         return this.userInit(request.getUsername(), request.getPassword(), this.authenticationService::register);
     }
 
-    private ResponseEntity<UserDetails> userInit(final String username, final String password, final AuthSupplier authSupplier) {
+    ResponseEntity<UserDetails> userInit(@NonNull final String username, @NonNull final String password, @NonNull final AuthSupplier authSupplier) {
         final AuthResult authResult = authSupplier.supply(username, password);
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, authResult.getJwt())

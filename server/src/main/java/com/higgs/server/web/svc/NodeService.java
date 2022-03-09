@@ -3,6 +3,7 @@ package com.higgs.server.web.svc;
 import com.higgs.server.db.entity.Action;
 import com.higgs.server.db.entity.ActionParameter;
 import com.higgs.server.db.entity.Node;
+import com.higgs.server.db.entity.Room;
 import com.higgs.server.db.repo.NodeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class NodeService {
         // grab existing state of node in DB in order to remove deleted child entities
         final Optional<Node> savedOpt = this.nodeRepository.findById(node.getNodeSeq());
 
-        node.setHome(this.homeService.getHome(node.getRoom().getHomeSeq()));
+        Optional.ofNullable(node.getRoom()).map(Room::getHomeSeq).ifPresent(homeSeq -> node.setHome(this.homeService.getHome(homeSeq)));
         if (savedOpt.isEmpty()) {
             this.nodeRepository.saveAndFlush(node);
         }
@@ -52,7 +53,7 @@ public class NodeService {
         return this.nodeRepository.saveAndFlush(node);
     }
 
-    private Collection<ActionParameter> getAllParametersForNode(final Collection<Action> actions) {
+    Collection<ActionParameter> getAllParametersForNode(final Collection<Action> actions) {
         return actions.stream()
                 .map(Action::getParameters)
                 .flatMap(Collection::stream)
@@ -62,7 +63,7 @@ public class NodeService {
     public List<Node> performNodeSearch(final Node searchCriteria, final Collection<Long> homeSeqs) {
         if (searchCriteria != null) {
             if (searchCriteria.getNodeSeq() != null) {
-                return List.of(this.nodeRepository.getById(searchCriteria.getNodeSeq()));
+                return Collections.singletonList(this.nodeRepository.getById(searchCriteria.getNodeSeq()));
             }
             if (searchCriteria.getRoom() != null && searchCriteria.getRoom().getRoomSeq() != null) {
                 if (searchCriteria.getName() != null) {
@@ -70,11 +71,11 @@ public class NodeService {
                 }
                 return this.nodeRepository.getByRoomRoomSeqAndHomeHomeSeq(searchCriteria.getRoom().getRoomSeq(), searchCriteria.getHomeSeq());
             } else {
+                if (searchCriteria.getName() != null) {
+                    return this.nodeRepository.getByNameAndHomeHomeSeqIn(searchCriteria.getName(), homeSeqs);
+                }
                 if (searchCriteria.getHomeSeq() != null) {
                     return this.nodeRepository.getByHomeHomeSeqIn(List.of(searchCriteria.getHomeSeq()));
-                }
-                if (searchCriteria.getName() != null) {
-                    return this.nodeRepository.getByNameAndHomeHomeSeq(searchCriteria.getName(), searchCriteria.getHomeSeq());
                 }
             }
         }

@@ -48,6 +48,6 @@ public class Home implements DtoFilter {
 
     @PrePersist
     public void populateCreated() {
-        this.created = Date.from(OffsetDateTime.now().toInstant());
+        this.setCreated(Date.from(OffsetDateTime.now().toInstant()));
     }
 }

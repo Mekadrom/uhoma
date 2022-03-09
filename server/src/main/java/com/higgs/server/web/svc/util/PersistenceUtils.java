@@ -10,7 +10,8 @@ import java.util.stream.Collectors;
 @Service
 public class PersistenceUtils {
     public <T, R> void deleteAllIntersect(final Collection<T> saved, final Collection<T> updated, final Function<T, R> joinProvider, final JpaRepository<T, R> repository) {
-        repository.deleteAll(saved.stream().filter(param -> !updated.stream()
+        repository.deleteAll(saved.stream()
+                .filter(param -> !updated.stream()
                         .map(joinProvider)
                         .collect(Collectors.toList())
                         .contains(joinProvider.apply(param)))

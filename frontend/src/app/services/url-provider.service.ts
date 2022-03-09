@@ -39,7 +39,7 @@ export class UrlProviderService {
   }
 
   public getHomeCreateUrl(): string {
-    return this.getHamsUrl() + '/home/create';
+    return this.getHamsUrl() + '/home/upsert';
   }
 
   public getNodeSearchUrl(): string {

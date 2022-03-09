@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
@@ -54,7 +53,11 @@ public class JwtTokenUtils {
     }
 
     private Boolean isTokenExpired(final String token) {
-        return this.getExpirationDateFromToken(token).before(new Date());
+        final Date expDate = this.getExpirationDateFromToken(token);
+        if (expDate == null) {
+            return true;
+        }
+        return expDate.before(new Date());
     }
 
     public Boolean validateToken(final String token, @NonNull final UserDetails userDetails) {
@@ -86,17 +89,11 @@ public class JwtTokenUtils {
         return jwt;
     }
 
-    private void ensureSigningKey() {
+    void ensureSigningKey() {
         if (this.signingKey == null) {
-            this.signingKey = ServerUtils.getSigningKey().orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
+            this.signingKey = ServerUtils.getSigningKey(System.getProperties(), System.getenv())
+                    .orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
         }
-    }
-
-    public String removePrefix(final String tokenOrBearer) {
-        if (tokenOrBearer != null && tokenOrBearer.startsWith(HAConstants.BEARER_PREFIX)) {
-            return tokenOrBearer.substring(HAConstants.BEARER_PREFIX.length());
-        }
-        return tokenOrBearer;
     }
 
     public Optional<? extends UserDetails> parseAndValidateToken(final String bearer, final Function<String, Optional<UserLogin>> userRetriever) {
@@ -108,5 +105,12 @@ public class JwtTokenUtils {
             }
         }
         return Optional.empty();
+    }
+
+    public String removePrefix(final String tokenOrBearer) {
+        if (tokenOrBearer != null && tokenOrBearer.startsWith(HAConstants.BEARER_PREFIX)) {
+            return tokenOrBearer.substring(HAConstants.BEARER_PREFIX.length());
+        }
+        return tokenOrBearer;
     }
 }

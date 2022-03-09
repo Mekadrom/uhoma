@@ -1,9 +1,11 @@
 package com.higgs.server.web.dto;
 
 import com.higgs.server.db.entity.Action;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ActionRequest {
     private Action actionWithParams;
     private Long toNodeSeq;

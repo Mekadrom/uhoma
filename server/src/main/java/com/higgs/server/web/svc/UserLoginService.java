@@ -15,4 +15,8 @@ public class UserLoginService {
     public Optional<UserLogin> findByUsername(final String name) {
         return this.userLoginRepository.findByUsername(name);
     }
+
+    public UserLogin save(final UserLogin userLogin) {
+        return this.userLoginRepository.save(userLogin);
+    }
 }

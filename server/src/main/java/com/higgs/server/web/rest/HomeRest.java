@@ -24,10 +24,10 @@ public class HomeRest {
     private final RestUtils restUtils;
     private final UserLoginService userLoginService;
 
-    @PostMapping(value = "create", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Home> create(@RequestBody @NonNull final Home newHome, final Principal principal) {
+    @PostMapping(value = "upsert", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Home> upsert(@NonNull @RequestBody final Home home, @NonNull final Principal principal) {
         return this.userLoginService.findByUsername(principal.getName())
-                .map(userLogin -> ResponseEntity.ok(this.homeService.createHome(newHome.getName(), userLogin.getUserLoginSeq())))
+                .map(userLogin -> ResponseEntity.ok(this.homeService.upsert(home.getName(), userLogin.getUserLoginSeq())))
                 .orElse(ResponseEntity.badRequest().build());
     }
 

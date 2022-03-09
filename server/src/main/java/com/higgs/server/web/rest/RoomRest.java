@@ -24,7 +24,7 @@ public class RoomRest {
     private final RoomService roomService;
 
     @PostMapping(value = "upsert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Room> upsert(@RequestBody(required = false) final Room room) {
+    public ResponseEntity<Room> upsert(@NonNull @RequestBody final Room room) {
         return ResponseEntity.ok(this.roomService.upsert(room));
     }
 

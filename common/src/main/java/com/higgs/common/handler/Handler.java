@@ -1,6 +1,5 @@
 package com.higgs.common.handler;
 
-import com.higgs.common.handler.http.HttpHandler;
 import com.higgs.common.kafka.HAKafkaConstants;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +24,8 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
         final T request = this.requestBodyToRequestObj(requestBody);
         request.setToNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ));
         request.setFromNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_SENDING_NODE_SEQ));
-        request.setToUserSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_RECEIVING_USER_SEQ));
-        request.setFromUserSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_SENDING_USER_SEQ));
+        request.setToUsername(headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME).stream().findAny().orElse(null));
+        request.setFromUsername(headers.get(HAKafkaConstants.HEADER_SENDING_USERNAME).stream().findAny().orElse(null));
         return request;
     }
 

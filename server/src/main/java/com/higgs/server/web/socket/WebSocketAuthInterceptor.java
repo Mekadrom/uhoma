@@ -15,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+import java.security.Principal;
 import java.util.Optional;
 
 @Component
@@ -25,22 +26,33 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(@NotNull final Message<?> message, @NotNull final MessageChannel channel) {
-        final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        if (accessor != null && (StompCommand.CONNECT.equals(accessor.getCommand()) || StompCommand.SUBSCRIBE.equals(accessor.getCommand()))) {
-            final String bearer = this.extractTokenFromMessageChannelHeaders(accessor);
-            final String token = this.jwtTokenUtil.removePrefix(bearer);
-            if (this.authenticationService.validate(token)) {
-                final String username = this.jwtTokenUtil.getUsernameFromToken(token);
-                accessor.setUser(new UsernamePasswordAuthenticationToken(username, null, this.authenticationService.performUserSearch(username).getAuthorities()));
-            }
+        return this.preSend(MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class), message);
+    }
+
+    Message<?> preSend(final StompHeaderAccessor accessor, final Message<?> message) {
+        if (accessor != null && this.isConnectInitEvent(accessor.getCommand())) {
+            accessor.setUser(this.attachUserSession(this.extractTokenFromMessageChannelHeaders(accessor)));
         }
         return message;
     }
 
-    private String extractTokenFromMessageChannelHeaders(final StompHeaderAccessor accessor) {
+    boolean isConnectInitEvent(final StompCommand command) {
+        return StompCommand.CONNECT.equals(command) || StompCommand.SUBSCRIBE.equals(command);
+    }
+
+    Principal attachUserSession(final String token) {
+        if (this.authenticationService.validate(token)) {
+            final String username = this.jwtTokenUtil.getUsernameFromToken(token);
+            return new UsernamePasswordAuthenticationToken(username, null, this.authenticationService.performUserSearch(username).getAuthorities());
+        }
+        return null;
+    }
+
+    String extractTokenFromMessageChannelHeaders(final StompHeaderAccessor accessor) {
         return Optional.of(accessor)
                 .map(it -> it.getNativeHeader(HttpHeaders.AUTHORIZATION))
                 .flatMap(it -> it.stream().findAny())
-                .orElseThrow(() -> new BadCredentialsException("blank token supplied for web socket request"));
+                .map(this.jwtTokenUtil::removePrefix)
+                .orElseThrow(() -> new BadCredentialsException("No valid token found in headers"));
     }
 }

@@ -27,6 +27,7 @@ class HttpHandlerUtilTest {
     private HttpHandlerUtil httpHandlerUtil;
 
     @Test
+    @SuppressWarnings("ConstantConditions")
     void testGetFullUrlNull() {
         assertThrows(IllegalArgumentException.class, () -> this.httpHandlerUtil.getFullUrl(null));
     }

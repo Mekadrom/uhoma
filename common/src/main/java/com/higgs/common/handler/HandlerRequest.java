@@ -15,13 +15,13 @@ public abstract class HandlerRequest extends HashMap<String, Object> {
     @Serial
     private static final long serialVersionUID = 329L;
 
-    public HandlerRequest(final Map<String, Object> input) {
-        super(input);
-    }
-
     private Boolean returnResponse;
     private Long toNodeSeq;
     private Long fromNodeSeq;
-    private Long toUserSeq;
-    private Long fromUserSeq;
+    private String toUsername;
+    private String fromUsername;
+
+    public HandlerRequest(final Map<String, Object> input) {
+        super(input);
+    }
 }
