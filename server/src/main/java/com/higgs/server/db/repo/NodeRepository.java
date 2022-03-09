@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface NodeRepository extends JpaRepository<Node, Long>, JpaSpecificationExecutor<Node> {
 
-    List<Node> getByNameAndHomeHomeSeq(String name, Long homeSeq);
+    List<Node> getByNameAndHomeHomeSeqIn(String name, Collection<Long> homeSeq);
 
     List<Node> getByRoomRoomSeqAndHomeHomeSeq(Long roomSeq, Long homeSeq);
 

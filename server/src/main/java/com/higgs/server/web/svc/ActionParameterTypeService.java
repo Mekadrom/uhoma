@@ -3,6 +3,7 @@ package com.higgs.server.web.svc;
 import com.higgs.server.db.entity.ActionParameterType;
 import com.higgs.server.db.repo.ActionParameterTypeRepository;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -21,7 +22,7 @@ public class ActionParameterTypeService {
      * @param searchCriteria search criteria to filter action parameter types by
      * @return a set of {@link ActionParameterType} representations of action parameter type definitions in both the corporate domain and home domain
      */
-    public Set<ActionParameterType> performActionParameterTypeSearch(final ActionParameterType searchCriteria) {
+    public Set<ActionParameterType> performActionParameterTypeSearch(@NonNull final ActionParameterType searchCriteria) {
         return Stream.concat(
                 this.actionParameterTypeRepository.getByHomeHomeSeq(searchCriteria.getHomeSeq()).stream(), // home specific action parameter types
                 this.actionParameterTypeRepository.getByHomeHomeSeq(1L).stream() // corporate action parameter types

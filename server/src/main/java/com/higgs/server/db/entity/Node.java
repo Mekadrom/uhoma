@@ -53,16 +53,6 @@ public class Node implements DtoFilter {
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Collection<Action> actions;
 
-    /**
-     * Don't let lombok generate this in order to avoid stack overflow errors when the entity is saved.
-     *
-     * @return hashcode
-     */
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
     @Override
     public Long getHomeSeq() {
         return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);

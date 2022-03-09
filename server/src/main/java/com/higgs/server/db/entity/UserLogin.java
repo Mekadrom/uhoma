@@ -44,7 +44,6 @@ public class UserLogin implements UserDetails {
         this.setCreated(Date.from(OffsetDateTime.now().toInstant()));
     }
 
-
     @Id
     @NotNull
     @Column(name = "USER_LOGIN_SEQ")

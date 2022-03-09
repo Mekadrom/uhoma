@@ -594,7 +594,7 @@ export class DashboardComponent implements AfterViewInit {
   executeAction(): void {
     const action: Action | null = this.getAction(this.getSelectedActionRow());
     if (action) {
-      this.webSocketService.executeAction(action, false);
+      this.webSocketService.executeAction(action, false, '');
     }
   }
 

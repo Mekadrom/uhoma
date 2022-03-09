@@ -52,15 +52,15 @@ export class WebSocketService {
     this.client.activate();
   }
 
-  executeAction(action: Action, lastChance: boolean): void {
+  executeAction(action: Action, lastChance: boolean, toUsername?: string): void {
     const userView: any = this.userProviderService.getUserView();
     const jwt: string | null | undefined = this.cookieService.get('bearer');
     if (userView) {
-      this.doExecuteAction(action, userView);
+      this.doExecuteAction(action, userView, toUsername);
     }
   }
 
-  private doExecuteAction(action: Action, userView: UserView): void {
+  private doExecuteAction(action: Action, userView: UserView, toUsername?: string): void {
     if (action && userView) {
       const millis = Math.round((new Date()).getTime());
       const reqMsg = {
@@ -68,7 +68,8 @@ export class WebSocketService {
         toNodeSeq: action.ownerNodeSeq,
         actionWithParams: action,
         sentEpoch: millis,
-        username: userView.username
+        fromUsername: userView.username,
+        toUsername: toUsername
       }
       if (reqMsg.toNodeSeq) {
         const jwt: string = this.cookieService.get('bearer');

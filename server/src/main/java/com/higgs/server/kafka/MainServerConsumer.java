@@ -11,6 +11,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class MainServerConsumer {
@@ -22,11 +24,13 @@ public class MainServerConsumer {
         this.transmit(headers, message);
     }
 
-    private void transmit(final MultiValueMap<String, String> headers, final String message) {
+    void transmit(final MultiValueMap<String, String> headers, final String message) {
         this.simpMessagingTemplate.convertAndSendToUser(this.extractUser(headers), "queue/reply", message, this.commonUtils.toObjectMap(this.commonUtils.flattenMap(headers)));
     }
 
-    private String extractUser(final MultiValueMap<String, String> headers) {
-        return headers.get(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ).stream().findFirst().orElse(null);
+    String extractUser(final MultiValueMap<String, String> headers) {
+        return Optional.ofNullable(headers.get(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ))
+                .flatMap(it -> it.stream().findFirst())
+                .orElse(null);
     }
 }

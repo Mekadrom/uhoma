@@ -3,6 +3,7 @@ package com.higgs.server.web.svc;
 import com.higgs.server.db.entity.ActionHandler;
 import com.higgs.server.db.repo.ActionHandlerRepository;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -21,7 +22,7 @@ public class ActionHandlerService {
      * @param searchCriteria search criteria to filter action handlers by
      * @return a set of {@link ActionHandler} representations of action handler definitions in both the corporate domain and account domain
      */
-    public Set<ActionHandler> performActionHandlerSearch(final ActionHandler searchCriteria) {
+    public Set<ActionHandler> performActionHandlerSearch(@NonNull final ActionHandler searchCriteria) {
         return Stream.concat(
                 this.actionHandlerRepository.getByHomeHomeSeq(searchCriteria.getHomeSeq()).stream(), // account specific handlers
                 this.actionHandlerRepository.getByHomeHomeSeq(1L).stream() // corporate handlers

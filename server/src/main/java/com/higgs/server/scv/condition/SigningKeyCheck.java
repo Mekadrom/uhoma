@@ -9,7 +9,7 @@ import lombok.NonNull;
 public class SigningKeyCheck implements ServerCheck {
     @Override
     public boolean check(final VerificationContext conditionContext) {
-        return ServerUtils.getSigningKey().isPresent();
+        return ServerUtils.getSigningKey(conditionContext.getSystemProperties(), conditionContext.getSystemEnv()).isPresent();
     }
 
     @NonNull

@@ -11,7 +11,7 @@ public final class HAKafkaConstants {
 
     public static final String HEADER_SENDING_NODE_SEQ = "from_node_seq";
 
-    public static final String HEADER_RECEIVING_USER_SEQ = "to_user_seq";
+    public static final String HEADER_RECEIVING_USERNAME = "to_username";
 
-    public static final String HEADER_SENDING_USER_SEQ = "from_user_seq";
+    public static final String HEADER_SENDING_USERNAME = "from_username";
 }

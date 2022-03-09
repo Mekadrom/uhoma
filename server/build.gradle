@@ -5,6 +5,7 @@ apply plugin: 'java'
 apply plugin: SpringBootPlugin
 apply plugin: 'jacoco'
 apply plugin: 'pmd'
+apply plugin: 'com.adarshr.test-logger'
 
 repositories {
     mavenLocal()
@@ -12,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-    implementation 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
@@ -49,7 +50,9 @@ dependencies {
 
     implementation group: 'com.higgs', name: 'common', version: version
 
-    implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
 
     testImplementation 'com.h2database:h2'
 
@@ -61,7 +64,18 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.3.1'
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '4.3.1'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+sourceSets {
+    itest {
+        java {
+            srcDirs("src/itest")
+        }
+    }
 }
 
 bootJar {
@@ -90,13 +104,21 @@ test {
     finalizedBy jacocoTestReport
 }
 
+task itest(type: Test) {
+    testClassesDirs = sourceSets.itest.output.classesDirs
+    classpath = sourceSets.itest.runtimeClasspath
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
 jacocoTestReport {
     dependsOn test
+    dependsOn itest
 
-    reports.html.destination file("${gradle.ext.distDir}/jacocoHtml")
+    reports.html.destination file("build/jacoco/test/jacocoHtml")
 
-    executionData test
-    sourceSets sourceSets.test
+    executionData tasks.withType(Test).findAll { it.state.executed }
+    sourceSets sourceSets.main
 }
 
 jacoco {

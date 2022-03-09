@@ -1,6 +1,7 @@
 package com.higgs.server.security;
 
 import com.higgs.server.db.repo.UserLoginRepository;
+import com.higgs.server.web.svc.UserLoginService;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,11 +47,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     };
 
     private final JwtTokenFilter jwtTokenFilter;
-    private final UserLoginRepository userLoginRepository;
+    private final UserLoginService userLoginService;
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(username -> this.userLoginRepository.findByUsername(username)
+        auth.userDetailsService(username -> this.userLoginService.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("User: %s not found.", username))));
     }
 
@@ -58,13 +61,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers(SecurityConfig.UNAUTHORIZED_ENDPOINT_ANTMATCHERS).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .exceptionHandling().authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
+                .exceptionHandling().authenticationEntryPoint(this::authEntryPoint)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .cors();
         http.addFilterBefore(this.jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+    }
+
+    void authEntryPoint(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException authException) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     @Bean
