@@ -6,11 +6,13 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for {@link UserLogin}
@@ -33,7 +35,7 @@ class UserLoginTest {
     @Test
     void testGetAuthorities() {
         final UserLogin userLogin = new UserLogin();
-        userLogin.setRoles(List.of(Role.ADMIN));
+        userLogin.setRoles(Set.of(Role.ADMIN));
         final Collection<? extends GrantedAuthority> actual = userLogin.getAuthorities();
         assertNotNull(actual);
         assertThat(actual.size(), is(equalTo(1)));
@@ -77,5 +79,26 @@ class UserLoginTest {
         assertThat(userLogin.isCredentialsNonExpired(), is(equalTo(true)));
         userLogin.setCredentialsExpired(true);
         assertThat(userLogin.isCredentialsNonExpired(), is(equalTo(false)));
+    }
+
+    /**
+     * Tests the method {@link UserLogin#addRole(Role)}. Verifies that it adds the role to the list of roles.
+     */
+    @Test
+    void testAddRole() {
+        final UserLogin userLogin = new UserLogin();
+        final UserLogin actual = userLogin.addRole(Role.ADMIN);
+        assertThat(userLogin.getRoles(), is(equalTo(Set.of(Role.ADMIN))));
+        assertThat(actual, is(equalTo(userLogin)));
+    }
+
+    /**
+     * Tests the method {@link UserLogin#addRole(Role)}. Verifies that it throws an exception if the role is null.
+     */
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void testAddRoleNullArg() {
+        final UserLogin userLogin = new UserLogin();
+        assertThrows(IllegalArgumentException.class, () -> userLogin.addRole(null));
     }
 }

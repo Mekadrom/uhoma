@@ -43,7 +43,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -82,6 +81,7 @@ class SecurityConfigTest {
         verify(authenticationManagerBuilder, times(1)).userDetailsService(captor.capture());
         assertAll(
                 () -> assertDoesNotThrow(() -> captor.getValue().loadUserByUsername("user")),
+                () -> assertNotNull(captor.getValue().loadUserByUsername("user")),
                 () -> assertThrows(UsernameNotFoundException.class, () -> captor.getValue().loadUserByUsername("username"))
         );
     }

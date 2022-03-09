@@ -6,6 +6,7 @@ apply plugin: SpringBootPlugin
 apply plugin: 'jacoco'
 apply plugin: 'pmd'
 apply plugin: 'com.adarshr.test-logger'
+apply plugin: 'info.solidsoft.pitest'
 
 repositories {
     mavenLocal()
@@ -102,6 +103,14 @@ springBoot {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+}
+
+pitest {
+    testSourceSets = [sourceSets.test, sourceSets.itest]
+    mainSourceSets = [sourceSets.main]
+    junit5PluginVersion = '0.14'
+    timestampedReports = false
+    outputFormats = ['HTML']
 }
 
 task itest(type: Test) {

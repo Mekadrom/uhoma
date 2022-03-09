@@ -24,7 +24,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -53,7 +55,9 @@ class HomeServiceTest {
      */
     @Test
     void testGetHome() {
-        this.homeService.getHome(1L);
+        final Home home = mock(Home.class);
+        when(this.homeRepository.getById(1L)).thenReturn(home);
+        assertThat(this.homeService.getHome(1L), is(equalTo(home)));
         verify(this.homeRepository, times(1)).getById(eq(1L));
     }
 
@@ -64,8 +68,10 @@ class HomeServiceTest {
     @Test
     void testGetHomesForUserLogin() {
         final UserLogin userLogin = mock(UserLogin.class);
+        final Home home = mock(Home.class);
         when(userLogin.getUserLoginSeq()).thenReturn(1L);
-        this.homeService.getHomesForUser(userLogin);
+        when(this.homeRepository.findByOwnerUserLoginSeq(any())).thenReturn(List.of(home));
+        assertThat(this.homeService.getHomesForUser(userLogin), is(equalTo(List.of(home))));
         this.homeService.getHomesForUser(1L);
         verify(this.homeRepository, times(2)).findByOwnerUserLoginSeq(eq(1L));
     }
@@ -88,7 +94,9 @@ class HomeServiceTest {
      */
     @Test
     void testCreateHome() {
-        this.homeService.upsert("test", 1L);
+        final Home home = mock(Home.class);
+        when(this.homeRepository.save(any())).thenReturn(home);
+        assertThat(this.homeService.upsert("test", 1L), is(equalTo(home)));
         final ArgumentCaptor<Home> captor = ArgumentCaptor.forClass(Home.class);
         verify(this.homeRepository, times(1)).save(captor.capture());
         assertAll(
@@ -127,7 +135,8 @@ class HomeServiceTest {
     void testPerformHomeSearchHomeSeqAllowed() {
         final Home home = mock(Home.class);
         when(home.getHomeSeq()).thenReturn(1L);
-        this.homeService.performHomeSearch(home, List.of(1L));
+        when(this.homeRepository.getById(any())).thenReturn(home);
+        assertThat(this.homeService.performHomeSearch(home, List.of(1L)), is(equalTo(List.of(home))));
         verify(this.homeRepository, times(1)).getById(eq(1L));
     }
 
@@ -140,7 +149,8 @@ class HomeServiceTest {
         final Home home = mock(Home.class);
         final Collection<Long> homeSeqs = List.of(2L);
         when(home.getHomeSeq()).thenReturn(1L);
-        this.homeService.performHomeSearch(home, homeSeqs);
+        when(this.homeRepository.findAllById(any())).thenReturn(List.of(home));
+        assertThat(this.homeService.performHomeSearch(home, homeSeqs), is(equalTo(List.of(home))));
         verify(this.homeRepository, times(1)).findAllById(eq(homeSeqs));
     }
 
@@ -154,7 +164,8 @@ class HomeServiceTest {
         final Collection<Long> homeSeqs = List.of(1L);
         when(home.getHomeSeq()).thenReturn(null);
         when(home.getName()).thenReturn("test");
-        this.homeService.performHomeSearch(home, homeSeqs);
+        when(this.homeRepository.getByNameContainingIgnoreCaseAndHomeSeqIn(any(), any())).thenReturn(List.of(home));
+        assertThat(this.homeService.performHomeSearch(home, homeSeqs), is(equalTo(List.of(home))));
         verify(this.homeRepository, times(1)).getByNameContainingIgnoreCaseAndHomeSeqIn(eq("test"), eq(homeSeqs));
     }
 
@@ -164,8 +175,10 @@ class HomeServiceTest {
      */
     @Test
     void testPerformHomeSearchNull() {
+        final Home home = mock(Home.class);
         final Collection<Long> homeSeqs = List.of(1L);
-        this.homeService.performHomeSearch(null, homeSeqs);
+        when(this.homeRepository.findAllById(any())).thenReturn(List.of(home));
+        assertThat(this.homeService.performHomeSearch(null, homeSeqs), is(equalTo(List.of(home))));
         verify(this.homeRepository, times(1)).findAllById(eq(homeSeqs));
     }
 }

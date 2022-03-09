@@ -15,9 +15,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,7 +67,8 @@ class NodeServiceTest {
         when(node.getRoom()).thenReturn(room);
         when(room.getHomeSeq()).thenReturn(2L);
         when(this.nodeRepository.findById(any())).thenReturn(Optional.of(node));
-        this.nodeService.upsert(node);
+        when(this.nodeRepository.saveAndFlush(any())).thenReturn(node);
+        assertThat(this.nodeService.upsert(node), is(equalTo(node)));
         verify(node, times(1)).getRoom();
         verify(this.homeService, times(1)).getHome(eq(2L));
         verify(this.nodeRepository, times(1)).saveAndFlush(eq(node));
@@ -81,8 +85,9 @@ class NodeServiceTest {
         when(node.getNodeSeq()).thenReturn(1L);
         when(node.getRoom()).thenReturn(room);
         when(room.getHomeSeq()).thenReturn(2L);
+        when(this.nodeRepository.saveAndFlush(any())).thenReturn(node);
         when(this.nodeRepository.findById(any())).thenReturn(Optional.empty());
-        this.nodeService.upsert(node);
+        assertThat(this.nodeService.upsert(node), is(equalTo(node)));
         verify(node, times(1)).getRoom();
         verify(this.homeService, times(1)).getHome(eq(2L));
         this.verifyUpsertMethodsCalledInOrder(node);
@@ -91,6 +96,7 @@ class NodeServiceTest {
     /**
      * Common checks between {@link NodeServiceTest#testUpsertNodeDoesntExist())} and
      * {@link NodeServiceTest#testUpsertNodeExists()}.
+     *
      * @param mockNode The node to verify calls with.
      */
     private void verifyUpsertMethodsCalledInOrder(final Node mockNode) {
@@ -157,7 +163,8 @@ class NodeServiceTest {
     void testPerformNodeSearchNodeNodeSeqFilter() {
         final Node node = mock(Node.class);
         when(node.getNodeSeq()).thenReturn(1L);
-        this.nodeService.performNodeSearch(node, List.of(2L));
+        when(this.nodeRepository.getById(any())).thenReturn(node);
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         verify(this.nodeRepository, times(1)).getById(eq(1L));
     }
 
@@ -173,11 +180,13 @@ class NodeServiceTest {
         when(node.getRoom()).thenReturn(room);
         when(node.getHomeSeq()).thenReturn(2L);
         when(room.getRoomSeq()).thenReturn(1L);
-        this.nodeService.performNodeSearch(node, List.of(2L));
+        when(this.nodeRepository.getByRoomRoomSeqAndHomeHomeSeq(any(), any())).thenReturn(List.of(node));
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         verify(this.nodeRepository, times(1)).getByRoomRoomSeqAndHomeHomeSeq(eq(1L), eq(2L));
 
+        when(this.nodeRepository.getByNameContainingIgnoreCaseAndRoomRoomSeqAndHomeHomeSeq(any(), any(), any())).thenReturn(List.of(node));
         when(node.getName()).thenReturn("test");
-        this.nodeService.performNodeSearch(node, List.of(2L));
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         verify(this.nodeRepository, times(1)).getByNameContainingIgnoreCaseAndRoomRoomSeqAndHomeHomeSeq(eq("test"), eq(1L), eq(2L));
     }
 
@@ -192,8 +201,8 @@ class NodeServiceTest {
         when(node.getNodeSeq()).thenReturn(null);
         when(node.getRoom()).thenReturn(null);
         when(node.getName()).thenReturn("test");
-
-        this.nodeService.performNodeSearch(node, List.of(2L));
+        when(this.nodeRepository.getByNameAndHomeHomeSeqIn(any(), any())).thenReturn(List.of(node));
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
         verify(this.nodeRepository, times(1)).getByNameAndHomeHomeSeqIn(eq("test"), captor.capture());
         assertThat(captor.getValue(), contains(2L));
@@ -212,11 +221,11 @@ class NodeServiceTest {
         when(node.getName()).thenReturn("test");
         when(node.getRoom()).thenReturn(room);
         when(room.getRoomSeq()).thenReturn(null);
-
-        this.nodeService.performNodeSearch(node, List.of(2L));
-        final ArgumentCaptor<Collection<Long>> captor2 = ArgumentCaptor.forClass(Collection.class);
-        verify(this.nodeRepository, times(1)).getByNameAndHomeHomeSeqIn(eq("test"), captor2.capture());
-        assertThat(captor2.getValue(), contains(2L));
+        when(this.nodeRepository.getByNameAndHomeHomeSeqIn(any(), any())).thenReturn(List.of(node));
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
+        final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(this.nodeRepository, times(1)).getByNameAndHomeHomeSeqIn(eq("test"), captor.capture());
+        assertThat(captor.getValue(), contains(2L));
     }
 
     /**
@@ -230,8 +239,8 @@ class NodeServiceTest {
         when(node.getNodeSeq()).thenReturn(null);
         when(node.getRoom()).thenReturn(null);
         when(node.getHomeSeq()).thenReturn(1L);
-
-        this.nodeService.performNodeSearch(node, List.of(2L));
+        when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(node));
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
         verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(1L));
@@ -247,8 +256,8 @@ class NodeServiceTest {
         final Node node = mock(Node.class);
         when(node.getNodeSeq()).thenReturn(null);
         when(node.getHomeSeq()).thenReturn(null);
-
-        this.nodeService.performNodeSearch(node, List.of(2L));
+        when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(node));
+        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
         verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(2L));
@@ -261,7 +270,8 @@ class NodeServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void testPerformNodeSearchNullFilter() {
-        this.nodeService.performNodeSearch(null, List.of(2L));
+        when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of());
+        assertThat(this.nodeService.performNodeSearch(null, List.of(2L)), is(equalTo(Collections.emptyList())));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
         verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(2L));

@@ -1,5 +1,6 @@
 package com.higgs.server;
 
+import com.higgs.server.scv.CheckFailureException;
 import com.higgs.server.scv.CheckType;
 import com.higgs.server.scv.ServerVerifier;
 import lombok.AccessLevel;
@@ -29,7 +30,7 @@ public class HomeAssistantMainServerApplication {
 
     static void check(final ServerVerifier serverVerifier, final CheckType checkType) {
         if (!serverVerifier.check(checkType)) {
-            throw new RuntimeException(String.format("System exited with exit code %s", checkType.getExitCode()));
+            throw new CheckFailureException(String.format("System exited with exit code %s", checkType.getExitCode()));
         }
     }
 
@@ -44,4 +45,3 @@ public class HomeAssistantMainServerApplication {
         }
     }
 }
-

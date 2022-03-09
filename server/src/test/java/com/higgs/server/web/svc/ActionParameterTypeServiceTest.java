@@ -8,7 +8,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -38,7 +45,8 @@ class ActionParameterTypeServiceTest {
     void testPerformActionParameterTypeSearch() {
         final ActionParameterType actionParameterType = mock(ActionParameterType.class);
         when(actionParameterType.getHomeSeq()).thenReturn(2L);
-        this.actionParameterTypeService.performActionParameterTypeSearch(actionParameterType);
+        when(this.actionParameterTypeRepository.getByHomeHomeSeq(any())).thenReturn(List.of(actionParameterType));
+        assertThat(this.actionParameterTypeService.performActionParameterTypeSearch(actionParameterType), is(equalTo(Set.of(actionParameterType))));
         verify(this.actionParameterTypeRepository, times(1)).getByHomeHomeSeq(eq(2L));
         verify(this.actionParameterTypeRepository, times(1)).getByHomeHomeSeq(eq(1L));
     }

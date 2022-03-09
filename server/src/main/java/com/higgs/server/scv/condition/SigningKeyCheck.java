@@ -5,11 +5,14 @@ import com.higgs.server.scv.CheckType;
 import com.higgs.server.scv.VerificationContext;
 import com.higgs.server.util.ServerUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 public class SigningKeyCheck implements ServerCheck {
     @Override
     public boolean check(final VerificationContext conditionContext) {
-        return ServerUtils.getSigningKey(conditionContext.getSystemProperties(), conditionContext.getSystemEnv()).isPresent();
+        return ServerUtils.getSigningKey(conditionContext.getSystemProperties(), conditionContext.getSystemEnv())
+                .filter(StringUtils::isNotBlank)
+                .isPresent();
     }
 
     @NonNull
@@ -21,6 +24,6 @@ public class SigningKeyCheck implements ServerCheck {
     @NonNull
     @Override
     public CheckFailureType getFailureType() {
-        return CheckFailureType.RUNTIME_EXCEPTION;
+        return CheckFailureType.CHECK_FAILURE_RUNTIME_EXCEPTION;
     }
 }

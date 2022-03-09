@@ -11,10 +11,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,7 +45,8 @@ class RoomServiceTest {
     @Test
     void testUpsert() {
         final Room room = new Room();
-        this.roomService.upsert(room);
+        when(this.roomRepository.save(any())).thenReturn(room);
+        assertThat(this.roomService.upsert(room), is(equalTo(room)));
         verify(this.roomRepository, times(1)).save(room);
     }
 
@@ -64,7 +69,8 @@ class RoomServiceTest {
         final Room room = mock(Room.class);
         when(room.getRoomSeq()).thenReturn(1L);
         when(room.getHomeSeq()).thenReturn(2L);
-        this.roomService.performRoomSearch(room, Collections.singletonList(1L));
+        when(this.roomRepository.getByRoomSeqAndHomeHomeSeq(any(), any())).thenReturn(room);
+        assertThat(this.roomService.performRoomSearch(room, Collections.singletonList(1L)), contains(room));
         verify(this.roomRepository, times(1)).getByRoomSeqAndHomeHomeSeq(1L, 2L);
     }
 
@@ -78,8 +84,8 @@ class RoomServiceTest {
         when(room.getRoomSeq()).thenReturn(null);
         when(room.getName()).thenReturn("test");
         when(room.getHomeSeq()).thenReturn(2L);
-
-        this.roomService.performRoomSearch(room, Collections.singletonList(1L));
+        when(this.roomRepository.getByNameContainingIgnoreCaseAndHomeHomeSeq(any(), any())).thenReturn(List.of(room));
+        assertThat(this.roomService.performRoomSearch(room, Collections.singletonList(1L)), contains(room));
         verify(this.roomRepository, times(1)).getByNameContainingIgnoreCaseAndHomeHomeSeq("test", 2L);
     }
 
@@ -93,8 +99,8 @@ class RoomServiceTest {
         final Room room = mock(Room.class);
         when(room.getName()).thenReturn(null);
         when(room.getRoomSeq()).thenReturn(null);
-
-        this.roomService.performRoomSearch(room, Collections.singletonList(1L));
+        when(this.roomRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(room));
+        assertThat(this.roomService.performRoomSearch(room, Collections.singletonList(1L)), contains(room));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
         verify(this.roomRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(1L));

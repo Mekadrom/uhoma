@@ -2,6 +2,7 @@ package com.higgs.server.security;
 
 import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.UserLogin;
+import com.higgs.server.scv.CheckFailureException;
 import com.higgs.server.util.HAConstants;
 import com.higgs.server.util.ServerUtils;
 import com.higgs.server.web.svc.HomeService;
@@ -52,7 +53,7 @@ public class JwtTokenUtils {
                 .getBody();
     }
 
-    private Boolean isTokenExpired(final String token) {
+    Boolean isTokenExpired(final String token) {
         final Date expDate = this.getExpirationDateFromToken(token);
         if (expDate == null) {
             return true;
@@ -81,7 +82,7 @@ public class JwtTokenUtils {
                 .setClaims(claims)
                 .setIssuer("hams")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + validitySeconds * 1000))
+                .setExpiration(new Date(this.getExpirationDate(System.currentTimeMillis(), validitySeconds)))
                 .signWith(SignatureAlgorithm.HS256, signingKey)
                 .setSubject(userLogin.getUsername())
                 .compact();
@@ -89,10 +90,14 @@ public class JwtTokenUtils {
         return jwt;
     }
 
+    long getExpirationDate(final long startTime, final long validitySeconds) {
+        return startTime + validitySeconds * 1000;
+    }
+
     void ensureSigningKey() {
         if (this.signingKey == null) {
             this.signingKey = ServerUtils.getSigningKey(System.getProperties(), System.getenv())
-                    .orElseThrow(() -> new RuntimeException("Signing key cannot be null"));
+                    .orElseThrow(() -> new CheckFailureException("Signing key cannot be null"));
         }
     }
 

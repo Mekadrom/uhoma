@@ -1,5 +1,6 @@
 package com.higgs.server;
 
+import com.higgs.server.scv.CheckFailureException;
 import com.higgs.server.scv.CheckType;
 import com.higgs.server.scv.ServerVerifier;
 import org.junit.jupiter.api.Test;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -69,9 +69,9 @@ class HomeAssistantMainServerApplicationTest {
     void testCheckFail() {
         when(this.serverVerifier.check(any(CheckType.class))).thenReturn(false);
         assertAll(
-                () -> assertThat(assertThrows(RuntimeException.class, () -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.PRE_INITIALIZE))
+                () -> assertThat(assertThrows(CheckFailureException.class, () -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.PRE_INITIALIZE))
                         .getMessage(), is(equalTo("System exited with exit code 10"))),
-                () -> assertThat(assertThrows(RuntimeException.class, () -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.POST_INITIALIZE))
+                () -> assertThat(assertThrows(CheckFailureException.class, () -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.POST_INITIALIZE))
                         .getMessage(), is(equalTo("System exited with exit code 20")))
         );
     }
@@ -79,6 +79,7 @@ class HomeAssistantMainServerApplicationTest {
     /**
      * Tests that the {@link HomeAssistantMainServerApplication#loadProperties(List)} method loads input properties into
      * the {@link System#getProperties()} map.
+     *
      * @param args The input properties to load.
      * @param expectedProps The expected properties after loading.
      */
