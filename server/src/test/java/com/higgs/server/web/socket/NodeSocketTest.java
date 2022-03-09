@@ -63,7 +63,7 @@ class NodeSocketTest {
      * Test the method {@link NodeSocket#receiveMessage(ActionRequest, Principal)} with invalid (null) inputs.
      *
      * @param actionRequest a mocked {@link ActionRequest}
-     * @param principal     a mocked {@link Principal}
+     * @param principal a mocked {@link Principal}
      */
     @ParameterizedTest
     @MethodSource("getTestReceiveMessageNullParams")
