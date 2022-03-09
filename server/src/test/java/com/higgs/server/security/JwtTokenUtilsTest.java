@@ -3,6 +3,7 @@ package com.higgs.server.security;
 import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
+import com.higgs.server.scv.CheckFailureException;
 import com.higgs.server.web.svc.HomeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -137,7 +139,7 @@ class JwtTokenUtilsTest {
     void testGenerateTokenNoKey() {
         System.clearProperty("security.auth.jwt.signing-key");
         final UserLogin userLogin = mock(UserLogin.class);
-        assertThrows(RuntimeException.class, () -> this.jwtTokenUtils.generateToken(userLogin));
+        assertThrows(CheckFailureException.class, () -> this.jwtTokenUtils.generateToken(userLogin));
     }
 
     /**
@@ -171,7 +173,7 @@ class JwtTokenUtilsTest {
     @Test
     void testEnsureSigningKeyNoKey() {
         System.clearProperty("security.auth.jwt.signing-key");
-        assertAll(() -> assertThrows(RuntimeException.class, () -> this.jwtTokenUtils.ensureSigningKey()));
+        assertThrows(CheckFailureException.class, () -> this.jwtTokenUtils.ensureSigningKey());
     }
 
     /**
@@ -189,6 +191,20 @@ class JwtTokenUtilsTest {
                 () -> assertThat(actual.isPresent(), is(equalTo(true))),
                 () -> assertThat(actual.get().getUsername(), is(equalTo("user")))
         );
+    }
+
+    /**
+     * Tests for {@link JwtTokenUtils#parseAndValidateToken(String, Function)}, verifies that is returns the expected
+     * {@link UserDetails} when given a token with the wrong username on it.
+     */
+    @Test
+    void testParseAndValidateTokenNonMatchingUsernameAndTokenSub() {
+        final UserLogin userLogin = mock(UserLogin.class);
+        when(this.userLoginRepository.findByUsername("user")).thenReturn(Optional.of(userLogin));
+        when(userLogin.getUsername()).thenReturn("username");
+        final Optional<? extends UserDetails> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_VALID, this.userLoginRepository::findByUsername);
+        verify(this.userLoginRepository, times(1)).findByUsername(eq("user"));
+        assertThat(actual.isPresent(), is(equalTo(false)));
     }
 
     /**
@@ -217,6 +233,7 @@ class JwtTokenUtilsTest {
     /**
      * Tests for {@link JwtTokenUtils#removePrefix(String)}, verifies that it returns the expected output for different
      * valid and invalid inputs.
+     *
      * @param tokenOrBearer the token or bearer string to test
      * @param expected the expected output
      */
@@ -235,5 +252,55 @@ class JwtTokenUtilsTest {
                 Arguments.of("Bearer", "Bearer"),
                 Arguments.of(null, null)
         );
+    }
+
+    /**
+     * Tests for {@link JwtTokenUtils#getExpirationDate(long, long)}, verifies that it returns the expected output for different
+     * valid inputs.
+     *
+     * @param startTime the start time to use for the token (probably always System.currentTimeMillis())
+     * @param validitySeconds the validity seconds to use for the token
+     * @param expected the expected output expiration date
+     */
+    @ParameterizedTest
+    @MethodSource("getTestGetExpirationDateParams")
+    void testGetExpirationDate(final long startTime, final long validitySeconds, final long expected) {
+        assertThat(this.jwtTokenUtils.getExpirationDate(startTime, validitySeconds), is(equalTo(expected)));
+    }
+
+    public static Stream<Arguments> getTestGetExpirationDateParams() {
+        return Stream.of(
+                Arguments.of(0, 0, 0),
+                Arguments.of(0, 1, 1000),
+                Arguments.of(1000, 1, 2000)
+        );
+    }
+
+    /**
+     * Tests for {@link JwtTokenUtils#isTokenExpired(String)}, verifies that it determines whether the expiration date
+     * on the token is before the current time.
+     *
+     * @param dateFromToken the expiration date on the token
+     * @param expected the expected output
+     */
+    @ParameterizedTest
+    @MethodSource("getTestIsTokenExpiredParams")
+    void testIsTokenExpired(final Date dateFromToken, final boolean expected) {
+        final JwtTokenUtils jwtTokenUtils = mock(JwtTokenUtils.class);
+        when(jwtTokenUtils.getExpirationDateFromToken(any())).thenReturn(dateFromToken);
+        when(jwtTokenUtils.isTokenExpired(any())).thenCallRealMethod();
+        assertThat(jwtTokenUtils.isTokenExpired(null), is(equalTo(expected)));
+    }
+
+    public static Stream<Arguments> getTestIsTokenExpiredParams() {
+        return Stream.of(
+                Arguments.of(new Date(0), true),
+                Arguments.of(new Date(new Date().getTime() + 3600000), false)
+        );
+    }
+
+    @Test
+    void testIsTokenExpiredNull() {
+        assertThrows(IllegalArgumentException.class, () -> this.jwtTokenUtils.isTokenExpired(null));
     }
 }

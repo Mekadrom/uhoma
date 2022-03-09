@@ -50,7 +50,7 @@ public class ServerVerifier {
     private Pair<String, Boolean> fail(final VerificationContext verificationContext, final ServerCheck condition) {
         final String failureMessage = this.getFailureMessage(verificationContext, condition);
         return switch (condition.getFailureType()) {
-            case RUNTIME_EXCEPTION -> throw new RuntimeException(failureMessage);
+            case CHECK_FAILURE_RUNTIME_EXCEPTION -> throw new CheckFailureException(failureMessage);
             case LOG_AND_CONTINUE -> Pair.of(failureMessage, false);
             case LOG_AND_RETURN -> Pair.of(failureMessage, true);
             default -> null;
@@ -70,4 +70,3 @@ public class ServerVerifier {
         return ServerVerifierInstanceHolder.INSTANCE;
     }
 }
-

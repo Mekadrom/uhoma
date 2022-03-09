@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.higgs.server.db.converter.RoleListConverter;
 import com.higgs.server.security.Role;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -24,12 +24,12 @@ import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
@@ -73,7 +73,7 @@ public class UserLogin implements UserDetails {
 
     @Column(name = "ROLES")
     @Convert(converter = RoleListConverter.class)
-    private List<Role> roles;
+    private Set<Role> roles;
 
     @Column(name = "LAST_LOGIN")
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -84,8 +84,8 @@ public class UserLogin implements UserDetails {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date created;
 
-    public UserLogin addRole(final Role role) {
-        this.setRoles(Optional.ofNullable(this.getRoles()).orElseGet(() -> new ArrayList<>(Collections.singletonList(role))));
+    public UserLogin addRole(@NonNull final Role role) {
+        this.setRoles(Optional.ofNullable(this.getRoles()).orElseGet(() -> new HashSet<>(Collections.singleton(role))));
         return this;
     }
 

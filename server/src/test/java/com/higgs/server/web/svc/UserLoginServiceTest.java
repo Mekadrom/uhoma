@@ -8,10 +8,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link UserLoginService}.
@@ -33,7 +39,9 @@ class UserLoginServiceTest {
      */
     @Test
     void testFindByUsername() {
-        this.userLoginService.findByUsername("test");
+        final UserLogin userLogin = mock(UserLogin.class);
+        when(this.userLoginRepository.findByUsername(any())).thenReturn(Optional.of(userLogin));
+        assertThat(this.userLoginService.findByUsername("test"), is(equalTo(Optional.of(userLogin))));
         verify(this.userLoginRepository, times(1)).findByUsername("test");
     }
 
@@ -42,7 +50,9 @@ class UserLoginServiceTest {
      */
     @Test
     void testSave() {
-        this.userLoginService.save(mock(UserLogin.class));
+        final UserLogin userLogin = mock(UserLogin.class);
+        when(this.userLoginRepository.save(any())).thenReturn(userLogin);
+        assertThat(this.userLoginService.save(userLogin), is(equalTo(userLogin)));
         verify(this.userLoginRepository, times(1)).save(any());
     }
 }

@@ -5,25 +5,25 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class RoleListConverter implements AttributeConverter<List<Role>, String> {
+public class RoleListConverter implements AttributeConverter<Set<Role>, String> {
     @Override
-    public String convertToDatabaseColumn(final List<Role> attribute) {
+    public String convertToDatabaseColumn(final Set<Role> attribute) {
         if (CollectionUtils.isEmpty(attribute)) {
             return null;
         }
-        return attribute.stream().map(Role::getRoleName).reduce((s1, s2) -> s1 + "," + s2).orElse(StringUtils.EMPTY);
+        return attribute.stream().map(Role::getRoleName).sorted().reduce((s1, s2) -> s1 + "," + s2).orElse(StringUtils.EMPTY);
     }
 
     @Override
-    public List<Role> convertToEntityAttribute(final String dbData) {
+    public Set<Role> convertToEntityAttribute(final String dbData) {
         if (StringUtils.isBlank(dbData)) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
-        return Arrays.stream(dbData.split(",")).map(Role::getByRoleName).collect(Collectors.toList());
+        return Arrays.stream(dbData.split(",")).map(Role::getByRoleName).collect(Collectors.toSet());
     }
 }

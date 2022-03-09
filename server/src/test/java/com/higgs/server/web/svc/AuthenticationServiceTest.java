@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -22,7 +23,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -111,9 +114,16 @@ class AuthenticationServiceTest {
      * {@link JwtTokenUtils#parseAndValidateToken(String, Function)}
      */
     @Test
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     void testValidate() {
-        this.authenticationService.validate("token");
+        final UserDetails userDetails = mock(UserDetails.class);
+        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn((Optional) Optional.of(userDetails));
+        assertTrue(this.authenticationService.validate("token"));
         verify(this.jwtTokenUtils, times(1)).parseAndValidateToken(eq("token"), any());
+
+        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn(Optional.empty());
+        assertFalse(this.authenticationService.validate("token"));
+        verify(this.jwtTokenUtils, times(2)).parseAndValidateToken(eq("token"), any());
     }
 
     /**
@@ -126,8 +136,9 @@ class AuthenticationServiceTest {
         when(this.userLoginService.findByUsername(any())).thenReturn(Optional.empty());
         when(this.userLoginService.save(any())).thenReturn(userLogin);
         when(this.jwtTokenUtils.generateToken(any())).thenReturn("token");
-        this.authenticationService.register("user", "password");
+        final AuthResult actual = this.authenticationService.register("user", "password");
         verify(this.userLoginService, times(1)).save(any());
+        assertThat(actual.getJwt(), is(equalTo("token")));
     }
 
     /**

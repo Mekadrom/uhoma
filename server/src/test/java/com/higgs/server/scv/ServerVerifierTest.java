@@ -73,7 +73,7 @@ class ServerVerifierTest {
     /**
      * Tests that the {@link ServerVerifier#check(CheckType)} method behaves correctly for different valid inputs.
      * Specifically, that it throws a {@link RuntimeException} when the check fails, if it is a
-     * {@link CheckFailureType#RUNTIME_EXCEPTION} check.
+     * {@link CheckFailureType#CHECK_FAILURE_RUNTIME_EXCEPTION} check.
      */
     @Test
     @SneakyThrows
@@ -86,8 +86,8 @@ class ServerVerifierTest {
         ReflectionUtils.setField(conditionsField, serverVerifier, testCheckSet);
         when(serverCheck.getType()).thenReturn(CheckType.PRE_INITIALIZE);
         when(serverCheck.check(any())).thenReturn(false);
-        when(serverCheck.getFailureType()).thenReturn(CheckFailureType.RUNTIME_EXCEPTION);
-        assertThrows(RuntimeException.class, () -> serverVerifier.check(CheckType.PRE_INITIALIZE));
+        when(serverCheck.getFailureType()).thenReturn(CheckFailureType.CHECK_FAILURE_RUNTIME_EXCEPTION);
+        assertThrows(CheckFailureException.class, () -> serverVerifier.check(CheckType.PRE_INITIALIZE));
     }
 
     /**
