@@ -2,20 +2,43 @@
   <mat-tab-group class="vertical-center" mat-align-tabs="start">
     <mat-tab label="Login">
       <div class="login-inner-container">
-        <input matInput id="username" maxlength="32" placeholder="username" class="login-input"
-               (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="username"/>
-        <input matInput type="password" id="password" maxlength="32" placeholder="password" class="login-input"
-               (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="password"/>
-        <button mat-flat-button (click)="login()" class="mdc-icon-button text-button">
-          <span>Login</span>
-        </button>
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <input matInput
+                 formControlName="username"
+                 id="username"
+                 maxlength="32"
+                 placeholder="username"
+                 class="login-input"
+                 (keydown.enter)="attemptLogin()"
+                 (keypress)="commonUtilsService.omitSpecialChar($event)"
+                 [(ngModel)]="username"/>
+          <input matInput
+                 formControlName="password"
+                 type="password"
+                 id="password"
+                 maxlength="32"
+                 placeholder="password"
+                 class="login-input"
+                 (keydown.enter)="attemptLogin()"
+                 (keypress)="commonUtilsService.omitSpecialChar($event)"
+                 [(ngModel)]="password"/>
+          <button type="submit" mat-flat-button class="mdc-icon-button text-button" [disabled]="!loginForm.valid">
+            <span>Login</span>
+          </button>
+        </form>
       </div>
     </mat-tab>
     <mat-tab label="Register">
       <div class="login-inner-container">
-        <input matInput id="username-register" maxlength="32" placeholder="username" class="login-input"
-               (keypress)="commonUtilsService.omitSpecialChar($event)" [(ngModel)]="usernameRegister"/>
-        <form [formGroup]="form" (ngSubmit)="register()">
+        <input matInput
+               id="username-register"
+               maxlength="32"
+               placeholder="username"
+               class="login-input"
+               (keydown.enter)="attemptRegister()"
+               (keypress)="commonUtilsService.omitSpecialChar($event)"
+               [(ngModel)]="usernameRegister"/>
+        <form [formGroup]="registerForm" (ngSubmit)="register()">
           <input
             matInput
             formControlName="passwordRegister"
@@ -24,10 +47,11 @@
             maxlength="32"
             placeholder="password"
             class="login-input"
+            (keydown.enter)="attemptRegister()"
             (keypress)="commonUtilsService.omitSpecialChar($event)"
             [(ngModel)]="passwordRegister"/>
-          <div *ngIf="formControls.passwordRegister.touched && formControls.passwordRegister.invalid" class="alert alert-danger">
-            <div *ngIf="formControls.passwordRegister.errors.required">Password is required.</div>
+          <div *ngIf="registerFormControls.passwordRegister.touched && registerFormControls.passwordRegister.invalid" class="alert alert-danger">
+            <div *ngIf="registerFormControls.passwordRegister.errors.required">Password is required.</div>
           </div>
           <input
             matInput
@@ -37,13 +61,14 @@
             maxlength="32"
             placeholder="confirm password"
             class="login-input"
+            (keydown.enter)="attemptRegister()"
             (keypress)="commonUtilsService.omitSpecialChar($event)"
             [(ngModel)]="passwordRegisterConfirm"/>
-          <div *ngIf="formControls.passwordRegisterConfirm.touched && formControls.passwordRegisterConfirm.invalid" class="alert alert-danger">
-            <div *ngIf="formControls.passwordRegisterConfirm.errors.required">Password is required.</div>
-            <div *ngIf="formControls.passwordRegisterConfirm.errors.confirmedValidator">Password and Confirmation Password must be match.</div>
+          <div *ngIf="registerFormControls.passwordRegisterConfirm.touched && registerFormControls.passwordRegisterConfirm.invalid" class="alert alert-danger">
+            <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.required">Password is required.</div>
+            <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.confirmedValidator">Password and Confirmation Password must be match.</div>
           </div>
-          <button mat-flat-button type="submit" class="mdc-icon-button text-button" [disabled]="!form.valid">
+          <button mat-flat-button type="submit" class="mdc-icon-button text-button" [disabled]="!registerForm.valid">
             <span>Register</span>
           </button>
         </form>
