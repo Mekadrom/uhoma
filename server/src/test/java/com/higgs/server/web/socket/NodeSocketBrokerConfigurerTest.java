@@ -12,7 +12,6 @@ import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRe
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,8 +43,8 @@ class NodeSocketBrokerConfigurerTest {
         when(messageBrokerRegistry.addEndpoint(any())).thenReturn(stompWebSocketEndpointRegistration);
         when(stompWebSocketEndpointRegistration.setAllowedOriginPatterns(any())).thenReturn(stompWebSocketEndpointRegistration);
         this.nodeSocketBrokerConfigurer.registerStompEndpoints(messageBrokerRegistry);
-        verify(messageBrokerRegistry, times(1)).addEndpoint(eq("/socket"));
-        verify(stompWebSocketEndpointRegistration, times(1)).setAllowedOriginPatterns(eq("*"));
+        verify(messageBrokerRegistry, times(1)).addEndpoint("/socket");
+        verify(stompWebSocketEndpointRegistration, times(1)).setAllowedOriginPatterns("*");
         verify(stompWebSocketEndpointRegistration, times(1)).withSockJS();
     }
 
@@ -90,7 +89,7 @@ class NodeSocketBrokerConfigurerTest {
         when(messageBrokerRegistry.setApplicationDestinationPrefixes(any())).thenReturn(messageBrokerRegistry);
         this.nodeSocketBrokerConfigurer.configureMessageBroker(messageBrokerRegistry);
 
-        verify(messageBrokerRegistry, times(1)).setApplicationDestinationPrefixes(eq("/app"));
+        verify(messageBrokerRegistry, times(1)).setApplicationDestinationPrefixes("/app");
         verify(messageBrokerRegistry, times(1)).enableSimpleBroker("/topic");
     }
 

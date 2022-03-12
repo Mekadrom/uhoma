@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -81,7 +80,7 @@ class WebSocketAuthInterceptorTest {
         when(this.authenticationService.performUserSearch(any())).thenReturn(userLogin);
 
         assertThat(this.webSocketAuthInterceptor.preSend(accessor, message), is(equalTo(message)));
-        verify(accessor, times(1)).setUser(eq(new UsernamePasswordAuthenticationToken("user", null, Collections.emptyList())));
+        verify(accessor, times(1)).setUser(new UsernamePasswordAuthenticationToken("user", null, Collections.emptyList()));
     }
 
     /**
@@ -95,7 +94,7 @@ class WebSocketAuthInterceptorTest {
         when(accessor.getCommand()).thenReturn(StompCommand.DISCONNECT);
 
         assertThat(this.webSocketAuthInterceptor.preSend(accessor, message), is(equalTo(message)));
-        verify(accessor, times(0)).setUser(eq(new UsernamePasswordAuthenticationToken("user", null, Collections.emptyList())));
+        verify(accessor, times(0)).setUser(new UsernamePasswordAuthenticationToken("user", null, Collections.emptyList()));
     }
 
     /**

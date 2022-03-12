@@ -1,15 +1,14 @@
 package com.higgs.server.security;
 
+import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.UserLoginRepository;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -34,11 +33,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain, final SecurityContext securityContext) throws IOException, ServletException {
-        final Optional<? extends UserDetails> userDetailsOpt = this.jwtTokenUtil.parseAndValidateToken(request.getHeader(HttpHeaders.AUTHORIZATION), this.userLoginRepository::findByUsername);
-        if (userDetailsOpt.isPresent() && securityContext.getAuthentication() == null) {
-            final UserDetails userDetails = userDetailsOpt.get();
-            JwtTokenFilter.log.debug("Successfully validated jwt for {}", userDetails.getUsername());
-            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        final Optional<UserLogin> userLoginOpt = this.jwtTokenUtil.parseAndValidateToken(request.getHeader(HttpHeaders.AUTHORIZATION), this.userLoginRepository::findByUsername);
+        if (userLoginOpt.isPresent() && securityContext.getAuthentication() == null) {
+            final UserLogin userLogin = userLoginOpt.get();
+            JwtTokenFilter.log.debug("Successfully validated jwt for {}", userLogin.getUsername());
+            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userLogin, null, userLogin.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             securityContext.setAuthentication(authentication);
         }

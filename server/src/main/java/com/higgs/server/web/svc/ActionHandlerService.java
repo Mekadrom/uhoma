@@ -17,7 +17,6 @@ public class ActionHandlerService {
 
     /**
      * Performs a search of action handlers in both the set of corporate handler definitions and the user specific defs
-     * todo: implement criteria filtering
      *
      * @param searchCriteria search criteria to filter action handlers by
      * @return a set of {@link ActionHandler} representations of action handler definitions in both the corporate domain and account domain

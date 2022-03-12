@@ -18,6 +18,7 @@ import javax.naming.AuthenticationException;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -147,6 +148,7 @@ class RestUtilsTest {
     /**
      * Tests the {@link RestUtils#filterInvalidRequest(Principal, DtoFilter)} method with invalid inputs. Verifies the
      * method throws an {@link IllegalArgumentException} when any of the inputs are null.
+     *
      * @param principal a mock {@link Principal}
      * @param dtoFilter a mock {@link DtoFilter}
      */
@@ -178,6 +180,7 @@ class RestUtilsTest {
     /**
      * Tests the {@link RestUtils#filterInvalidRequest(String, DtoFilter, Collection)} method with invalid inputs.
      * Verifies that an {@link IllegalArgumentException} is thrown when any of the inputs are null.
+     *
      * @param searchCriteriaHomeSeq a test searchCriteriaHomeSeq
      * @param allowedHomeSeqs a set of test homeSeqs
      */
@@ -206,6 +209,7 @@ class RestUtilsTest {
     @Test
     @SuppressWarnings("ConstantConditions")
     void testFilterInvalidRequestNullFilter() {
-        assertThrows(IllegalArgumentException.class, () -> this.restUtils.filterInvalidRequest("user", null, Collections.emptyList()));
+        final List<Long> emptyList = Collections.emptyList();
+        assertThrows(IllegalArgumentException.class, () -> this.restUtils.filterInvalidRequest("user", null, emptyList));
     }
 }

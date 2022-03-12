@@ -14,14 +14,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -41,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -73,16 +71,21 @@ class SecurityConfigTest {
      */
     @Test
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     void testConfigureAuthenticationManagerBuilder() {
         final AuthenticationManagerBuilder authenticationManagerBuilder = mock(AuthenticationManagerBuilder.class);
-        when(this.userLoginService.findByUsername(eq("user"))).thenReturn(Optional.of(mock(UserLogin.class)));
+        when(this.userLoginService.findByUsername("user")).thenReturn(Optional.of(mock(UserLogin.class)));
+        final DaoAuthenticationConfigurer<AuthenticationManagerBuilder, UserDetailsService> daoAuthenticationConfigurer = mock(DaoAuthenticationConfigurer.class);
+        when(authenticationManagerBuilder.userDetailsService(any(UserDetailsService.class))).thenReturn(daoAuthenticationConfigurer);
         this.securityConfig.configure(authenticationManagerBuilder);
         final ArgumentCaptor<UserDetailsService> captor = ArgumentCaptor.forClass(UserDetailsService.class);
         verify(authenticationManagerBuilder, times(1)).userDetailsService(captor.capture());
+        verify(daoAuthenticationConfigurer, times(1)).passwordEncoder(any(BCryptPasswordEncoder.class));
+        final UserDetailsService actual = captor.getValue();
         assertAll(
-                () -> assertDoesNotThrow(() -> captor.getValue().loadUserByUsername("user")),
-                () -> assertNotNull(captor.getValue().loadUserByUsername("user")),
-                () -> assertThrows(UsernameNotFoundException.class, () -> captor.getValue().loadUserByUsername("username"))
+                () -> assertDoesNotThrow(() -> actual.loadUserByUsername("user")),
+                () -> assertNotNull(actual.loadUserByUsername("user")),
+                () -> assertThrows(UsernameNotFoundException.class, () -> actual.loadUserByUsername("username"))
         );
     }
 
@@ -113,7 +116,7 @@ class SecurityConfigTest {
         final HttpServletResponse response = mock(HttpServletResponse.class);
         final AuthenticationException exception = mock(AuthenticationException.class);
         this.securityConfig.authEntryPoint(request, response, exception);
-        verify(response, times(1)).setStatus(eq(HttpServletResponse.SC_UNAUTHORIZED));
+        verify(response, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verifyNoMoreInteractions(request, response, exception);
     }
 
@@ -133,12 +136,12 @@ class SecurityConfigTest {
         when(corsRegistration.exposedHeaders(any())).thenReturn(corsRegistration);
         when(corsRegistration.allowCredentials(anyBoolean())).thenReturn(corsRegistration);
         webMvcConfigurer.addCorsMappings(corsRegistry);
-        verify(corsRegistry, times(1)).addMapping(eq("/**"));
-        verify(corsRegistration, times(1)).allowedOriginPatterns(eq("*"));
+        verify(corsRegistry, times(1)).addMapping("/**");
+        verify(corsRegistration, times(1)).allowedOriginPatterns("*");
         verify(corsRegistration, times(1)).allowedMethods(any());
         verify(corsRegistration, times(1)).allowedHeaders(any());
-        verify(corsRegistration, times(1)).exposedHeaders(eq(HttpHeaders.AUTHORIZATION));
-        verify(corsRegistration, times(1)).allowCredentials(eq(true));
+        verify(corsRegistration, times(1)).exposedHeaders(HttpHeaders.AUTHORIZATION);
+        verify(corsRegistration, times(1)).allowCredentials(true);
     }
 
     /**

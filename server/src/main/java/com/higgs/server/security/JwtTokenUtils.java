@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class JwtTokenUtils {
     public static final String ALLOWED_HOMES_CLAIM = "allowed_homes";
 
-    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
+    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 6L * 60L * 60L;
 
     private String signingKey;
 
@@ -96,12 +96,12 @@ public class JwtTokenUtils {
 
     void ensureSigningKey() {
         if (this.signingKey == null) {
-            this.signingKey = ServerUtils.getSigningKey(System.getProperties(), System.getenv())
+            this.signingKey = ServerUtils.getInstance().getSigningKey(System.getProperties(), System.getenv())
                     .orElseThrow(() -> new CheckFailureException("Signing key cannot be null"));
         }
     }
 
-    public Optional<? extends UserDetails> parseAndValidateToken(final String bearer, final Function<String, Optional<UserLogin>> userRetriever) {
+    public Optional<UserLogin> parseAndValidateToken(final String bearer, final Function<String, Optional<UserLogin>> userRetriever) {
         final String tokenNoPrefix = this.removePrefix(bearer);
         if (StringUtils.isNotBlank(tokenNoPrefix)) {
             final String username = this.getUsernameFromToken(tokenNoPrefix);

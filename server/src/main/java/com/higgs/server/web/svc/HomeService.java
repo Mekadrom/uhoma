@@ -3,18 +3,19 @@ package com.higgs.server.web.svc;
 import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.HomeRepository;
+import com.higgs.server.web.svc.util.PersistenceUtils;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class HomeService {
     private final HomeRepository homeRepository;
+    private final PersistenceUtils persistenceUtils;
 
     public Home getHome(final Long homeSeq) {
         return this.homeRepository.getById(homeSeq);
@@ -45,14 +46,9 @@ public class HomeService {
     }
 
     public List<Home> performHomeSearch(final Home searchCriteria, final Collection<Long> homeSeqs) {
-        if (searchCriteria != null) {
-            if (searchCriteria.getHomeSeq() != null && homeSeqs.contains(searchCriteria.getHomeSeq())) {
-                return Collections.singletonList(this.homeRepository.getById(searchCriteria.getHomeSeq()));
-            }
-            if (searchCriteria.getName() != null) {
-                return this.homeRepository.getByNameContainingIgnoreCaseAndHomeSeqIn(searchCriteria.getName(), homeSeqs);
-            }
+        if (searchCriteria != null && searchCriteria.getName() != null) {
+            return this.homeRepository.getByNameContainingIgnoreCaseAndHomeSeqIn(searchCriteria.getName(), homeSeqs);
         }
-        return this.homeRepository.findAllById(homeSeqs);
+        return this.persistenceUtils.getByHomeSeqs(searchCriteria, homeSeqs, this.homeRepository::findAllById);
     }
 }

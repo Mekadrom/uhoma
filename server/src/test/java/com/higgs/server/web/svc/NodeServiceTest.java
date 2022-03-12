@@ -6,6 +6,7 @@ import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.Node;
 import com.higgs.server.db.entity.Room;
 import com.higgs.server.db.repo.NodeRepository;
+import com.higgs.server.web.svc.util.PersistenceUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,11 +50,14 @@ class NodeServiceTest {
     @Mock
     private NodeRepository nodeRepository;
 
+    @Mock
+    private PersistenceUtils persistenceUtils;
+
     private NodeService nodeService;
 
     @BeforeEach
     void setUp() {
-        this.nodeService = new NodeService(this.actionParameterService, this.actionService, this.homeService, this.nodeRepository);
+        this.nodeService = new NodeService(this.actionParameterService, this.actionService, this.homeService, this.nodeRepository, this.persistenceUtils);
     }
 
     /**
@@ -70,8 +74,8 @@ class NodeServiceTest {
         when(this.nodeRepository.saveAndFlush(any())).thenReturn(node);
         assertThat(this.nodeService.upsert(node), is(equalTo(node)));
         verify(node, times(1)).getRoom();
-        verify(this.homeService, times(1)).getHome(eq(2L));
-        verify(this.nodeRepository, times(1)).saveAndFlush(eq(node));
+        verify(this.homeService, times(1)).getHome(2L);
+        verify(this.nodeRepository, times(1)).saveAndFlush(node);
         this.verifyUpsertMethodsCalledInOrder(node);
     }
 
@@ -89,7 +93,7 @@ class NodeServiceTest {
         when(this.nodeRepository.findById(any())).thenReturn(Optional.empty());
         assertThat(this.nodeService.upsert(node), is(equalTo(node)));
         verify(node, times(1)).getRoom();
-        verify(this.homeService, times(1)).getHome(eq(2L));
+        verify(this.homeService, times(1)).getHome(2L);
         this.verifyUpsertMethodsCalledInOrder(node);
     }
 
@@ -101,14 +105,14 @@ class NodeServiceTest {
      */
     private void verifyUpsertMethodsCalledInOrder(final Node mockNode) {
         final InOrder inOrder = inOrder(this.actionService, this.actionParameterService, this.homeService, this.nodeRepository);
-        inOrder.verify(this.homeService, times(1)).getHome(eq(2L));
+        inOrder.verify(this.homeService, times(1)).getHome(2L);
         inOrder.verify(this.actionParameterService, times(1)).deleteAll(anyCollection(), anyCollection());
         inOrder.verify(this.actionService, times(1)).deleteAll(anyCollection(), anyCollection());
         inOrder.verify(this.actionParameterService, times(1)).saveAll(anyCollection());
         inOrder.verify(this.actionService, times(1)).saveAll(anyCollection());
         inOrder.verify(this.actionParameterService, times(1)).flush();
         inOrder.verify(this.actionService, times(1)).flush();
-        inOrder.verify(this.nodeRepository, times(1)).saveAndFlush(eq(mockNode));
+        inOrder.verify(this.nodeRepository, times(1)).saveAndFlush(mockNode);
     }
 
     /**
@@ -128,13 +132,13 @@ class NodeServiceTest {
         when(action.getParameters()).thenReturn(actionParameterList);
 
         this.nodeService.upsert(node);
-        verify(this.actionParameterService, times(1)).deleteAll(eq(actionParameterList), eq(actionParameterList));
-        verify(this.actionService, times(1)).deleteAll(eq(actionList), eq(actionList));
-        verify(this.actionParameterService, times(1)).saveAll(eq(actionParameterList));
-        verify(this.actionService, times(1)).saveAll(eq(actionList));
+        verify(this.actionParameterService, times(1)).deleteAll(actionParameterList, actionParameterList);
+        verify(this.actionService, times(1)).deleteAll(actionList, actionList);
+        verify(this.actionParameterService, times(1)).saveAll(actionParameterList);
+        verify(this.actionService, times(1)).saveAll(actionList);
         verify(this.actionParameterService, times(1)).flush();
         verify(this.actionService, times(1)).flush();
-        verify(this.nodeRepository, times(1)).saveAndFlush(eq(node));
+        verify(this.nodeRepository, times(1)).saveAndFlush(node);
     }
 
     /**
@@ -165,7 +169,7 @@ class NodeServiceTest {
         when(node.getNodeSeq()).thenReturn(1L);
         when(this.nodeRepository.getById(any())).thenReturn(node);
         assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
-        verify(this.nodeRepository, times(1)).getById(eq(1L));
+        verify(this.nodeRepository, times(1)).getById(1L);
     }
 
     /**
@@ -182,12 +186,12 @@ class NodeServiceTest {
         when(room.getRoomSeq()).thenReturn(1L);
         when(this.nodeRepository.getByRoomRoomSeqAndHomeHomeSeq(any(), any())).thenReturn(List.of(node));
         assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
-        verify(this.nodeRepository, times(1)).getByRoomRoomSeqAndHomeHomeSeq(eq(1L), eq(2L));
+        verify(this.nodeRepository, times(1)).getByRoomRoomSeqAndHomeHomeSeq(1L, 2L);
 
         when(this.nodeRepository.getByNameContainingIgnoreCaseAndRoomRoomSeqAndHomeHomeSeq(any(), any(), any())).thenReturn(List.of(node));
         when(node.getName()).thenReturn("test");
         assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
-        verify(this.nodeRepository, times(1)).getByNameContainingIgnoreCaseAndRoomRoomSeqAndHomeHomeSeq(eq("test"), eq(1L), eq(2L));
+        verify(this.nodeRepository, times(1)).getByNameContainingIgnoreCaseAndRoomRoomSeqAndHomeHomeSeq("test", 1L, 2L);
     }
 
     /**
@@ -240,8 +244,10 @@ class NodeServiceTest {
         when(node.getRoom()).thenReturn(null);
         when(node.getHomeSeq()).thenReturn(1L);
         when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(node));
-        assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
+        assertThat(this.nodeService.performNodeSearch(node, List.of(1L)), is(equalTo(List.of(node))));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(eq(node), eq(List.of(1L)), any());
         verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(1L));
     }
@@ -257,8 +263,10 @@ class NodeServiceTest {
         when(node.getNodeSeq()).thenReturn(null);
         when(node.getHomeSeq()).thenReturn(null);
         when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(node));
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
         assertThat(this.nodeService.performNodeSearch(node, List.of(2L)), is(equalTo(List.of(node))));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(eq(node), eq(List.of(2L)), any());
         verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(2L));
     }
@@ -271,9 +279,19 @@ class NodeServiceTest {
     @SuppressWarnings("unchecked")
     void testPerformNodeSearchNullFilter() {
         when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of());
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
         assertThat(this.nodeService.performNodeSearch(null, List.of(2L)), is(equalTo(Collections.emptyList())));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(eq(null), eq(List.of(2L)), any());
         verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(2L));
+    }
+
+    @Test
+    void testGetNodesForHomeSeqs() {
+        final Node node = mock(Node.class);
+        when(this.nodeRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(node));
+        assertThat(this.nodeService.getNodesForHomeSeqs(List.of(1L)), is(equalTo(List.of(node))));
+        verify(this.nodeRepository, times(1)).getByHomeHomeSeqIn(List.of(1L));
     }
 }

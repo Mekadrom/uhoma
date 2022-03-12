@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,8 +92,7 @@ class JwtTokenUtilsTest {
     void testValidateToken() {
         final UserLogin userLogin = mock(UserLogin.class);
         when(userLogin.getUsername()).thenReturn("user");
-        final boolean actual = this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_VALID), userLogin);
-        assertThat(actual, is(equalTo(true)));
+        assertThat(this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_VALID), userLogin), is(equalTo(true)));
     }
 
     /**
@@ -105,8 +103,7 @@ class JwtTokenUtilsTest {
     void testValidateTokenWrongUsername() {
         final UserLogin userLogin = mock(UserLogin.class);
         when(userLogin.getUsername()).thenReturn("admin");
-        final boolean actual = this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_VALID), userLogin);
-        assertThat(actual, is(equalTo(false)));
+        assertThat(this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_VALID), userLogin), is(equalTo(false)));
     }
 
     /**
@@ -117,8 +114,7 @@ class JwtTokenUtilsTest {
     void testValidateTokenTokenExpired() {
         final UserLogin userLogin = mock(UserLogin.class);
         when(userLogin.getUsername()).thenReturn("user");
-        final boolean actual = this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_EXPIRED), userLogin);
-        assertThat(actual, is(equalTo(false)));
+        assertThat(this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_EXPIRED), userLogin), is(equalTo(false)));
     }
 
     /**
@@ -128,7 +124,8 @@ class JwtTokenUtilsTest {
     @Test
     @SuppressWarnings("ConstantConditions")
     void testValidateTokenNullUserDetails() {
-        assertThrows(IllegalArgumentException.class, () -> this.jwtTokenUtils.validateToken(this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_VALID), null));
+        final String token = this.jwtTokenUtils.removePrefix(JwtTokenUtilsTest.TEST_TOKEN_VALID);
+        assertThrows(IllegalArgumentException.class, () -> this.jwtTokenUtils.validateToken(token, null));
     }
 
     /**
@@ -181,12 +178,13 @@ class JwtTokenUtilsTest {
      * {@link UserDetails} when given a valid token.
      */
     @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     void testParseAndValidateToken() {
         final UserLogin userLogin = mock(UserLogin.class);
         when(this.userLoginRepository.findByUsername("user")).thenReturn(Optional.of(userLogin));
         when(userLogin.getUsername()).thenReturn("user");
-        final Optional<? extends UserDetails> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_VALID, this.userLoginRepository::findByUsername);
-        verify(this.userLoginRepository, times(1)).findByUsername(eq("user"));
+        final Optional<UserLogin> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_VALID, this.userLoginRepository::findByUsername);
+        verify(this.userLoginRepository, times(1)).findByUsername("user");
         assertAll(
                 () -> assertThat(actual.isPresent(), is(equalTo(true))),
                 () -> assertThat(actual.get().getUsername(), is(equalTo("user")))
@@ -202,8 +200,8 @@ class JwtTokenUtilsTest {
         final UserLogin userLogin = mock(UserLogin.class);
         when(this.userLoginRepository.findByUsername("user")).thenReturn(Optional.of(userLogin));
         when(userLogin.getUsername()).thenReturn("username");
-        final Optional<? extends UserDetails> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_VALID, this.userLoginRepository::findByUsername);
-        verify(this.userLoginRepository, times(1)).findByUsername(eq("user"));
+        final Optional<UserLogin> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_VALID, this.userLoginRepository::findByUsername);
+        verify(this.userLoginRepository, times(1)).findByUsername("user");
         assertThat(actual.isPresent(), is(equalTo(false)));
     }
 
@@ -214,8 +212,8 @@ class JwtTokenUtilsTest {
      */
     @Test
     void testParseAndValidateTokenNoUsernameOnToken() {
-        final Optional<? extends UserDetails> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_NO_SUB, this.userLoginRepository::findByUsername);
-        verify(this.userLoginRepository, times(0)).findByUsername(eq("user"));
+        final Optional<UserLogin> actual = this.jwtTokenUtils.parseAndValidateToken(JwtTokenUtilsTest.TEST_TOKEN_NO_SUB, this.userLoginRepository::findByUsername);
+        verify(this.userLoginRepository, times(0)).findByUsername("user");
         assertThat(actual.isPresent(), is(equalTo(false)));
     }
 
@@ -225,8 +223,8 @@ class JwtTokenUtilsTest {
      */
     @Test
     void testParseAndValidateTokenBlankToken() {
-        final Optional<? extends UserDetails> actual = this.jwtTokenUtils.parseAndValidateToken("Bearer ", this.userLoginRepository::findByUsername);
-        verify(this.userLoginRepository, times(0)).findByUsername(eq("user"));
+        final Optional<UserLogin> actual = this.jwtTokenUtils.parseAndValidateToken("Bearer ", this.userLoginRepository::findByUsername);
+        verify(this.userLoginRepository, times(0)).findByUsername("user");
         assertThat(actual.isPresent(), is(equalTo(false)));
     }
 

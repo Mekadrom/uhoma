@@ -3,8 +3,11 @@ package com.higgs.server.db.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.higgs.server.db.converter.RoleListConverter;
 import com.higgs.server.security.Role;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +26,6 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -32,8 +34,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "USER_LOGIN")
 public class UserLogin implements UserDetails {
     @Serial

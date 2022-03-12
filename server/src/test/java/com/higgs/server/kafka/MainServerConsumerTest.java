@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.core.MessagePostProcessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.MultiValueMap;
 
@@ -19,7 +18,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -55,7 +53,7 @@ class MainServerConsumerTest {
         final MainServerConsumer mainServerConsumerSpy = spy(mainServerConsumer);
         final MultiValueMap<String, String> headers = (MultiValueMap<String, String>) mock(MultiValueMap.class);
         mainServerConsumerSpy.listenNodeMessageTopic(headers, "test");
-        verify(mainServerConsumerSpy).transmit(eq(headers), eq("test"));
+        verify(mainServerConsumerSpy).transmit(headers, "test");
     }
 
     /**
@@ -69,7 +67,7 @@ class MainServerConsumerTest {
         final Map<String, Object> map = new HashMap<>();
         when(this.commonUtils.toObjectMap(any())).thenReturn(map);
         this.mainServerConsumer.transmit(headers, "test");
-        verify(this.simpMessagingTemplate, times(1)).convertAndSendToUser(eq(null), eq("queue/reply"), eq("test"), eq(map));
+        verify(this.simpMessagingTemplate, times(1)).convertAndSendToUser(null, "queue/reply", "test", map);
     }
 
     /**

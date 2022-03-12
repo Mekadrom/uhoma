@@ -16,7 +16,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,8 +45,8 @@ class ActionHandlerServiceTest {
         when(actionHandler.getHomeSeq()).thenReturn(2L);
         when(this.actionHandlerRepository.getByHomeHomeSeq(any())).thenReturn(List.of(actionHandler));
         assertThat(this.actionHandlerService.performActionHandlerSearch(actionHandler), is(equalTo(Set.of(actionHandler))));
-        verify(this.actionHandlerRepository, times(1)).getByHomeHomeSeq(eq(2L));
-        verify(this.actionHandlerRepository, times(1)).getByHomeHomeSeq(eq(1L));
+        verify(this.actionHandlerRepository, times(1)).getByHomeHomeSeq(2L);
+        verify(this.actionHandlerRepository, times(1)).getByHomeHomeSeq(1L);
     }
 
     /**

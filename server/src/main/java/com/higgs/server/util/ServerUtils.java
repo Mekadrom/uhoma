@@ -12,9 +12,17 @@ public final class ServerUtils {
     public static final String SIGNING_KEY_PROP_NAME = "security.auth.jwt.signing-key";
     public static final String SIGNING_KEY_ENV_NAME = "HA_SERVER_SIGNING_KEY";
 
-    public static Optional<String> getSigningKey(final Map<Object, Object> properties, final Map<String, String> env) {
+    public Optional<String> getSigningKey(final Map<Object, Object> properties, final Map<String, String> env) {
         final String propValue = (String) properties.get(ServerUtils.SIGNING_KEY_PROP_NAME);
         final String envValue = env.get(ServerUtils.SIGNING_KEY_ENV_NAME);
         return Optional.ofNullable(Optional.ofNullable(propValue).filter(StringUtils::isNotBlank).orElse(envValue));
+    }
+
+    private static final class ServerUtilsHolder {
+        private static final ServerUtils INSTANCE = new ServerUtils();
+    }
+
+    public static ServerUtils getInstance() {
+        return ServerUtilsHolder.INSTANCE;
     }
 }

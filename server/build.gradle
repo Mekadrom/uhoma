@@ -7,6 +7,7 @@ apply plugin: 'jacoco'
 apply plugin: 'pmd'
 apply plugin: 'com.adarshr.test-logger'
 apply plugin: 'info.solidsoft.pitest'
+apply plugin: 'org.sonarqube'
 
 repositories {
     mavenLocal()
@@ -124,6 +125,8 @@ jacocoTestReport {
     dependsOn test
     dependsOn itest
 
+    reports.xml.enabled = true
+    reports.xml.destination file("build/jacoco/test/jacocoXml")
     reports.html.destination file("build/jacoco/test/jacocoHtml")
 
     executionData tasks.withType(Test).findAll { it.state.executed }
@@ -137,4 +140,24 @@ jacoco {
 pmd {
     ruleSets = []
     ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
+}
+
+sonarqube {
+    properties {
+        // Insert other SonarQube properties here
+        property 'sonar.projectName', 'Home Assistant Main Server'
+        property 'sonar.projectKey', 'server'
+        property 'sonar.projectVersion', version
+        property 'sonar.sources', 'src/main'
+        property 'sonar.tests', 'src/test'
+        property 'sonar.java.binaries', 'build/classes'
+        property 'sonar.java.test.binaries', 'build/classes'
+        property 'sonar.jdbc.dialect', 'org.postgresql.Driver'
+        property 'sonar.binaries', 'build/classes'
+        property 'sonar.language', 'java'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.junit.reportsPath', 'build/test-results'
+        property 'sonar.java.coveragePlugin', 'jacoco'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+    }
 }

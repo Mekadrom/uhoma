@@ -1,7 +1,6 @@
 package com.higgs.server.web.svc.util;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,13 +43,13 @@ class PersistenceUtilsTest {
     @MethodSource("getTestDeleteAllIntersectParams")
     void testDeleteAllIntersect(final Object o1, final Object o2, final List<Object> saved, final List<Object> updated, final Long id1, final Long id2, final Collection<Long> expectedDeletionList) {
         final Function<Object, Long> function = mock(Function.class);
-        when(function.apply(eq(o1))).thenReturn(id1);
-        when(function.apply(eq(o2))).thenReturn(id2);
+        when(function.apply(o1)).thenReturn(id1);
+        when(function.apply(o2)).thenReturn(id2);
 
         final JpaRepository<Object, Long> repository = mock(JpaRepository.class);
 
         this.persistenceUtils.deleteAllIntersect(saved, updated, function, repository);
-        verify(repository, times(1)).deleteAll(eq(expectedDeletionList));
+        verify(repository, times(1)).deleteAll(expectedDeletionList);
     }
 
     public static Stream<Arguments> getTestDeleteAllIntersectParams() {

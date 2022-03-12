@@ -1,11 +1,6 @@
 package com.higgs.server.db.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,12 +15,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
+@Data
 @Entity
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "ACTION")
 public class Action {
     @Id
@@ -48,7 +39,6 @@ public class Action {
     private ActionHandler actionHandler;
 
     @OneToMany
-    @JsonManagedReference
     @JoinColumn(name = "ACTION_SEQ")
     private Collection<ActionParameter> parameters;
 }

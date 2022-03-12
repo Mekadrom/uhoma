@@ -17,7 +17,6 @@ public class ActionParameterTypeService {
 
     /**
      * Performs a search of action parameter types in both the set of corporate type definitions and the user specific defs
-     * todo: implement criteria filtering
      *
      * @param searchCriteria search criteria to filter action parameter types by
      * @return a set of {@link ActionParameterType} representations of action parameter type definitions in both the corporate domain and home domain

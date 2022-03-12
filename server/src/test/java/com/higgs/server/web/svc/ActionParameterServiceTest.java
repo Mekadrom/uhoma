@@ -61,7 +61,7 @@ class ActionParameterServiceTest {
         final ActionParameter actionParameter2 = mock(ActionParameter.class);
         final Collection<ActionParameter> actionParameters = List.of(actionParameter1, actionParameter2);
         this.actionParameterService.saveAll(actionParameters);
-        verify(this.actionParameterRepository, times(1)).saveAll(eq(actionParameters));
+        verify(this.actionParameterRepository, times(1)).saveAll(actionParameters);
     }
 
     /**

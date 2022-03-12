@@ -2,6 +2,7 @@ package com.higgs.server.web.svc;
 
 import com.higgs.server.db.entity.Room;
 import com.higgs.server.db.repo.RoomRepository;
+import com.higgs.server.web.svc.util.PersistenceUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,13 +31,16 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
     @Mock
+    private PersistenceUtils persistenceUtils;
+
+    @Mock
     private RoomRepository roomRepository;
 
     private RoomService roomService;
 
     @BeforeEach
     public void setUp() {
-        this.roomService = new RoomService(this.roomRepository);
+        this.roomService = new RoomService(this.persistenceUtils, this.roomRepository);
     }
 
     /**
@@ -100,8 +104,10 @@ class RoomServiceTest {
         when(room.getName()).thenReturn(null);
         when(room.getRoomSeq()).thenReturn(null);
         when(this.roomRepository.getByHomeHomeSeqIn(any())).thenReturn(List.of(room));
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
         assertThat(this.roomService.performRoomSearch(room, Collections.singletonList(1L)), contains(room));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(any(), any(), any());
         verify(this.roomRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(1L));
     }
@@ -113,8 +119,10 @@ class RoomServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void testPerformRoomSearchNullFilter() {
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
         this.roomService.performRoomSearch(null, Collections.singletonList(1L));
         final ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(any(), any(), any());
         verify(this.roomRepository, times(1)).getByHomeHomeSeqIn(captor.capture());
         assertThat(captor.getValue(), contains(1L));
     }
