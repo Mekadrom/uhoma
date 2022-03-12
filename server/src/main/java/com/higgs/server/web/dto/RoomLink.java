@@ -1,6 +1,5 @@
 package com.higgs.server.web.dto;
 
-import com.higgs.server.db.entity.Room;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,10 +10,10 @@ public class RoomLink {
     private Long roomLinkSeq;
 
     @NotNull
-    private Room startRoom;
+    private RoomDto startRoom;
 
     @NotNull
-    private Room endRoom;
+    private RoomDto endRoom;
 
     @NotNull
     private String transitionLocationDef;

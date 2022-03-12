@@ -1,6 +1,5 @@
 package com.higgs.server.web.dto;
 
-import com.higgs.server.db.entity.Home;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -13,5 +12,5 @@ public class RoomDto {
     @NotNull
     private String name;
 
-    private Home home;
+    private HomeDto home;
 }

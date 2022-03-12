@@ -1,8 +1,5 @@
 package com.higgs.server.web.dto;
 
-import com.higgs.server.db.entity.Action;
-import com.higgs.server.db.entity.Home;
-import com.higgs.server.db.entity.Room;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -16,10 +13,10 @@ public class NodeDto {
     private String name;
 
     @NotNull
-    private Home home;
+    private HomeDto home;
 
     @NotNull
-    private Room room;
+    private RoomDto room;
 
-    private Collection<Action> actions;
+    private Collection<ActionDto> actions;
 }

@@ -1,7 +1,6 @@
 package com.higgs.server.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.higgs.server.db.entity.ActionParameterType;
 import lombok.Data;
 
 import javax.persistence.Transient;
@@ -16,7 +15,7 @@ public class ActionParameterDto {
 
     private Long actionSeq;
 
-    private ActionParameterType actionParameterType;
+    private ActionParameterTypeDto actionParameterType;
 
     private String defaultValue;
 

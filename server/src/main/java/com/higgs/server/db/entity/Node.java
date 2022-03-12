@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -52,6 +53,7 @@ public class Node implements DtoFilter {
     private Collection<Action> actions;
 
     @Override
+    @JsonIgnore
     public Long getHomeSeq() {
         return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
     }

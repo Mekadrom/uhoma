@@ -1,7 +1,6 @@
 package com.higgs.server.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.higgs.server.db.entity.Home;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -17,5 +16,5 @@ public class ActionHandlerDto {
     private String definition;
 
     @JsonIgnore
-    private Home home;
+    private HomeDto home;
 }

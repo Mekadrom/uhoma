@@ -3,9 +3,9 @@ package com.higgs.server.web.socket;
 import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.kafka.KafkaTopicEnum;
 import com.higgs.common.kafka.ServerProducer;
-import com.higgs.server.db.entity.Action;
-import com.higgs.server.db.entity.ActionHandler;
 import com.higgs.server.db.entity.Node;
+import com.higgs.server.web.dto.ActionDto;
+import com.higgs.server.web.dto.ActionHandlerDto;
 import com.higgs.server.web.dto.ActionRequest;
 import com.higgs.server.web.rest.util.RestUtils;
 import com.higgs.server.web.svc.NodeService;
@@ -48,7 +48,7 @@ public class NodeSocket {
 
     Map<String, Object> buildHeaderMap(@NonNull final ActionRequest actionRequest) {
         final Map<String, Object> headerMap = new HashMap<>();
-        headerMap.put(HAKafkaConstants.HEADER_ACTION_HANDLER_DEF, Optional.ofNullable(actionRequest.getActionWithParams()).map(Action::getActionHandler).map(ActionHandler::getDefinition).orElse(StringUtils.EMPTY));
+        headerMap.put(HAKafkaConstants.HEADER_ACTION_HANDLER_DEF, Optional.ofNullable(actionRequest.getActionWithParams()).map(ActionDto::getActionHandler).map(ActionHandlerDto::getDefinition).orElse(StringUtils.EMPTY));
         headerMap.put(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, actionRequest.getToNodeSeq());
         headerMap.put(HAKafkaConstants.HEADER_SENDING_NODE_SEQ, actionRequest.getFromNodeSeq());
         headerMap.put(HAKafkaConstants.HEADER_RECEIVING_USERNAME, actionRequest.getToUsername());

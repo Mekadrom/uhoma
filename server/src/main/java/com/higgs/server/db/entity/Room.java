@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,6 +41,7 @@ public class Room implements DtoFilter {
     private Home home;
 
     @Override
+    @JsonIgnore
     public Long getHomeSeq() {
         return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
     }
