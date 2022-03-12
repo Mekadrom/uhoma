@@ -123,7 +123,6 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   fetchRooms(): void {
-    console.log(JSON.stringify(this.homeSearchCriteria));
     const searchCriteria: Home = this.homeSearchCriteria ? this.homeSearchCriteria : this.homes[0];
     this.roomService.getRooms(searchCriteria).subscribe(
       (resp: Room[]) => {

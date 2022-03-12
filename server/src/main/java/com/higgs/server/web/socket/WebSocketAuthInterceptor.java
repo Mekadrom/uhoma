@@ -21,7 +21,7 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
-    private final String WEBSOCKET_MISSING_AUTH_ERROR = "No valid token found in headers for websocket event type %s in session %s";
+    private static final String WEBSOCKET_MISSING_AUTH_ERROR = "No valid token found in headers for websocket event type %s in session %s";
 
     private final AuthenticationService authenticationService;
     private final JwtTokenUtils jwtTokenUtil;
