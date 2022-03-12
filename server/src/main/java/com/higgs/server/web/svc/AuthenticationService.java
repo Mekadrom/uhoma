@@ -10,10 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +47,7 @@ public class AuthenticationService {
 
             }
         }
-        throw new UsernameNotFoundException(user.getUsername());
+        throw new BadCredentialsException(String.format("Failed to authenticate user %s", user.getUsername()));
     }
 
     public boolean validate(final String bearer) {
@@ -71,6 +71,6 @@ public class AuthenticationService {
         if (userLogin.isPresent()) {
             return userLogin.get();
         }
-        throw new UsernameNotFoundException(name);
+        throw new BadCredentialsException(String.format("Failed to authenticate user %s", name));
     }
 }

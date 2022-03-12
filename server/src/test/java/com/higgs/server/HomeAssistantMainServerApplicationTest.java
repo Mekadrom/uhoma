@@ -3,6 +3,7 @@ package com.higgs.server;
 import com.higgs.server.scv.CheckFailureException;
 import com.higgs.server.scv.CheckType;
 import com.higgs.server.scv.ServerVerifier;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,18 +40,39 @@ class HomeAssistantMainServerApplicationTest {
     @Mock
     private ServerVerifier serverVerifier;
 
+    private HomeAssistantMainServerApplication homeAssistantMainServerApplication;
+
+    @BeforeEach
+    void setUp() {
+        this.homeAssistantMainServerApplication = HomeAssistantMainServerApplication.getInstance();
+    }
+
     /**
-     * Test for the {@link HomeAssistantMainServerApplication#init(Runnable, String[])} method. Verifies that it calls
-     * the runnable, and is unable to verify much else because the other method calls are to static void methods on
-     * {@link HomeAssistantMainServerApplication}.
+     * Asserts that the {@link HomeAssistantMainServerApplication#main(String...)}  method calls the
+     * {@link HomeAssistantMainServerApplication#init(ServerVerifier, Runnable, String[])} method, which then throws
+     * an exception. I'll be honest, this is purely for test coverage.
+     */
+    @Test
+    void testMain() {
+        assertThrows(CheckFailureException.class, HomeAssistantMainServerApplication::main);
+    }
+
+    /**
+     * Test for the {@link HomeAssistantMainServerApplication#init(ServerVerifier, Runnable, String[])} method. Verifies
+     * method calls to instance methods on the {@link HomeAssistantMainServerApplication} class.
      */
     @Test
     void testInit() {
+        final HomeAssistantMainServerApplication homeAssistantMainServerApplicationSpy = spy(this.homeAssistantMainServerApplication);
         final Runnable runnable = mock(Runnable.class);
         final ServerVerifier serverVerifier = mock(ServerVerifier.class);
+        doCallRealMethod().when(homeAssistantMainServerApplicationSpy).init(any(), any());
         when(serverVerifier.check(any())).thenReturn(true);
-        assertDoesNotThrow(() -> HomeAssistantMainServerApplication.init(serverVerifier, runnable));
+        assertDoesNotThrow(() -> homeAssistantMainServerApplicationSpy.init(serverVerifier, runnable));
+        verify(homeAssistantMainServerApplicationSpy, times(1)).loadProperties(any());
+        verify(homeAssistantMainServerApplicationSpy, times(1)).check(serverVerifier, CheckType.PRE_INITIALIZE);
         verify(runnable, times(1)).run();
+        verify(homeAssistantMainServerApplicationSpy, times(1)).check(serverVerifier, CheckType.POST_INITIALIZE);
     }
 
     /**
@@ -58,7 +82,7 @@ class HomeAssistantMainServerApplicationTest {
     @Test
     void testCheckPass() {
         when(this.serverVerifier.check(any(CheckType.class))).thenReturn(true);
-        assertDoesNotThrow(() -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.PRE_INITIALIZE));
+        assertDoesNotThrow(() -> this.homeAssistantMainServerApplication.check(this.serverVerifier, CheckType.PRE_INITIALIZE));
     }
 
     /**
@@ -69,9 +93,9 @@ class HomeAssistantMainServerApplicationTest {
     void testCheckFail() {
         when(this.serverVerifier.check(any(CheckType.class))).thenReturn(false);
         assertAll(
-                () -> assertThat(assertThrows(CheckFailureException.class, () -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.PRE_INITIALIZE))
+                () -> assertThat(assertThrows(CheckFailureException.class, () -> this.homeAssistantMainServerApplication.check(this.serverVerifier, CheckType.PRE_INITIALIZE))
                         .getMessage(), is(equalTo("System exited with exit code 10"))),
-                () -> assertThat(assertThrows(CheckFailureException.class, () -> HomeAssistantMainServerApplication.check(this.serverVerifier, CheckType.POST_INITIALIZE))
+                () -> assertThat(assertThrows(CheckFailureException.class, () -> this.homeAssistantMainServerApplication.check(this.serverVerifier, CheckType.POST_INITIALIZE))
                         .getMessage(), is(equalTo("System exited with exit code 20")))
         );
     }
@@ -84,16 +108,16 @@ class HomeAssistantMainServerApplicationTest {
      * @param expectedProps The expected properties after loading.
      */
     @ParameterizedTest
-    @MethodSource("loadPropertiesParams")
-    void loadProperties(final List<String> args, final Map<String, String> expectedProps) {
-        HomeAssistantMainServerApplication.loadProperties(args.toArray(new String[0]));
+    @MethodSource("getTestLoadPropertiesParams")
+    void testLoadProperties(final List<String> args, final Map<String, String> expectedProps) {
+        this.homeAssistantMainServerApplication.loadProperties(args.toArray(new String[0]));
         expectedProps.forEach((key, value) -> assertAll(
                 () -> assertThat(System.getProperties(), hasKey(key)),
                 () -> assertThat(System.getProperties().get(key), is(equalTo(value)))
         ));
     }
 
-    public static Stream<Arguments> loadPropertiesParams() {
+    public static Stream<Arguments> getTestLoadPropertiesParams() {
         return Stream.of(
                 Arguments.of(List.of("prop1=value1", "prop2=value2"), Map.of("prop1", "value1", "prop2", "value2")),
                 Arguments.of(List.of("prop1 = value1", "prop2  = value2 "), Map.of("prop1", "value1", "prop2", "value2")),

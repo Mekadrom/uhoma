@@ -25,6 +25,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
     private final JwtTokenUtils jwtTokenUtil;
 
     @Override
+    @SuppressWarnings("S1452") // overriding a method from an interface; can't make method have a different erasure
     public Message<?> preSend(@NotNull final Message<?> message, @NotNull final MessageChannel channel) {
         return this.preSend(MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class), message);
     }

@@ -5,7 +5,10 @@ import com.higgs.common.kafka.KafkaTopicEnum;
 import com.higgs.common.kafka.ServerProducer;
 import com.higgs.server.db.entity.Action;
 import com.higgs.server.db.entity.ActionHandler;
+import com.higgs.server.db.entity.Node;
 import com.higgs.server.web.dto.ActionRequest;
+import com.higgs.server.web.rest.util.RestUtils;
+import com.higgs.server.web.svc.NodeService;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +18,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -27,7 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,13 +45,19 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class NodeSocketTest {
     @Mock
+    private NodeService nodeService;
+
+    @Mock
+    private RestUtils restUtils;
+
+    @Mock
     private ServerProducer producer;
 
     private NodeSocket nodeSocket;
 
     @BeforeEach
     void setUp() {
-        this.nodeSocket = new NodeSocket(this.producer);
+        this.nodeSocket = new NodeSocket(this.nodeService, this.restUtils, this.producer);
     }
 
     /**
@@ -52,10 +65,21 @@ class NodeSocketTest {
      */
     @Test
     void testReceiveMessage() {
+        final NodeSocket nodeSocketSpy = spy(this.nodeSocket);
         final ActionRequest actionRequest = mock(ActionRequest.class);
         final Principal principal = mock(Principal.class);
+        final Node node1 = mock(Node.class);
+        final Node node2 = mock(Node.class);
+        when(node1.getNodeSeq()).thenReturn(1L);
+        when(node2.getNodeSeq()).thenReturn(2L);
         when(actionRequest.getActionWithParams()).thenReturn(mock(Action.class));
-        this.nodeSocket.receiveMessage(actionRequest, principal);
+        when(actionRequest.getToNodeSeq()).thenReturn(1L);
+        when(actionRequest.getFromNodeSeq()).thenReturn(2L);
+        doCallRealMethod().when(nodeSocketSpy).receiveMessage(any(), any());
+        when(this.restUtils.getHomeSeqs(any())).thenReturn(List.of(3L, 4L));
+        when(this.nodeService.getNodesForHomeSeqs(any())).thenReturn(List.of(node1, node2));
+        nodeSocketSpy.receiveMessage(actionRequest, principal);
+        verify(nodeSocketSpy, times(1)).validatePrincipalForNodes(principal, List.of(1L, 2L));
         assertDoesNotThrow(() -> verify(this.producer, times(1)).send(eq(KafkaTopicEnum.NODE_ACTION), eq(actionRequest), any()));
     }
 
@@ -145,5 +169,36 @@ class NodeSocketTest {
     @SuppressWarnings("ConstantConditions")
     void testBuildHeaderMapNull() {
         assertThrows(IllegalArgumentException.class, () -> this.nodeSocket.buildHeaderMap(null));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestValidatePrincipalForNodesParams")
+    void testValidatePrincipalForNodes(final List<Long> nodeSeqsFromRequest, final boolean expected) {
+        final Principal principal = mock(Principal.class);
+        final Node node1 = mock(Node.class);
+        final Node node2 = mock(Node.class);
+        when(node1.getNodeSeq()).thenReturn(1L);
+        when(node2.getNodeSeq()).thenReturn(2L);
+        when(this.restUtils.getHomeSeqs(any())).thenReturn(List.of(3L, 4L));
+        when(this.nodeService.getNodesForHomeSeqs(any())).thenReturn(List.of(node1, node2));
+        if (expected) {
+            assertDoesNotThrow(() -> this.nodeSocket.validatePrincipalForNodes(principal, nodeSeqsFromRequest));
+        } else {
+            assertThrows(AccessDeniedException.class, () -> this.nodeSocket.validatePrincipalForNodes(principal, nodeSeqsFromRequest));
+        }
+    }
+
+    public static Stream<Arguments> getTestValidatePrincipalForNodesParams() {
+        return Stream.of(
+                Arguments.of(List.of(1L, 2L), true),
+                Arguments.of(List.of(1L, 3L), false),
+                Arguments.of(List.of(3L, 2L), false),
+                Arguments.of(List.of(3L, 3L), false),
+                Arguments.of(List.of(3L, 1L), false),
+                Arguments.of(List.of(1L, 1L), true),
+                Arguments.of(List.of(2L, 2L), true),
+                Arguments.of(List.of(2L, 1L), true),
+                Arguments.of(List.of(1L, 2L, 3L), false)
+        );
     }
 }

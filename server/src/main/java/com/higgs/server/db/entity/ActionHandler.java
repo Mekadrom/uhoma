@@ -39,6 +39,7 @@ public class ActionHandler implements DtoFilter {
     private Home home;
 
     @Override
+    @JsonIgnore
     public Long getHomeSeq() {
         return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
     }

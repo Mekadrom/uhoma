@@ -2,7 +2,6 @@ package com.higgs.server.web.socket;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

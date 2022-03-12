@@ -11,9 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -72,7 +71,7 @@ class AuthenticationServiceTest {
         when(userLogin.getUsername()).thenReturn("user");
         when(this.userLoginService.save(any())).thenReturn(userLogin);
         final AuthResult actual = this.authenticationService.getTokens("user", "password");
-        verify(this.jwtTokenUtils, times(1)).generateToken(eq(userLogin));
+        verify(this.jwtTokenUtils, times(1)).generateToken(userLogin);
         assertAll(
                 () -> assertThat(actual.getJwt(), is(equalTo("token"))),
                 () -> assertThat(actual.getUserDetails(), is(equalTo(userLogin)))
@@ -90,7 +89,7 @@ class AuthenticationServiceTest {
         when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(userLogin);
         when(this.userLoginService.findByUsername(any())).thenReturn(Optional.empty());
-        assertThrows(UsernameNotFoundException.class, () -> this.authenticationService.getTokens("user", "password"));
+        assertThrows(BadCredentialsException.class, () -> this.authenticationService.getTokens("user", "password"));
     }
 
     /**
@@ -114,10 +113,9 @@ class AuthenticationServiceTest {
      * {@link JwtTokenUtils#parseAndValidateToken(String, Function)}
      */
     @Test
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     void testValidate() {
-        final UserDetails userDetails = mock(UserDetails.class);
-        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn((Optional) Optional.of(userDetails));
+        final UserLogin userLogin = mock(UserLogin.class);
+        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn(Optional.of(userLogin));
         assertTrue(this.authenticationService.validate("token"));
         verify(this.jwtTokenUtils, times(1)).parseAndValidateToken(eq("token"), any());
 
@@ -169,7 +167,7 @@ class AuthenticationServiceTest {
     @Test
     void testPerformUserSearchNoMatch() {
         when(this.userLoginService.findByUsername(any())).thenReturn(Optional.empty());
-        assertThrows(UsernameNotFoundException.class, () -> this.authenticationService.performUserSearch("user"));
+        assertThrows(BadCredentialsException.class, () -> this.authenticationService.performUserSearch("user"));
     }
 
     /**

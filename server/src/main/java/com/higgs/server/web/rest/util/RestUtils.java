@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import javax.naming.AuthenticationException;
 import java.security.Principal;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,7 +27,7 @@ public class RestUtils {
         return this.userLoginService.findByUsername(principal.getName()).map(userLogin ->
                 this.homeService.getHomesForUser(userLogin).stream()
                         .map(Home::getHomeSeq)
-                        .collect(Collectors.toList())
+                        .toList()
         ).orElseThrow(() -> new AuthenticationException("User not found"));
     }
 

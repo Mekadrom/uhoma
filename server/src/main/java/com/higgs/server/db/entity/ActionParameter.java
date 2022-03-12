@@ -1,6 +1,5 @@
 package com.higgs.server.db.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -11,7 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -31,10 +29,8 @@ public class ActionParameter {
     @Column(name = "NAME")
     private String name;
 
-    @OneToOne
-    @JoinColumn(name = "ACTION_SEQ")
-    @JsonBackReference
-    private Action action;
+    @Column(name = "ACTION_SEQ")
+    private Long actionSeq;
 
     @ManyToOne
     @JoinColumn(name = "ACTION_PARAMETER_TYPE_SEQ")

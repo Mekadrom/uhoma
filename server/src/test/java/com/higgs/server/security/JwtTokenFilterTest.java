@@ -116,14 +116,14 @@ class JwtTokenFilterTest {
         final HttpSession session = mock(HttpSession.class);
         when(userLogin.getUsername()).thenReturn("user");
         when(userLogin.getAuthorities()).thenReturn((Collection) Collections.singletonList(mock(GrantedAuthority.class)));
-        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn((Optional) Optional.of(userLogin));
+        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn(Optional.of(userLogin));
         when(securityContext.getAuthentication()).thenReturn(null);
         when(request.getRemoteAddr()).thenReturn("requestUrl");
         when(request.getSession(anyBoolean())).thenReturn(session);
         when(session.getId()).thenReturn("sessionId");
         final ArgumentCaptor<Authentication> captor = ArgumentCaptor.forClass(Authentication.class);
         this.jwtTokenFilter.doFilterInternal(request, response, filterChain, securityContext);
-        verify(request, times(1)).getHeader(eq(HttpHeaders.AUTHORIZATION));
+        verify(request, times(1)).getHeader(HttpHeaders.AUTHORIZATION);
         verify(securityContext, times(1)).setAuthentication(captor.capture());
         verify(userLogin, times(1)).getUsername();
         verify(userLogin, times(1)).getAuthorities();
@@ -147,7 +147,6 @@ class JwtTokenFilterTest {
      */
     @Test
     @SneakyThrows
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     void testDoFilterInternalNonNullAuthentication() {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         final HttpServletResponse response = mock(HttpServletResponse.class);
@@ -155,10 +154,10 @@ class JwtTokenFilterTest {
         final SecurityContext securityContext = mock(SecurityContext.class);
         final UserLogin userLogin = mock(UserLogin.class);
         final Authentication authentication = mock(Authentication.class);
-        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn((Optional) Optional.of(userLogin));
+        when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn(Optional.of(userLogin));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         this.jwtTokenFilter.doFilterInternal(request, response, filterChain, securityContext);
-        verify(request, times(1)).getHeader(eq(HttpHeaders.AUTHORIZATION));
+        verify(request, times(1)).getHeader(HttpHeaders.AUTHORIZATION);
         verify(securityContext, times(0)).setAuthentication(any());
         verify(userLogin, times(0)).getUsername();
         verify(userLogin, times(0)).getAuthorities();
@@ -180,7 +179,7 @@ class JwtTokenFilterTest {
         final SecurityContext securityContext = mock(SecurityContext.class);
         when(this.jwtTokenUtils.parseAndValidateToken(any(), any())).thenReturn(Optional.empty());
         this.jwtTokenFilter.doFilterInternal(request, response, filterChain, securityContext);
-        verify(request, times(1)).getHeader(eq(HttpHeaders.AUTHORIZATION));
+        verify(request, times(1)).getHeader(HttpHeaders.AUTHORIZATION);
         verify(securityContext, times(0)).setAuthentication(any());
         verify(filterChain, times(1)).doFilter(request, response);
     }

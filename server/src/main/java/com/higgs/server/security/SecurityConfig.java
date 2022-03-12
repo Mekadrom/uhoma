@@ -1,6 +1,5 @@
 package com.higgs.server.security;
 
-import com.higgs.server.db.repo.UserLoginRepository;
 import com.higgs.server.web.svc.UserLoginService;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @EnableWebMvc
@@ -52,7 +50,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(username -> this.userLoginService.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User: %s not found.", username))));
+                        .orElseThrow(() -> new UsernameNotFoundException(String.format("User: %s not found.", username))))
+                .passwordEncoder(this.passwordEncoder());
     }
 
     @Override
@@ -83,7 +82,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .allowedOriginPatterns("*")
                         .allowedMethods(Stream.of(HttpMethod.HEAD, HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
                                 .map(Enum::toString)
-                                .collect(Collectors.toList())
                                 .toArray(String[]::new))
                         .allowedHeaders(HttpHeaders.AUTHORIZATION, HttpHeaders.CACHE_CONTROL, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)
                         .exposedHeaders(HttpHeaders.AUTHORIZATION)

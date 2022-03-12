@@ -23,17 +23,17 @@ class ServerUtilsTest {
     void testGetSigningKey() {
         final Map<Object, Object> properties = new HashMap<>();
         final Map<String, String> env = new HashMap<>();
-        assertFalse(ServerUtils.getSigningKey(properties, env).isPresent());
+        assertFalse(ServerUtils.getInstance().getSigningKey(properties, env).isPresent());
         env.put("HA_SERVER_SIGNING_KEY", "test2");
-        final Optional<String> signingKeyEnvOnly = ServerUtils.getSigningKey(properties, env);
+        final Optional<String> signingKeyEnvOnly = ServerUtils.getInstance().getSigningKey(properties, env);
         assertTrue(signingKeyEnvOnly.isPresent());
         assertThat(signingKeyEnvOnly.get(), is(equalTo("test2")));
         properties.put("security.auth.jwt.signing-key", "test1");
-        final Optional<String> signingKeyPropertiesAndEnv = ServerUtils.getSigningKey(properties, env);
+        final Optional<String> signingKeyPropertiesAndEnv = ServerUtils.getInstance().getSigningKey(properties, env);
         assertTrue(signingKeyPropertiesAndEnv.isPresent());
         assertThat(signingKeyPropertiesAndEnv.get(), is(equalTo("test1")));
         env.remove("HA_SERVER_SIGNING_KEY");
-        final Optional<String> signingKeyPropertiesOnly = ServerUtils.getSigningKey(properties, env);
+        final Optional<String> signingKeyPropertiesOnly = ServerUtils.getInstance().getSigningKey(properties, env);
         assertTrue(signingKeyPropertiesOnly.isPresent());
         assertThat(signingKeyPropertiesOnly.get(), is(equalTo("test1")));
     }

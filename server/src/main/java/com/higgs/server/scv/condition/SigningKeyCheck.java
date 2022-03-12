@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 public class SigningKeyCheck implements ServerCheck {
     @Override
     public boolean check(final VerificationContext conditionContext) {
-        return ServerUtils.getSigningKey(conditionContext.getSystemProperties(), conditionContext.getSystemEnv())
+        return ServerUtils.getInstance().getSigningKey(conditionContext.getSystemProperties(), conditionContext.getSystemEnv())
                 .filter(StringUtils::isNotBlank)
                 .isPresent();
     }

@@ -16,7 +16,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,8 +46,8 @@ class ActionParameterTypeServiceTest {
         when(actionParameterType.getHomeSeq()).thenReturn(2L);
         when(this.actionParameterTypeRepository.getByHomeHomeSeq(any())).thenReturn(List.of(actionParameterType));
         assertThat(this.actionParameterTypeService.performActionParameterTypeSearch(actionParameterType), is(equalTo(Set.of(actionParameterType))));
-        verify(this.actionParameterTypeRepository, times(1)).getByHomeHomeSeq(eq(2L));
-        verify(this.actionParameterTypeRepository, times(1)).getByHomeHomeSeq(eq(1L));
+        verify(this.actionParameterTypeRepository, times(1)).getByHomeHomeSeq(2L);
+        verify(this.actionParameterTypeRepository, times(1)).getByHomeHomeSeq(1L);
     }
 
     /**

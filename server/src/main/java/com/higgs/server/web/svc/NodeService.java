@@ -5,6 +5,7 @@ import com.higgs.server.db.entity.ActionParameter;
 import com.higgs.server.db.entity.Node;
 import com.higgs.server.db.entity.Room;
 import com.higgs.server.db.repo.NodeRepository;
+import com.higgs.server.web.svc.util.PersistenceUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +22,7 @@ public class NodeService {
     private final ActionService actionService;
     private final HomeService homeService;
     private final NodeRepository nodeRepository;
+    private final PersistenceUtils persistenceUtils;
 
     @Transactional
     public Node upsert(final Node node) {
@@ -57,7 +58,7 @@ public class NodeService {
         return actions.stream()
                 .map(Action::getParameters)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Node> performNodeSearch(final Node searchCriteria, final Collection<Long> homeSeqs) {
@@ -74,11 +75,12 @@ public class NodeService {
                 if (searchCriteria.getName() != null) {
                     return this.nodeRepository.getByNameAndHomeHomeSeqIn(searchCriteria.getName(), homeSeqs);
                 }
-                if (searchCriteria.getHomeSeq() != null) {
-                    return this.nodeRepository.getByHomeHomeSeqIn(List.of(searchCriteria.getHomeSeq()));
-                }
             }
         }
+        return this.persistenceUtils.getByHomeSeqs(searchCriteria, homeSeqs, this.nodeRepository::getByHomeHomeSeqIn);
+    }
+
+    public List<Node> getNodesForHomeSeqs(final Collection<Long> homeSeqs) {
         return this.nodeRepository.getByHomeHomeSeqIn(homeSeqs);
     }
 }

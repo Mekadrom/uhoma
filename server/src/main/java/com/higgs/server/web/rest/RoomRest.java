@@ -1,8 +1,10 @@
 package com.higgs.server.web.rest;
 
 import com.higgs.server.db.entity.Room;
+import com.higgs.server.web.dto.RoomDto;
 import com.higgs.server.web.rest.util.RestUtils;
 import com.higgs.server.web.svc.RoomService;
+import com.higgs.server.web.svc.util.mapper.DtoEntityMapper;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -20,18 +22,21 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping(value = "room")
 public class RoomRest {
+    private final DtoEntityMapper dtoEntityMapper;
     private final RestUtils restUtils;
     private final RoomService roomService;
 
     @PostMapping(value = "upsert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Room> upsert(@NonNull @RequestBody final Room room) {
+    public ResponseEntity<Room> upsert(@NonNull @RequestBody final RoomDto roomDto) {
+        final Room room = this.dtoEntityMapper.map(roomDto, Room.class);
         return ResponseEntity.ok(this.roomService.upsert(room));
     }
 
     @SneakyThrows
     @PostMapping(value = "search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Room>> search(@RequestBody(required = false) final Room searchCriteria, @NonNull final Principal principal) {
-        this.restUtils.filterInvalidRequest(principal, searchCriteria);
-        return ResponseEntity.ok(this.roomService.performRoomSearch(searchCriteria, this.restUtils.getHomeSeqs(principal)));
+    public ResponseEntity<List<Room>> search(@RequestBody(required = false) final RoomDto searchCriteria, @NonNull final Principal principal) {
+        final Room room = this.dtoEntityMapper.map(searchCriteria, Room.class);
+        this.restUtils.filterInvalidRequest(principal, room);
+        return ResponseEntity.ok(this.roomService.performRoomSearch(room, this.restUtils.getHomeSeqs(principal)));
     }
 }

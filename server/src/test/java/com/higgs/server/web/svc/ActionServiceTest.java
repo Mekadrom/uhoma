@@ -61,7 +61,7 @@ class ActionServiceTest {
         final Action action2 = mock(Action.class);
         final Collection<Action> actions = List.of(action1, action2);
         this.actionService.saveAll(actions);
-        verify(this.actionRepository, times(1)).saveAll(eq(actions));
+        verify(this.actionRepository, times(1)).saveAll(actions);
     }
 
     /**

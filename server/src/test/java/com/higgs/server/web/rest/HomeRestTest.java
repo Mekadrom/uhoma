@@ -2,9 +2,11 @@ package com.higgs.server.web.rest;
 
 import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.UserLogin;
+import com.higgs.server.web.dto.HomeDto;
 import com.higgs.server.web.rest.util.RestUtils;
 import com.higgs.server.web.svc.HomeService;
 import com.higgs.server.web.svc.UserLoginService;
+import com.higgs.server.web.svc.util.mapper.DtoEntityMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +41,9 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 class HomeRestTest {
+    @Mock
+    private DtoEntityMapper dtoEntityMapper;
+
     @Mock
     private HomeService homeService;
 
@@ -51,24 +57,27 @@ class HomeRestTest {
 
     @BeforeEach
     void setUp() {
-        this.homeRest = new HomeRest(this.homeService, this.restUtils, this.userLoginService);
+        this.homeRest = new HomeRest(this.dtoEntityMapper, this.homeService, this.restUtils, this.userLoginService);
     }
 
     /**
-     * Tests the method {@link HomeRest#upsert(Home, Principal)}. This method should return a {@link ResponseEntity}
+     * Tests the method {@link HomeRest#upsert(HomeDto, Principal)}. This method should return a {@link ResponseEntity}
      * with the {@link Home} that was upserted.
      */
     @Test
     void testUpsert() {
         final Home home = mock(Home.class);
+        final HomeDto homeDto = mock(HomeDto.class);
         final Principal principal = mock(Principal.class);
         final UserLogin userLogin = mock(UserLogin.class);
         when(home.getName()).thenReturn("name");
         when(userLogin.getUserLoginSeq()).thenReturn(1L);
         when(this.userLoginService.findByUsername(any())).thenReturn(Optional.of(userLogin));
         when(this.homeService.upsert(any(), any())).thenReturn(home);
-        final ResponseEntity<Home> actual = this.homeRest.upsert(home, principal);
-        verify(this.homeService).upsert(eq("name"), eq(1L));
+        when(this.dtoEntityMapper.map(homeDto, Home.class)).thenReturn(home);
+        final ResponseEntity<Home> actual = this.homeRest.upsert(homeDto, principal);
+        verify(this.homeService, times(1)).upsert("name", 1L);
+        verify(this.dtoEntityMapper, times(1)).map(homeDto, Home.class);
         assertAll(
                 () -> assertThat(actual.getBody(), is(equalTo(home))),
                 () -> assertThat(actual.getStatusCodeValue(), is(equalTo(200)))
@@ -76,15 +85,17 @@ class HomeRestTest {
     }
 
     /**
-     * Tests the method {@link HomeRest#upsert(Home, Principal)} with invalid input. In this case, the user trying to
+     * Tests the method {@link HomeRest#upsert(HomeDto, Principal)} with invalid input. In this case, the user trying to
      * insert or update a home is invalid. This method should throw {@link IllegalArgumentException} in this case.
      */
     @Test
     void testUpsertBadRequest() {
-        final Home home = mock(Home.class);
+        final HomeDto homeDto = mock(HomeDto.class);
         final Principal principal = mock(Principal.class);
         when(this.userLoginService.findByUsername(any())).thenReturn(Optional.empty());
-        final ResponseEntity<Home> actual = this.homeRest.upsert(home, principal);
+        when(this.dtoEntityMapper.map(homeDto, Home.class)).thenReturn(mock(Home.class));
+        final ResponseEntity<Home> actual = this.homeRest.upsert(homeDto, principal);
+        verify(this.homeService, never()).upsert(any(), any());
         assertAll(
                 () -> assertNull(actual.getBody()),
                 () -> assertThat(actual.getStatusCodeValue(), is(equalTo(400)))
@@ -92,39 +103,42 @@ class HomeRestTest {
     }
 
     /**
-     * Tests the method {@link HomeRest#upsert(Home, Principal)} with invalid (null) inputs. This method should throw an
-     * {@link IllegalArgumentException} in this case.
-     * @param home a mock {@link Home}
+     * Tests the method {@link HomeRest#upsert(HomeDto, Principal)} with invalid (null) inputs. This method should throw
+     * an {@link IllegalArgumentException} in this case.
+     * @param homeDto a mock {@link HomeDto}
      * @param principal a mock {@link Principal}
      */
     @ParameterizedTest
     @MethodSource("getTestUpsertNullArgsParams")
-    void testUpsertNullArgs(final Home home, final Principal principal) {
-        assertThrows(IllegalArgumentException.class, () -> this.homeRest.upsert(home, principal));
+    void testUpsertNullArgs(final HomeDto homeDto, final Principal principal) {
+        assertThrows(IllegalArgumentException.class, () -> this.homeRest.upsert(homeDto, principal));
     }
 
     public static Stream<Arguments> getTestUpsertNullArgsParams() {
         return Stream.of(
                 Arguments.of(null, null),
                 Arguments.of(null, mock(Principal.class)),
-                Arguments.of(mock(Home.class), null)
+                Arguments.of(mock(HomeDto.class), null)
         );
     }
 
     /**
-     * Tests the method {@link HomeRest#search(Home, Principal)}. This method should return a {@link ResponseEntity}
+     * Tests the method {@link HomeRest#search(HomeDto, Principal)}. This method should return a {@link ResponseEntity}
      * with a {@link List} of {@link Home} that were found matching the input criteria.
      */
     @Test
     void testSearch() {
         final Home home = mock(Home.class);
+        final HomeDto homeDto = mock(HomeDto.class);
         final List<Home> homeSingletonList = Collections.singletonList(home);
         final List<Long> homeSeqs = Collections.singletonList(1L);
         final Principal principal = mock(Principal.class);
         when(this.homeService.performHomeSearch(any(), any())).thenReturn(homeSingletonList);
         when(this.restUtils.getHomeSeqs(any())).thenReturn(homeSeqs);
-        final ResponseEntity<List<Home>> actual = this.homeRest.search(home, principal);
-        verify(this.homeService).performHomeSearch(eq(home), eq(homeSeqs));
+        when(this.dtoEntityMapper.map(homeDto, Home.class)).thenReturn(home);
+        final ResponseEntity<List<Home>> actual = this.homeRest.search(homeDto, principal);
+        verify(this.homeService, times(1)).performHomeSearch(home, homeSeqs);
+        verify(this.dtoEntityMapper, times(1)).map(homeDto, Home.class);
         assertAll(
                 () -> assertThat(actual.getBody(), is(equalTo(homeSingletonList))),
                 () -> assertThat(actual.getStatusCodeValue(), is(equalTo(200)))
@@ -132,12 +146,12 @@ class HomeRestTest {
     }
 
     /**
-     * Tests the method {@link HomeRest#search(Home, Principal)} with invalid input. In this case, somehow spring has
+     * Tests the method {@link HomeRest#search(HomeDto, Principal)} with invalid input. In this case, somehow spring has
      * not provided a principal. This method should throw {@link IllegalArgumentException} in this case.
      */
     @Test
     @SuppressWarnings("ConstantConditions")
     void testSearchNullPrincipal() {
-        assertThrows(IllegalArgumentException.class, () -> this.homeRest.search(mock(Home.class), null));
+        assertThrows(IllegalArgumentException.class, () -> this.homeRest.search(mock(HomeDto.class), null));
     }
 }

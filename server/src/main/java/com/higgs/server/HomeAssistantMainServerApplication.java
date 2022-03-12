@@ -12,36 +12,43 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ConfigurationProperties
-@SuppressWarnings("NonFinalUtilityClass")
 @ComponentScan({ "com.higgs.server", "com.higgs.common" })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HomeAssistantMainServerApplication {
     public static void main(final String... args) {
-        HomeAssistantMainServerApplication.init(ServerVerifier.getInstance(),
+        HomeAssistantMainServerApplication.getInstance().init(ServerVerifier.getInstance(),
                 () -> SpringApplication.run(HomeAssistantMainServerApplication.class, args), args);
     }
 
-    static void init(final ServerVerifier serverVerifier, final Runnable serverInit, final String... args) {
-        HomeAssistantMainServerApplication.loadProperties(args);
-        HomeAssistantMainServerApplication.check(serverVerifier, CheckType.PRE_INITIALIZE);
+    void init(final ServerVerifier serverVerifier, final Runnable serverInit, final String... args) {
+        this.loadProperties(args);
+        this.check(serverVerifier, CheckType.PRE_INITIALIZE);
         serverInit.run();
-        HomeAssistantMainServerApplication.check(serverVerifier, CheckType.POST_INITIALIZE);
+        this.check(serverVerifier, CheckType.POST_INITIALIZE);
     }
 
-    static void check(final ServerVerifier serverVerifier, final CheckType checkType) {
+    void check(final ServerVerifier serverVerifier, final CheckType checkType) {
         if (!serverVerifier.check(checkType)) {
             throw new CheckFailureException(String.format("System exited with exit code %s", checkType.getExitCode()));
         }
     }
 
-    static void loadProperties(final String... args) {
+    void loadProperties(final String... args) {
         for (final String arg : args) {
             if (arg.contains("=")) {
                 final String[] prop = arg.split("=");
-                System.setProperty(prop[0].substring(arg.startsWith("--") ? 2 : 0), prop[1]);
+                System.setProperty(prop[0].replace("--", ""), prop[1]);
             } else {
-                System.setProperty(arg.replaceAll("--", ""), Boolean.TRUE.toString());
+                System.setProperty(arg.replace("--", ""), Boolean.TRUE.toString());
             }
         }
+    }
+
+    private static class HomeAssistantMainServerApplicationHolder {
+        private static final HomeAssistantMainServerApplication INSTANCE = new HomeAssistantMainServerApplication();
+    }
+
+    public static HomeAssistantMainServerApplication getInstance() {
+        return HomeAssistantMainServerApplicationHolder.INSTANCE;
     }
 }

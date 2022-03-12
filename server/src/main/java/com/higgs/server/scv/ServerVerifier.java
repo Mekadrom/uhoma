@@ -28,14 +28,12 @@ public class ServerVerifier {
         // context object mutable between checks, maintains state
         final VerificationContext verificationContext = this.getVerificationContext(type);
         for (final ServerCheck condition : this.conditions) {
-            if (condition.getType() == type) {
-                if (!condition.check(verificationContext)) {
-                    final Pair<String, Boolean> failureTypeResult = this.fail(verificationContext, condition);
-                    if (failureTypeResult != null) {
-                        ServerVerifier.log.error(failureTypeResult.getLeft());
-                        if (Boolean.TRUE.equals(failureTypeResult.getRight())) {
-                            return false;
-                        }
+            if (condition.getType() == type && !condition.check(verificationContext)) {
+                final Pair<String, Boolean> failureTypeResult = this.fail(verificationContext, condition);
+                if (failureTypeResult != null) {
+                    ServerVerifier.log.error(failureTypeResult.getLeft());
+                    if (Boolean.TRUE.equals(failureTypeResult.getRight())) {
+                        return false;
                     }
                 }
             }

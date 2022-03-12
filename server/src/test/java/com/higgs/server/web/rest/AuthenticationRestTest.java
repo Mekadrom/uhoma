@@ -28,7 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,7 +63,7 @@ class AuthenticationRestTest {
         when(authResult.getJwt()).thenReturn("token");
         when(this.authenticationService.getTokens(any(), any())).thenReturn(authResult);
         final ResponseEntity<UserDetails> actual = this.authenticationRest.login(authRequest);
-        verify(this.authenticationService).getTokens(eq("user"), eq("password"));
+        verify(this.authenticationService).getTokens("user", "password");
         assertAll(
                 () -> assertThat(actual.getBody(), is(equalTo(userDetails))),
                 () -> assertThat(actual.getStatusCodeValue(), is(equalTo(200))),
@@ -98,7 +97,7 @@ class AuthenticationRestTest {
         when(authResult.getJwt()).thenReturn("token");
         when(this.authenticationService.register(any(), any())).thenReturn(authResult);
         final ResponseEntity<UserDetails> actual = this.authenticationRest.register(userRegistrationRequest);
-        verify(this.authenticationService).register(eq("user"), eq("password"));
+        verify(this.authenticationService).register("user", "password");
         assertAll(
                 () -> assertThat(actual.getBody(), is(equalTo(userDetails))),
                 () -> assertThat(actual.getStatusCodeValue(), is(equalTo(200))),
@@ -148,7 +147,7 @@ class AuthenticationRestTest {
         final UserLogin userLogin = mock(UserLogin.class);
         when(this.authenticationService.performUserSearch(any())).thenReturn(userLogin);
         final ResponseEntity<UserDetails> actual = this.authenticationRest.refreshUserView(principal);
-        verify(this.authenticationService).performUserSearch(eq("user"));
+        verify(this.authenticationService).performUserSearch("user");
         assertAll(
                 () -> assertThat(actual.getBody(), is(equalTo(userLogin))),
                 () -> assertThat(actual.getStatusCodeValue(), is(equalTo(200)))

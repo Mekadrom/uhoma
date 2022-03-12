@@ -3,7 +3,7 @@ package com.higgs.server.web.svc;
 import com.higgs.server.db.entity.Home;
 import com.higgs.server.db.entity.UserLogin;
 import com.higgs.server.db.repo.HomeRepository;
-import org.apache.commons.lang3.StringUtils;
+import com.higgs.server.web.svc.util.PersistenceUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,23 +11,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -42,11 +38,14 @@ class HomeServiceTest {
     @Mock
     private HomeRepository homeRepository;
 
+    @Mock
+    private PersistenceUtils persistenceUtils;
+
     private HomeService homeService;
 
     @BeforeEach
     void setUp() {
-        this.homeService = new HomeService(this.homeRepository);
+        this.homeService = new HomeService(this.homeRepository, this.persistenceUtils);
     }
 
     /**
@@ -58,7 +57,7 @@ class HomeServiceTest {
         final Home home = mock(Home.class);
         when(this.homeRepository.getById(1L)).thenReturn(home);
         assertThat(this.homeService.getHome(1L), is(equalTo(home)));
-        verify(this.homeRepository, times(1)).getById(eq(1L));
+        verify(this.homeRepository, times(1)).getById(1L);
     }
 
     /**
@@ -73,7 +72,7 @@ class HomeServiceTest {
         when(this.homeRepository.findByOwnerUserLoginSeq(any())).thenReturn(List.of(home));
         assertThat(this.homeService.getHomesForUser(userLogin), is(equalTo(List.of(home))));
         this.homeService.getHomesForUser(1L);
-        verify(this.homeRepository, times(2)).findByOwnerUserLoginSeq(eq(1L));
+        verify(this.homeRepository, times(2)).findByOwnerUserLoginSeq(1L);
     }
 
     /**
@@ -134,10 +133,13 @@ class HomeServiceTest {
     @Test
     void testPerformHomeSearchHomeSeqAllowed() {
         final Home home = mock(Home.class);
+        final Collection<Long> homeSeqs = List.of(1L);
         when(home.getHomeSeq()).thenReturn(1L);
-        when(this.homeRepository.getById(any())).thenReturn(home);
-        assertThat(this.homeService.performHomeSearch(home, List.of(1L)), is(equalTo(List.of(home))));
-        verify(this.homeRepository, times(1)).getById(eq(1L));
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
+        when(this.homeRepository.findAllById(any())).thenReturn(List.of(home));
+        assertThat(this.homeService.performHomeSearch(home, homeSeqs), is(equalTo(List.of(home))));
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(eq(home), eq(homeSeqs), any());
+        verify(this.homeRepository, times(1)).findAllById(List.of(1L));
     }
 
     /**
@@ -149,9 +151,11 @@ class HomeServiceTest {
         final Home home = mock(Home.class);
         final Collection<Long> homeSeqs = List.of(2L);
         when(home.getHomeSeq()).thenReturn(1L);
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
         when(this.homeRepository.findAllById(any())).thenReturn(List.of(home));
         assertThat(this.homeService.performHomeSearch(home, homeSeqs), is(equalTo(List.of(home))));
-        verify(this.homeRepository, times(1)).findAllById(eq(homeSeqs));
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(eq(home), eq(homeSeqs), any());
+        verify(this.homeRepository, times(1)).findAllById(homeSeqs);
     }
 
     /**
@@ -162,11 +166,10 @@ class HomeServiceTest {
     void testPerformHomeSearchHomeName() {
         final Home home = mock(Home.class);
         final Collection<Long> homeSeqs = List.of(1L);
-        when(home.getHomeSeq()).thenReturn(null);
         when(home.getName()).thenReturn("test");
         when(this.homeRepository.getByNameContainingIgnoreCaseAndHomeSeqIn(any(), any())).thenReturn(List.of(home));
         assertThat(this.homeService.performHomeSearch(home, homeSeqs), is(equalTo(List.of(home))));
-        verify(this.homeRepository, times(1)).getByNameContainingIgnoreCaseAndHomeSeqIn(eq("test"), eq(homeSeqs));
+        verify(this.homeRepository, times(1)).getByNameContainingIgnoreCaseAndHomeSeqIn("test", homeSeqs);
     }
 
     /**
@@ -178,7 +181,9 @@ class HomeServiceTest {
         final Home home = mock(Home.class);
         final Collection<Long> homeSeqs = List.of(1L);
         when(this.homeRepository.findAllById(any())).thenReturn(List.of(home));
+        when(this.persistenceUtils.getByHomeSeqs(any(), any(), any())).thenCallRealMethod();
         assertThat(this.homeService.performHomeSearch(null, homeSeqs), is(equalTo(List.of(home))));
-        verify(this.homeRepository, times(1)).findAllById(eq(homeSeqs));
+        verify(this.persistenceUtils, times(1)).getByHomeSeqs(eq(null), eq(homeSeqs), any());
+        verify(this.homeRepository, times(1)).findAllById(homeSeqs);
     }
 }
