@@ -55,6 +55,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 .map(it -> it.getNativeHeader(HttpHeaders.AUTHORIZATION))
                 .flatMap(it -> it.stream().findAny())
                 .map(this.jwtTokenUtil::removePrefix)
-                .orElseThrow(() -> new BadCredentialsException(String.format(this.WEBSOCKET_MISSING_AUTH_ERROR, accessor.getCommand(), accessor.getSessionId())));
+                .orElseThrow(() -> new BadCredentialsException(String.format(WebSocketAuthInterceptor.WEBSOCKET_MISSING_AUTH_ERROR, accessor.getCommand(), accessor.getSessionId())));
     }
 }

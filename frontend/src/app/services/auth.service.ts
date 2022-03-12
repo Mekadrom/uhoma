@@ -17,6 +17,7 @@ export class AuthService {
               private cookieService: CookieService) { }
 
   public login(username: string, password: string): Observable<HttpResponse<UserView>> {
+    this.logout();
     const obs = this.http.post<UserView>(this.urlProviderService.getLoginUrl(), { username, password }, { observe: 'response' }).pipe(
       retry(1),
       catchError(this.handleError),
@@ -31,6 +32,7 @@ export class AuthService {
   }
 
   public register(username: string, password: string): Observable<HttpResponse<UserView>> {
+    this.logout();
     const obs = this.http.post<UserView>(this.urlProviderService.getRegistrationUrl(), { username, password }, { observe: 'response' }).pipe(
       retry(1),
       catchError(this.handleError),
@@ -60,6 +62,15 @@ export class AuthService {
       return obs;
     }
     return null;
+  }
+
+  private clearBearer(): void {
+    this.cookieService.delete('bearer');
+  }
+
+  public logout(): void {
+    this.clearBearer();
+    this.userProviderService.clear();
   }
 
   private processResponse(resp: HttpResponse<any>): void {

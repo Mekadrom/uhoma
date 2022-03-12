@@ -14,7 +14,8 @@ import { ActionHandlerService, ActionParameterTypeService, AuthService, CommonUt
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements AfterViewInit {
-  public form: FormGroup = new FormGroup({});
+  public loginForm: FormGroup = new FormGroup({});
+  public registerForm: FormGroup = new FormGroup({});
 
   username: string = '';
   password: string = '';
@@ -34,7 +35,11 @@ export class LoginComponent implements AfterViewInit {
               private toastr: ToastrService,
               private userProviderService: UserProviderService,
               private webSocketService: WebSocketService) {
-    this.form = fb.group({
+    this.loginForm = fb.group({
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]]
+    });
+    this.registerForm = fb.group({
       passwordRegister: ['', [Validators.required]],
       passwordRegisterConfirm: ['', [Validators.required]]
     }, {
@@ -82,7 +87,23 @@ export class LoginComponent implements AfterViewInit {
     );
   }
 
-  get formControls(): any {
-    return this.form.controls;
+  get loginFormControls(): any {
+    return this.loginForm.controls;
+  }
+
+  get registerFormControls(): any {
+    return this.registerForm.controls;
+  }
+
+  attemptLogin(): void {
+    if (this.loginForm.valid) {
+      this.login();
+    }
+  }
+
+  attemptRegister(): void {
+    if (this.registerForm.valid) {
+      this.register();
+    }
   }
 }

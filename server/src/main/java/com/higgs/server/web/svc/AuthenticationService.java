@@ -68,7 +68,8 @@ public class AuthenticationService {
         final UserLogin userLogin = this.userLoginService.save(new UserLogin()
                 .setUsername(username)
                 .setPassword(this.passwordEncoder.encode(password))
-                .addRole(Role.USER));
+                .addRole(Role.USER))
+                .setEnabled(true);
         return new AuthResult(this.jwtTokenUtils.generateToken(userLogin), userLogin);
     }
 

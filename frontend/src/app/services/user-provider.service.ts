@@ -17,4 +17,8 @@ export class UserProviderService {
   setUserView(userView: UserView | null | undefined) {
     this.userView = userView;
   }
+
+  public clear(): void {
+    this.userView = null;
+  }
 }
