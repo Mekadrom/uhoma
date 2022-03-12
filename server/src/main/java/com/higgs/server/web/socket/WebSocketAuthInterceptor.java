@@ -21,6 +21,8 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
+    private final String WEBSOCKET_MISSING_AUTH_ERROR = "No valid token found in headers for websocket event type %s in session %s";
+
     private final AuthenticationService authenticationService;
     private final JwtTokenUtils jwtTokenUtil;
 
@@ -53,6 +55,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 .map(it -> it.getNativeHeader(HttpHeaders.AUTHORIZATION))
                 .flatMap(it -> it.stream().findAny())
                 .map(this.jwtTokenUtil::removePrefix)
-                .orElseThrow(() -> new BadCredentialsException("No valid token found in headers"));
+                .orElseThrow(() -> new BadCredentialsException(String.format(this.WEBSOCKET_MISSING_AUTH_ERROR, accessor.getCommand(), accessor.getSessionId())));
     }
 }

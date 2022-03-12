@@ -36,12 +36,12 @@ export class WebSocketService {
           if (nodeSeq) {
             this.client.subscribe("/${nodeSeq}/queue/reply", (message: any) => {
               console.log("node response: " + message.body);
-            });
+            }, { Authorization: 'Bearer ' + jwt });
           }
           if (userLoginSeq) {
             this.client.subscribe("/${userLoginSeq}/queue/reply", (message: any) => {
               console.log("user response: " + message.body);
-            });
+            }, { Authorization: 'Bearer ' + jwt });
           }
         }
       },
