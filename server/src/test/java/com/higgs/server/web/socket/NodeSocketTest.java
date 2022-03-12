@@ -171,6 +171,13 @@ class NodeSocketTest {
         assertThrows(IllegalArgumentException.class, () -> this.nodeSocket.buildHeaderMap(null));
     }
 
+    /**
+     * Test the method {@link NodeSocket#buildHeaderMap(ActionRequest)} with valid input. The method should throw an
+     * {@link IllegalArgumentException} if any of the nodeSeqs on the request are not in the list of allowable nodeSeqs
+     * for the user.
+     * @param nodeSeqsFromRequest A {@link List} of {@link Long}s representing the nodeSeqs from the request.
+     * @param expected Whether an {@link IllegalArgumentException} is expected.
+     */
     @ParameterizedTest
     @MethodSource("getTestValidatePrincipalForNodesParams")
     void testValidatePrincipalForNodes(final List<Long> nodeSeqsFromRequest, final boolean expected) {

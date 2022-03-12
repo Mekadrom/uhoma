@@ -1,22 +1,12 @@
 package com.higgs.server.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
-@Entity
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class ActionDto {
     @NotNull
     private Long actionSeq;

@@ -8,6 +8,7 @@ import com.higgs.server.web.svc.util.UserAlreadyExistsException;
 import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,9 +22,13 @@ import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class AuthenticationService {
+    private static final String TOKEN_GENERATE_FAILED_ERROR = "Failed to generate token for user ";
+    private static final String USER_SEARCH_FAILED_ERROR = "Failed to authenticate user ";
+
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtils jwtTokenUtils;
     private final PasswordEncoder passwordEncoder;
@@ -43,11 +48,12 @@ public class AuthenticationService {
             if (StringUtils.isNotBlank(token)) {
                 return new AuthResult(token, this.userLoginService.save(userLogin.setLastLogin(Date.from(OffsetDateTime.now().toInstant()))));
             } else {
-                throw new JwtException(String.format("Failed to generate token for user %s", user.getUsername()));
-
+                AuthenticationService.log.error(AuthenticationService.TOKEN_GENERATE_FAILED_ERROR + "{}", user.getUsername());
+                throw new JwtException(String.format(AuthenticationService.TOKEN_GENERATE_FAILED_ERROR + "%s", user.getUsername()));
             }
         }
-        throw new BadCredentialsException(String.format("Failed to authenticate user %s", user.getUsername()));
+        AuthenticationService.log.error(AuthenticationService.USER_SEARCH_FAILED_ERROR + "{}", user.getUsername());
+        throw new BadCredentialsException(String.format(AuthenticationService.USER_SEARCH_FAILED_ERROR + "%s", user.getUsername()));
     }
 
     public boolean validate(final String bearer) {
@@ -71,6 +77,7 @@ public class AuthenticationService {
         if (userLogin.isPresent()) {
             return userLogin.get();
         }
-        throw new BadCredentialsException(String.format("Failed to authenticate user %s", name));
+        AuthenticationService.log.error(AuthenticationService.USER_SEARCH_FAILED_ERROR + "{}", name);
+        throw new BadCredentialsException(String.format(AuthenticationService.USER_SEARCH_FAILED_ERROR + "%s", name));
     }
 }
