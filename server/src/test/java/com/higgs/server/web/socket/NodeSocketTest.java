@@ -3,9 +3,9 @@ package com.higgs.server.web.socket;
 import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.kafka.KafkaTopicEnum;
 import com.higgs.common.kafka.ServerProducer;
-import com.higgs.server.db.entity.Action;
-import com.higgs.server.db.entity.ActionHandler;
 import com.higgs.server.db.entity.Node;
+import com.higgs.server.web.dto.ActionDto;
+import com.higgs.server.web.dto.ActionHandlerDto;
 import com.higgs.server.web.dto.ActionRequest;
 import com.higgs.server.web.rest.util.RestUtils;
 import com.higgs.server.web.svc.NodeService;
@@ -72,7 +72,7 @@ class NodeSocketTest {
         final Node node2 = mock(Node.class);
         when(node1.getNodeSeq()).thenReturn(1L);
         when(node2.getNodeSeq()).thenReturn(2L);
-        when(actionRequest.getActionWithParams()).thenReturn(mock(Action.class));
+        when(actionRequest.getActionWithParams()).thenReturn(mock(ActionDto.class));
         when(actionRequest.getToNodeSeq()).thenReturn(1L);
         when(actionRequest.getFromNodeSeq()).thenReturn(2L);
         doCallRealMethod().when(nodeSocketSpy).receiveMessage(any(), any());
@@ -121,8 +121,8 @@ class NodeSocketTest {
     @Test
     void testBuildHeaderMap() {
         final ActionRequest actionRequest = mock(ActionRequest.class);
-        final Action action = mock(Action.class);
-        final ActionHandler actionHandler = mock(ActionHandler.class);
+        final ActionDto action = mock(ActionDto.class);
+        final ActionHandlerDto actionHandler = mock(ActionHandlerDto.class);
         when(actionRequest.getActionWithParams()).thenReturn(action);
         when(action.getActionHandler()).thenReturn(actionHandler);
         when(actionHandler.getDefinition()).thenReturn("test");
@@ -148,8 +148,8 @@ class NodeSocketTest {
     @Test
     void testBuildHeaderMapNullActionDef() {
         final ActionRequest actionRequest = mock(ActionRequest.class);
-        final Action action = mock(Action.class);
-        final ActionHandler actionHandler = mock(ActionHandler.class);
+        final ActionDto action = mock(ActionDto.class);
+        final ActionHandlerDto actionHandler = mock(ActionHandlerDto.class);
         when(actionRequest.getActionWithParams()).thenReturn(action);
         when(action.getActionHandler()).thenReturn(actionHandler);
         when(actionHandler.getDefinition()).thenReturn(null);
@@ -175,6 +175,7 @@ class NodeSocketTest {
      * Test the method {@link NodeSocket#buildHeaderMap(ActionRequest)} with valid input. The method should throw an
      * {@link IllegalArgumentException} if any of the nodeSeqs on the request are not in the list of allowable nodeSeqs
      * for the user.
+     *
      * @param nodeSeqsFromRequest A {@link List} of {@link Long}s representing the nodeSeqs from the request.
      * @param expected Whether an {@link IllegalArgumentException} is expected.
      */

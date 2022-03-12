@@ -41,11 +41,11 @@ public class ActionParameterType implements DtoFilter {
     private String typeDef;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "HOME_SEQ")
     private Home home;
 
     @Override
+    @JsonIgnore
     public Long getHomeSeq() {
         return Optional.ofNullable(this.getHome()).map(Home::getHomeSeq).orElse(null);
     }

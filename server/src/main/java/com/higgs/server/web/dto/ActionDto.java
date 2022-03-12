@@ -19,6 +19,5 @@ public class ActionDto {
 
     private ActionHandlerDto actionHandler;
 
-    @JsonManagedReference
     private Collection<ActionParameterDto> parameters;
 }
