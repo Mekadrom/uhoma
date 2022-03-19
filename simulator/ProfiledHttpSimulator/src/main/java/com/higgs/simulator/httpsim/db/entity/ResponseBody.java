@@ -1,6 +1,7 @@
 package com.higgs.simulator.httpsim.db.entity;
 
-import com.higgs.simulator.httpsim.db.converter.JpaJsonToMapConverter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.higgs.simulator.httpsim.db.converter.JsonMapConverter;
 import lombok.Data;
 
 import javax.annotation.Nullable;
@@ -10,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -21,16 +24,21 @@ import java.util.Map;
 public class ResponseBody {
     @Id
     @NotNull
-    @Column(name = "RESPONSE_BODY_SEQ")
     @SequenceGenerator(name = "SQ_RESPONSE_BODY")
-    @GeneratedValue(generator = "SQ_RESPONSE_BODY", strategy = GenerationType.IDENTITY)
+    @Column(name = "RESPONSE_BODY_SEQ", nullable = false)
+    @GeneratedValue(generator = "SQ_RESPONSE_BODY", strategy = GenerationType.SEQUENCE)
     private Long responseBodySeq;
 
-    @Column(name = "HEADERS")
-    @Convert(converter = JpaJsonToMapConverter.class)
+    @Column(name = "HEADERS", length = 4000)
+    @Convert(converter = JsonMapConverter.class)
     private Map<String, Object> headers;
 
-    @Column(name = "RESPONSE_CODE")
+    @Column(name = "KEYED_FIELD_VALUES", length = 4000)
+    @Convert(converter = JsonMapConverter.class)
+    private Map<String, Object> keyedFieldValues;
+
+    @NotNull
+    @Column(name = "RESPONSE_CODE", nullable = false)
     private int responseCode;
 
     @Nullable
@@ -38,6 +46,8 @@ public class ResponseBody {
     private String body;
 
     @NotNull
-    @Column(name = "ENDPOINT")
-    private String endpoint;
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "RESPONSE_GROUP_SEQ", nullable = false)
+    private ResponseGroup responseGroup;
 }

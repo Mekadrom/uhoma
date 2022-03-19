@@ -144,9 +144,8 @@ pmd {
 
 sonarqube {
     properties {
-        // Insert other SonarQube properties here
         property 'sonar.projectName', 'Home Assistant Main Server'
-        property 'sonar.projectKey', 'server'
+        property 'sonar.projectKey', 'Home-Assistant-Main-Server'
         property 'sonar.projectVersion', version
         property 'sonar.sources', 'src/main'
         property 'sonar.tests', 'src/test'

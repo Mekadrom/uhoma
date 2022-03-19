@@ -1,22 +1,19 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'java'
-apply plugin: SpringBootPlugin
-apply plugin: 'jacoco'
-apply plugin: 'pmd'
-
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
-subprojects {
+subprojects { subproject ->
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'java'
     apply plugin: SpringBootPlugin
     apply plugin: 'jacoco'
     apply plugin: 'pmd'
+    apply plugin: 'com.adarshr.test-logger'
+    apply plugin: 'info.solidsoft.pitest'
+    apply plugin: 'org.sonarqube'
 
     bootJar {
         dependsOn processResources
@@ -25,7 +22,7 @@ subprojects {
 
     processResources {
         filesMatching('**/*.yml') {
-            expand(project.properties)
+            expand(subproject.properties)
             expand(ext.properties)
             expand(gradle.ext.properties)
         }
@@ -35,18 +32,36 @@ subprojects {
         buildInfo()
     }
 
+    sourceSets {
+        itest {
+            java {
+                srcDirs("${subproject.rootDir}src/itest")
+            }
+        }
+    }
+
     test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    task itest(type: Test) {
+        testClassesDirs = sourceSets.itest.output.classesDirs
+        classpath = sourceSets.itest.runtimeClasspath
         useJUnitPlatform()
         finalizedBy jacocoTestReport
     }
 
     jacocoTestReport {
         dependsOn test
+        dependsOn itest
 
-        reports.html.destination file("${gradle.ext.distDir}/jacocoHtml")
+        reports.xml.enabled = true
+        reports.xml.destination file("build/jacoco/test/jacocoXml")
+        reports.html.destination file("build/jacoco/test/jacocoHtml")
 
-        executionData test
-        sourceSets sourceSets.test
+        executionData tasks.withType(Test).findAll { it.state.executed }
+        sourceSets sourceSets.main
     }
 
     jacoco {
@@ -57,20 +72,42 @@ subprojects {
         ruleSets = []
         ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
     }
+
+    pitest {
+        testSourceSets = [sourceSets.test, sourceSets.itest]
+        mainSourceSets = [sourceSets.main]
+        junit5PluginVersion = '0.14'
+        timestampedReports = false
+        outputFormats = ['HTML']
+    }
+
+    sonarqube {
+        properties {
+            property 'sonar.projectName', subproject.projectName
+            property 'sonar.projectKey', subproject.projectKey
+            property 'sonar.sources', 'src/main'
+            property 'sonar.tests', 'src/test'
+            property 'sonar.java.binaries', 'build/classes'
+            property 'sonar.java.test.binaries', 'build/classes'
+            property 'sonar.jdbc.dialect', 'org.h2.Driver'
+            property 'sonar.binaries', 'build/classes'
+            property 'sonar.language', 'java'
+            property 'sonar.sourceEncoding', 'UTF-8'
+            property 'sonar.junit.reportsPath', 'build/test-results'
+            property 'sonar.java.coveragePlugin', 'jacoco'
+            property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+        }
+    }
 }
 
-bootJar {
-    enabled = false
+task pmdMain {
+    dependsOn ':ProfiledHttpSimulator:pmdMain'
 }
 
-bootRun {
-    enabled = false
+task pmdTest {
+    dependsOn ':ProfiledHttpSimulator:pmdTest'
 }
 
-pmdMain {
-    dependsOn 'ProfiledHttpSimulator:pmdMain'
-}
-
-pmdTest {
-    dependsOn 'ProfiledHttpSimulator:pmdTest'
+task build {
+    dependsOn ':ProfiledHttpSimulator:build'
 }
