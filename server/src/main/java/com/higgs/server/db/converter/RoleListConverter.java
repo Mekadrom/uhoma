@@ -16,7 +16,7 @@ public class RoleListConverter implements AttributeConverter<Set<Role>, String> 
         if (CollectionUtils.isEmpty(attribute)) {
             return null;
         }
-        return attribute.stream().map(Role::getRoleName).sorted().reduce((s1, s2) -> s1 + "," + s2).orElse(StringUtils.EMPTY);
+        return attribute.stream().map(Role::getRoleName).collect(Collectors.joining(","));
     }
 
     @Override
