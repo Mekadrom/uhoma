@@ -35,6 +35,10 @@ dependencies {
 
     implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
 
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
 
@@ -74,6 +78,11 @@ springBoot {
     buildInfo()
 }
 
+pmd {
+    ruleSets = []
+    ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
+}
+
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
@@ -108,4 +117,22 @@ jacocoTestReport {
 
 jacoco {
     toolVersion = "0.8.7"
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectName', 'Action Server'
+        property 'sonar.projectKey', 'Action-Server'
+        property 'sonar.sources', 'src/main'
+        property 'sonar.tests', 'src/test'
+        property 'sonar.java.binaries', 'build/classes'
+        property 'sonar.java.test.binaries', 'build/classes'
+        property 'sonar.jdbc.dialect', 'org.h2.Driver'
+        property 'sonar.binaries', 'build/classes'
+        property 'sonar.language', 'java'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.junit.reportsPath', 'build/test-results'
+        property 'sonar.java.coveragePlugin', 'jacoco'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+    }
 }
