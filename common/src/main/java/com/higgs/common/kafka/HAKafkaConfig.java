@@ -23,7 +23,11 @@ public class HAKafkaConfig {
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
-        return new KafkaAdmin(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapAddress));
+        return new KafkaAdmin(this.getConfigMap());
+    }
+
+    Map<String, Object> getConfigMap() {
+        return Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapAddress);
     }
 
     public String resolveTopicKeyReference(final String topicKey) {

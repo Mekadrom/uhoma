@@ -16,12 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @AllArgsConstructor
 public class ExtensionHandler implements Handler<ExtensionHandlerRequest, HandlerResponse> {
-    public static final String EXTENSION_HANDLER = "extension_handler";
+    public static final String NAME = "extension_handler";
 
     private static final Jinjava JINJA_ENGINE = new Jinjava();
 
@@ -35,7 +36,7 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
                                         @NonNull final Map<String, List<String>> headers,
                                         @NonNull final ExtensionHandlerRequest request,
                                         @NonNull final HandlerHandler handlerHandler) {
-        final Optional<? extends Handler<? extends HandlerRequest, ? extends HandlerResponse>> extendsFrom =
+        final Optional<Handler<HandlerRequest, HandlerResponse>> extendsFrom =
                 handlerHandler.findHandlerByName(String.valueOf(handlerDef.getMetadata().get(Handler.EXTENDS_FROM)));
         if (extendsFrom.isPresent()) {
             return this.handleExtensionCall(extendsFrom.get(), handlerDef, headers, request, handlerHandler);
@@ -43,25 +44,41 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
         return Collections.emptyList();
     }
 
-    private List<HandlerResponse> handleExtensionCall(@NonNull final Handler<? extends HandlerRequest, ? extends HandlerResponse> handler,
-                                                      @NonNull final HandlerDefinition handlerDef,
-                                                      @NonNull final Map<String, List<String>> headers,
-                                                      @NonNull final ExtensionHandlerRequest request,
-                                                      @NonNull final HandlerHandler handlerHandler) {
-        final Map<String, Object> mockedRequestBody = new HashMap<>();
+    List<HandlerResponse> handleExtensionCall(@NonNull final Handler<HandlerRequest, HandlerResponse> handler,
+                                              @NonNull final HandlerDefinition extensionHandlerDef,
+                                              @NonNull final Map<String, List<String>> headers,
+                                              @NonNull final ExtensionHandlerRequest request,
+                                              @NonNull final HandlerHandler handlerHandler) {
         final HandlerDefinition prototypeHandlerDef = handler.getPrototypeHandlerDef();
-
-        // for every expected key in the extended handler's prototype definition, get that value from the extension's
-        // handler def and use it as input
-        prototypeHandlerDef.getDef().keySet().forEach(key -> mockedRequestBody.put(key, handlerDef.getDef().get(key)));
-        this.interpolateStringValues(mockedRequestBody, request);
-        return handlerHandler.process(prototypeHandlerDef, headers, mockedRequestBody);
+        return handlerHandler.process(prototypeHandlerDef, headers, this.interpolateFieldValues(this.copyFieldTemplateValues(prototypeHandlerDef, extensionHandlerDef), request));
     }
 
-    private void interpolateStringValues(final Map<String, Object> mockedRequestBody, final ExtensionHandlerRequest request) {
-        mockedRequestBody.entrySet().stream()
+    Map<String, Object> copyFieldTemplateValues(@NonNull final HandlerDefinition prototypeHandlerDef, @NonNull final HandlerDefinition extensionHandlerDef) {
+        return this.copyFieldTemplateValues(prototypeHandlerDef.getDef(), extensionHandlerDef.getDef());
+    }
+
+    /**
+     * @param prototypeDef the handler definition map for the parent handler
+     * @param extensionDef the handler definition map for the child handler
+     * @return a map containing only fields that are expected by the parent handler, to be interpolated
+     */
+    Map<String, Object> copyFieldTemplateValues(@NonNull final Map<String, Object> prototypeDef, @NonNull final Map<String, Object> extensionDef) {
+        // for every expected key in the extended handler's prototype definition, get that value from the extension's
+        // handler def and use it as input
+        return prototypeDef.keySet().stream()
+                .filter(extensionDef.keySet()::contains)
+                .collect(Collectors.toMap(key -> key, extensionDef::get));
+    }
+
+    Map<String, Object> interpolateFieldValues(@NonNull final Map<String, Object> toInterpolate, @NonNull final ExtensionHandlerRequest request) {
+        return toInterpolate.entrySet().stream()
                 .filter(entry -> entry.getValue() instanceof String)
-                .forEach(strEntry -> strEntry.setValue(ExtensionHandler.JINJA_ENGINE.render(((String) strEntry.getValue()), request)));
+                .peek(strEntry -> strEntry.setValue(this.getJinjaEngine().render(((String) strEntry.getValue()), request)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    Jinjava getJinjaEngine() {
+        return ExtensionHandler.JINJA_ENGINE;
     }
 
     @Override
@@ -76,7 +93,7 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
 
     @Override
     public String getName() {
-        return ExtensionHandler.EXTENSION_HANDLER;
+        return ExtensionHandler.NAME;
     }
 
     @Override

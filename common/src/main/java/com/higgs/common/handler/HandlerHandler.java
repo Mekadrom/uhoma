@@ -1,7 +1,6 @@
 package com.higgs.common.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.util.CommonUtils;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class HandlerHandler {
     private final CommonUtils commonUtils;
-    private final List<? extends Handler<? extends HandlerRequest, ? extends HandlerResponse>> handlers;
+    private final List<Handler<HandlerRequest, HandlerResponse>> handlers;
     private final ProxyHandlerGenerator proxyHandlerGenerator;
 
     public List<HandlerResponse> process(@NonNull final Map<String, List<String>> kafkaHeaders,
@@ -26,17 +25,16 @@ public class HandlerHandler {
         return this.process(kafkaHeaders, this.commonUtils.parseMap(body));
     }
 
-    private List<HandlerResponse> process(@NonNull final Map<String, List<String>> headers,
-                                          @NonNull final Map<String, Object> body) throws JsonProcessingException {
+    List<HandlerResponse> process(@NonNull final Map<String, List<String>> headers,
+                                  @NonNull final Map<String, Object> body) throws JsonProcessingException {
         return this.process(this.parseHandlerDef(String.valueOf(headers.get(HAKafkaConstants.HEADER_ACTION_HANDLER_DEF))), headers, body);
     }
 
-    private HandlerDefinition parseHandlerDef(final String handlerDef) throws JsonProcessingException {
-        final ObjectMapper mapper = this.commonUtils.getDefaultMapper();
-        return mapper.readValue(handlerDef, HandlerDefinition.class);
+    HandlerDefinition parseHandlerDef(final String handlerDef) throws JsonProcessingException {
+        return this.commonUtils.getDefaultMapper().readValue(handlerDef, HandlerDefinition.class);
     }
 
-    public List<HandlerResponse> process(@NonNull final HandlerDefinition handlerDef,
+    public List<HandlerResponse> process(final HandlerDefinition handlerDef,
                                          @NonNull final Map<String, List<String>> headers,
                                          @NonNull final Map<String, Object> body) {
         final List<HandlerResponse> responses = new ArrayList<>();
@@ -45,24 +43,24 @@ public class HandlerHandler {
         return responses;
     }
 
-    private List<HandlerResponse> processDefaultHandlers(@NonNull final HandlerDefinition handlerDef,
-                                                         @NonNull final Map<String, List<String>> headers,
-                                                         @NonNull final Map<String, Object> body) {
+    List<HandlerResponse> processDefaultHandlers(final HandlerDefinition handlerDef,
+                                                 @NonNull final Map<String, List<String>> headers,
+                                                 @NonNull final Map<String, Object> body) {
         return this.handlers.stream()
                 .filter(handler -> handler.qualifies(handlerDef))
                 .map(handler -> handler.handle(handlerDef, headers, body, this))
                 .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
-    private List<HandlerResponse> processWithProxyHandlers(@NonNull final HandlerDefinition handlerDef,
-                                                           @NonNull final Map<String, List<String>> headers,
-                                                           @NonNull final Map<String, Object> body) {
+    List<HandlerResponse> processWithProxyHandlers(final HandlerDefinition handlerDef,
+                                                   @NonNull final Map<String, List<String>> headers,
+                                                   @NonNull final Map<String, Object> body) {
         return this.proxyHandlerGenerator.buildProxyHandlers(handlerDef).stream()
                 .map(handler -> handler.handle(handlerDef, headers, body, this))
                 .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
-    public Optional<? extends Handler<? extends HandlerRequest, ? extends HandlerResponse>> findHandlerByName(final String handlerName) {
+    public Optional<Handler<HandlerRequest, HandlerResponse>> findHandlerByName(final String handlerName) {
         return this.handlers.stream().filter(it -> it.getName().equals(handlerName)).findFirst();
     }
 }

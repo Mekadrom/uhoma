@@ -2,6 +2,7 @@ package com.higgs.common.kafka;
 
 import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -19,32 +20,46 @@ public class HAKafkaConsumerConfig {
     private final HAKafkaConfig kafkaConfig;
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(Map.of(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaConfig.getBootstrapAddress(),
-                ConsumerConfig.GROUP_ID_CONFIG, this.kafkaConfig.getConsumer().getGroupId(),
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
-        );
+    public ConsumerFactory<String, String> consumerFactory(final Map<String, Object> configMap) {
+        return new DefaultKafkaConsumerFactory<>(configMap);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-        final ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(this.consumerFactory());
+        return this.configureKafkaListenerContainerFactory(new ConcurrentKafkaListenerContainerFactory<>());
+    }
+
+    ConcurrentKafkaListenerContainerFactory<String, String> configureKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<String, String> factory) {
+        factory.setConsumerFactory(this.consumerFactory(this.getConfigMap()));
         if (this.kafkaConfig.getConsumer().isShouldFilterConsumer()) {
-            factory.setRecordFilterStrategy(record -> Arrays.stream(record.headers().toArray())
-                    .filter(this::toNodeSeqHeaderName)
-                    .anyMatch(this::toNodeSeqHeaderValue));
+            factory.setRecordFilterStrategy(this::recordFilterStrategy);
         }
         return factory;
     }
 
-    private <T extends Header> boolean toNodeSeqHeaderName(final T header) {
+    boolean recordFilterStrategy(final ConsumerRecord<String, String> consumerRecord) {
+        if (consumerRecord.headers() == null) {
+            return false;
+        }
+        return Arrays.stream(consumerRecord.headers().toArray())
+                .filter(this::toNodeSeqHeaderName)
+                .anyMatch(this::toNodeSeqHeaderValue);
+    }
+
+    Map<String, Object> getConfigMap() {
+        return Map.of(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaConfig.getBootstrapAddress(),
+                ConsumerConfig.GROUP_ID_CONFIG, this.kafkaConfig.getConsumer().getGroupId(),
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class
+        );
+    }
+
+    <T extends Header> boolean toNodeSeqHeaderName(final T header) {
         return header.key().equalsIgnoreCase(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ);
     }
 
-    private <T extends Header> boolean toNodeSeqHeaderValue(final T header) {
+    <T extends Header> boolean toNodeSeqHeaderValue(final T header) {
         return "0".equalsIgnoreCase(new String(header.value()));
     }
 }

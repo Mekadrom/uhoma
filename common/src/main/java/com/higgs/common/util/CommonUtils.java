@@ -10,7 +10,6 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,16 +19,16 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class CommonUtils {
     @Getter
+    @NonNull
     private final ObjectMapper defaultMapper = new ObjectMapper();
 
     public Map<String, Object> parseMap(final String jsonBody) throws JsonProcessingException {
-        final TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {};
-        return this.defaultMapper.readValue(jsonBody, typeRef);
+        return this.defaultMapper.readValue(jsonBody, new TypeReference<>() {});
     }
 
     public <V> Map<String, Object> toObjectMap(@NonNull final Map<String, V> map) {
         return map.entrySet().stream()
-                .map(it -> new AbstractMap.SimpleEntry<>(it.getKey(), (Object) it.getValue()))
+                .map(it -> new AbstractMap.SimpleEntry<>(it.getKey(), it.getValue()))
                 .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
     }
 

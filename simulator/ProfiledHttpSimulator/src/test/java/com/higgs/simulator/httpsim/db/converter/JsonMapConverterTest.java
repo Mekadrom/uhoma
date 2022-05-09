@@ -43,7 +43,7 @@ class JsonMapConverterTest {
 
     public static Stream<Arguments> getTestConvertToEntityAttributeParams() {
         return Stream.of(
-                Arguments.of("", null),
+                Arguments.of("", Map.of()),
                 Arguments.of("{}", Map.of()),
                 Arguments.of("{\"key\":\"value\"}", Map.of("key", "value"))
         );

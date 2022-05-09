@@ -14,13 +14,13 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     String IS_EXTENSION = "is_extension";
     String EXTENDS_FROM = "extends_from";
 
-    List<R> handle(@NonNull HandlerDefinition handlerDef, @NonNull Map<String, List<String>> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
+    List<R> handle(HandlerDefinition handlerDef, @NonNull Map<String, List<String>> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
 
     default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody, @NonNull final HandlerHandler handlerHandler) {
         return this.handle(handlerDef, headers, this.processRequest(headers, requestBody), handlerHandler);
     }
 
-    private T processRequest(@NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
+    default T processRequest(@NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
         final T request = this.requestBodyToRequestObj(requestBody);
         request.setToNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ));
         request.setFromNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_SENDING_NODE_SEQ));
@@ -29,7 +29,7 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
         return request;
     }
 
-    private Long getLongHeader(@NonNull final Map<String, List<String>> headers, @NonNull final String headerName) {
+    default Long getLongHeader(@NonNull final Map<String, List<String>> headers, @NonNull final String headerName) {
         return headers.getOrDefault(headerName, new ArrayList<>()).stream()
                 .filter(StringUtils::isNumeric)
                 .map(Long::valueOf)
@@ -47,7 +47,7 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
         return this.isBuiltin(handlerDef.getMetadata());
     }
 
-    private boolean isBuiltin(@NonNull final Map<String, Object> metadataMap) {
+    default boolean isBuiltin(@NonNull final Map<String, Object> metadataMap) {
         return Boolean.TRUE.equals(Boolean.valueOf(String.valueOf(metadataMap.get(Handler.IS_BUILTIN))));
     }
 
@@ -55,7 +55,7 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
         return this.builtinTypeIs(handlerDef.getMetadata(), fieldValue);
     }
 
-    private boolean builtinTypeIs(@NonNull final Map<String, Object> metadataMap, @NonNull final String fieldValue) {
+    default boolean builtinTypeIs(@NonNull final Map<String, Object> metadataMap, @NonNull final String fieldValue) {
         return fieldValue.equals(String.valueOf(metadataMap.get(Handler.BUILTIN_TYPE)));
     }
 
@@ -64,10 +64,14 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     }
 
     default boolean isExtension(@NonNull final HandlerDefinition handlerDef) {
-        return Boolean.TRUE.equals(handlerDef.getMetadata().get(Handler.IS_EXTENSION));
+        return this.isExtension(handlerDef.getMetadata());
     }
 
-    private boolean extendsFrom(@NonNull final Map<String, Object> handlerDef, @NonNull final String fieldValue) {
+    default boolean isExtension(@NonNull final Map<String, Object> metadataMap) {
+        return Boolean.TRUE.equals(Boolean.valueOf(String.valueOf(metadataMap.get(Handler.IS_EXTENSION))));
+    }
+
+    default boolean extendsFrom(@NonNull final Map<String, Object> handlerDef, @NonNull final String fieldValue) {
         return fieldValue.equals(String.valueOf(handlerDef.get(Handler.EXTENDS_FROM)));
     }
 

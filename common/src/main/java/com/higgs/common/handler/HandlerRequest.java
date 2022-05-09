@@ -21,7 +21,7 @@ public abstract class HandlerRequest extends HashMap<String, Object> {
     private String toUsername;
     private String fromUsername;
 
-    public HandlerRequest(final Map<String, Object> input) {
+    protected HandlerRequest(final Map<String, Object> input) {
         super(input);
     }
 }
