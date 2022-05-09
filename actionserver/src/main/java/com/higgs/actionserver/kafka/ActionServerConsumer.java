@@ -6,6 +6,7 @@ import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.kafka.KafkaTopicEnum;
 import com.higgs.common.kafka.ServerProducer;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -33,11 +34,11 @@ public class ActionServerConsumer {
         }
     }
 
-    private void handleResponses(final List<? extends HandlerResponse> responses) {
+    void handleResponses(@NonNull final List<? extends HandlerResponse> responses) {
         responses.stream().filter(HandlerResponse::isExpected).forEach(this::sendResponse);
     }
 
-    private void sendResponse(final HandlerResponse response) {
+    void sendResponse(@NonNull final HandlerResponse response) {
         try {
             this.serverProducer.send(KafkaTopicEnum.NODE_RESPONSE, response, this.buildResponseHeaders(response));
         } catch (final IOException e) {
@@ -45,7 +46,7 @@ public class ActionServerConsumer {
         }
     }
 
-    private Map<String, Object> buildResponseHeaders(final HandlerResponse response) {
+    Map<String, Object> buildResponseHeaders(@NonNull final HandlerResponse response) {
         return Map.of(
                 HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, response.getToNodeSeq(),
                 HAKafkaConstants.HEADER_SENDING_NODE_SEQ, response.getFromNodeSeq(),
