@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -15,6 +16,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests for {@link RoleListConverter}.
@@ -36,15 +38,19 @@ class RoleListConverterTest {
      */
     @ParameterizedTest
     @MethodSource("getTestConvertToDatabaseColumnParams")
-    void testConvertToDatabaseColumn(final Set<Role> input, final String expected) {
-        assertThat(this.converter.convertToDatabaseColumn(input), is(equalTo(expected)));
+    void testConvertToDatabaseColumn(final Set<Role> input, final List<String> expectedToBeIn) {
+        if (expectedToBeIn == null) {
+            assertNull(this.converter.convertToDatabaseColumn(input));
+        } else {
+            assertThat(expectedToBeIn.contains(this.converter.convertToDatabaseColumn(input)), is(true));
+        }
     }
 
     public static Stream<Arguments> getTestConvertToDatabaseColumnParams() {
         return Stream.of(
-                Arguments.of(Set.of(Role.ADMIN), "ROLE_ADMIN"),
-                Arguments.of(Set.of(Role.USER), "ROLE_USER"),
-                Arguments.of(Set.of(Role.ADMIN, Role.USER), "ROLE_ADMIN,ROLE_USER"),
+                Arguments.of(Set.of(Role.ADMIN), List.of("ROLE_ADMIN")),
+                Arguments.of(Set.of(Role.USER), List.of("ROLE_USER")),
+                Arguments.of(Set.of(Role.ADMIN, Role.USER), List.of("ROLE_ADMIN,ROLE_USER", "ROLE_USER,ROLE_ADMIN")),
                 Arguments.of(Set.of(), null),
                 Arguments.of(null, null)
         );

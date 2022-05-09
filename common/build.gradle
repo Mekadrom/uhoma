@@ -6,6 +6,9 @@ apply plugin: 'maven-publish'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: SpringBootPlugin
 apply plugin: 'pmd'
+apply plugin: 'com.adarshr.test-logger'
+apply plugin: 'info.solidsoft.pitest'
+apply plugin: 'org.sonarqube'
 
 repositories {
     mavenCentral()
@@ -14,7 +17,7 @@ repositories {
 dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
 
-    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
@@ -31,6 +34,12 @@ dependencies {
     implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
 
     implementation group: 'com.hubspot.jinjava', name: 'jinjava', version: '2.6.0'
+
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
+    testImplementation "com.github.tomakehurst:wiremock-jre8:2.32.0"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
@@ -68,18 +77,44 @@ publishing {
     }
 }
 
+sourceSets {
+    itest {
+        java {
+            srcDirs("src/itest")
+        }
+    }
+}
+
 test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+pitest {
+    testSourceSets = [sourceSets.test, sourceSets.itest]
+    mainSourceSets = [sourceSets.main]
+    junit5PluginVersion = '0.14'
+    timestampedReports = false
+    outputFormats = ['HTML']
+}
+
+task itest(type: Test) {
+    testClassesDirs = sourceSets.itest.output.classesDirs
+    classpath = sourceSets.itest.runtimeClasspath
     useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
 
 jacocoTestReport {
     dependsOn test
+    dependsOn itest
 
-    reports.html.destination file("${gradle.ext.distDir}/jacocoHtml")
+    reports.xml.enabled = true
+    reports.xml.destination file("build/jacoco/test/jacocoXml")
+    reports.html.destination file("build/jacoco/test/jacocoHtml")
 
-    executionData test
-    sourceSets sourceSets.test
+    executionData tasks.withType(Test).findAll { it.state.executed }
+    sourceSets sourceSets.main
 }
 
 jacoco {
@@ -89,4 +124,30 @@ jacoco {
 pmd {
     ruleSets = []
     ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
+}
+
+pitest {
+    testSourceSets = [sourceSets.test, sourceSets.itest]
+    mainSourceSets = [sourceSets.main]
+    junit5PluginVersion = '0.14'
+    timestampedReports = false
+    outputFormats = ['HTML']
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectName', 'Common Library'
+        property 'sonar.projectKey', 'Common-Library'
+        property 'sonar.sources', 'src/main'
+        property 'sonar.tests', 'src/test'
+        property 'sonar.java.binaries', 'build/classes'
+        property 'sonar.java.test.binaries', 'build/classes'
+        property 'sonar.jdbc.dialect', 'org.h2.Driver'
+        property 'sonar.binaries', 'build/classes'
+        property 'sonar.language', 'java'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.junit.reportsPath', 'build/test-results'
+        property 'sonar.java.coveragePlugin', 'jacoco'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+    }
 }

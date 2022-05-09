@@ -1,10 +1,13 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
-apply plugin: 'io.spring.dependency-management'
 apply plugin: 'java'
-apply plugin: SpringBootPlugin
 apply plugin: 'jacoco'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: SpringBootPlugin
 apply plugin: 'pmd'
+apply plugin: 'com.adarshr.test-logger'
+apply plugin: 'info.solidsoft.pitest'
+apply plugin: 'org.sonarqube'
 
 repositories {
     mavenLocal()
@@ -42,6 +45,14 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
+sourceSets {
+    itest {
+        java {
+            srcDirs("src/itest")
+        }
+    }
+}
+
 bootJar {
     dependsOn processResources
     archiveFileName = "${archiveBaseName.get()}.jar"
@@ -68,13 +79,31 @@ test {
     finalizedBy jacocoTestReport
 }
 
+pitest {
+    testSourceSets = [sourceSets.test, sourceSets.itest]
+    mainSourceSets = [sourceSets.main]
+    junit5PluginVersion = '0.14'
+    timestampedReports = false
+    outputFormats = ['HTML']
+}
+
+task itest(type: Test) {
+    testClassesDirs = sourceSets.itest.output.classesDirs
+    classpath = sourceSets.itest.runtimeClasspath
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
 jacocoTestReport {
     dependsOn test
+    dependsOn itest
 
-    reports.html.destination file("${gradle.ext.distDir}/jacocoHtml")
+    reports.xml.enabled = true
+    reports.xml.destination file("build/jacoco/test/jacocoXml")
+    reports.html.destination file("build/jacoco/test/jacocoHtml")
 
-    executionData test
-    sourceSets sourceSets.test
+    executionData tasks.withType(Test).findAll { it.state.executed }
+    sourceSets sourceSets.main
 }
 
 jacoco {

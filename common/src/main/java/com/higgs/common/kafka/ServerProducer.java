@@ -3,6 +3,7 @@ package com.higgs.common.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
@@ -16,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,7 +25,7 @@ public class ServerProducer {
     private final HAKafkaConfig haKafkaConfig;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public Future<SendResult<String, String>> send(final KafkaTopicEnum kafkaProducerEnum, final Object message, final Map<String, Object> headers) throws IOException {
+    public Future<SendResult<String, String>> send(@NonNull final KafkaTopicEnum kafkaProducerEnum, final Object message, @NonNull final Map<String, Object> headers) throws IOException {
         return this.send(
                 this.haKafkaConfig.resolveTopicKeyReference(kafkaProducerEnum.getTopicKey()),
                 kafkaProducerEnum.getKeyMakerFunc().apply(message),
@@ -35,27 +35,27 @@ public class ServerProducer {
         );
     }
 
-    public Future<SendResult<String, String>> send(final String topic, final String key, final String message, final Map<String, Object> headers, final ObjectMapper headerValueSerializer) {
-        final ListenableFuture<SendResult<String, String>> future = this.kafkaTemplate.send(new ProducerRecord<>(topic, 0, key, message, this.convertHeaders(headers, headerValueSerializer)));
+    public Future<SendResult<String, String>> send(final String topic, final String key, final String message, @NonNull final Map<String, Object> headers, @NonNull final ObjectMapper headerValueSerializer) {
+        final ListenableFuture<SendResult<String, String>> future = this.kafkaTemplate.send(new ProducerRecord<>(topic, null, key, message, this.convertHeaders(headers, headerValueSerializer)));
         future.addCallback(this::successCallback, this::failureCallback);
         return future;
     }
 
-    private Collection<Header> convertHeaders(final Map<String, Object> headers, final ObjectMapper headerValueSerializer) {
+    Collection<Header> convertHeaders(@NonNull final Map<String, Object> headers, @NonNull final ObjectMapper headerValueSerializer) {
         return headers.entrySet().stream()
                 .map(it -> this.convertHeader(it, headerValueSerializer))
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private void successCallback(final SendResult<String, String> sendResult) {
+    void successCallback(final SendResult<String, String> sendResult) {
         ServerProducer.log.debug("Kafka event successfully posted on topic \"{}\", partition {} at offset {}", sendResult.getProducerRecord().topic(), sendResult.getRecordMetadata().partition(), sendResult.getRecordMetadata().offset());
     }
 
-    private void failureCallback(final Throwable throwable) {
+    void failureCallback(final Throwable throwable) {
         ServerProducer.log.error(throwable.getMessage(), throwable);
     }
 
-    private Header convertHeader(final Map.Entry<String, Object> header, final ObjectMapper headerValueSerializer) {
+    Header convertHeader(final Map.Entry<String, Object> header, final ObjectMapper headerValueSerializer) {
         return new Header() {
             @Override
             public String key() {

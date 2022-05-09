@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -133,6 +134,7 @@ class AuthenticationServiceTest {
         final UserLogin userLogin = mock(UserLogin.class);
         when(this.userLoginService.findByUsername(any())).thenReturn(Optional.empty());
         when(this.userLoginService.save(any())).thenReturn(userLogin);
+        when(userLogin.setEnabled(anyBoolean())).thenReturn(userLogin);
         when(this.jwtTokenUtils.generateToken(any())).thenReturn("token");
         final AuthResult actual = this.authenticationService.register("user", "password");
         verify(this.userLoginService, times(1)).save(any());

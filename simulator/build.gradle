@@ -101,13 +101,13 @@ subprojects { subproject ->
 }
 
 task pmdMain {
-    dependsOn ':ProfiledHttpSimulator:pmdMain'
+    dependsOn ':simulator:ProfiledHttpSimulator:pmdMain'
 }
 
 task pmdTest {
-    dependsOn ':ProfiledHttpSimulator:pmdTest'
+    dependsOn ':simulator:ProfiledHttpSimulator:pmdTest'
 }
 
 task build {
-    dependsOn ':ProfiledHttpSimulator:build'
+    dependsOn ':simulator:ProfiledHttpSimulator:build'
 }

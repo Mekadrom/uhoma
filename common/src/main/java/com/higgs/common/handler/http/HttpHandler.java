@@ -30,7 +30,9 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerResponse> {
-    static final String HTTP_HANDLER = "http_handler";
+    private static final String CONNECTION_FAILURE_ERROR = "couldn't create connection for url %s";
+
+    static final String NAME = "http_handler";
 
     static final String METHOD_FIELD = "method";
     static final String CONNECT_TYPE_FIELD = "connect_type";
@@ -45,7 +47,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     private static final String OBJECT_TYPE = "object";
 
     static final HandlerDefinition PROTOTYPE_HANDLER_DEF = new HandlerDefinition(
-            Map.of(Handler.IS_BUILTIN, true, Handler.BUILTIN_TYPE, HttpHandler.HTTP_HANDLER),
+            Map.of(Handler.IS_BUILTIN, true, Handler.BUILTIN_TYPE, HttpHandler.NAME),
             Map.of(
                     HttpHandler.METHOD_FIELD, HttpHandler.STRING_TYPE,
                     HttpHandler.CONNECT_TYPE_FIELD, HttpHandler.STRING_TYPE,
@@ -65,44 +67,48 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
                                             @NonNull final Map<String, List<String>> headers,
                                             @NonNull final HttpHandlerRequest request,
                                             @NonNull final HandlerHandler handlerHandler) {
-        HttpURLConnection connection = null;
         final String fullUrl = this.httpHandlerUtil.getFullUrl(request);
         try {
-            final URL url = new URL(fullUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod(request.getHttpMethod().toString());
-            this.setHeaders(connection, request.getHeaders());
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
-
-            this.writeRequest(connection, request);
-            final int responseCode = connection.getResponseCode(); // actually does request
-            if (request.getReturnResponse()) {
-                return List.of(this.buildResponse(responseCode, connection, request));
-            }
-        } catch (final MalformedURLException e) {
-            HttpHandler.log.error(String.format("couldn't create url %s", fullUrl), e);
-        } catch (final IOException e) {
-            HttpHandler.log.error(String.format("couldn't create connection for url %s", fullUrl), e);
-        } finally {
-            if (connection != null) {
+            final HttpURLConnection connection = (HttpURLConnection) this.getUrl(fullUrl).openConnection();
+            try {
+                return this.configureAndHandle(connection, request);
+            } finally {
                 connection.disconnect();
             }
+        } catch (final IOException e) {
+            HttpHandler.log.error(String.format(HttpHandler.CONNECTION_FAILURE_ERROR, fullUrl), e);
         }
         return Collections.emptyList();
     }
 
-    private HttpHandlerResponse buildResponse(final int responseCode, final HttpURLConnection connection, final HttpHandlerRequest request) {
+    URL getUrl(final String fullUrl) throws MalformedURLException {
+        return new URL(fullUrl);
+    }
+
+    List<HttpHandlerResponse> configureAndHandle(@NonNull final HttpURLConnection connection, @NonNull final HttpHandlerRequest request) throws IOException {
+        this.setHeaders(connection, request.getHeaders());
+
+        connection.setRequestMethod(Optional.ofNullable(request.getHttpMethod()).map(Enum::toString).orElse("GET"));
+        connection.setUseCaches(false);
+        connection.setDoOutput(true);
+
+        this.writeRequest(connection, request);
+        final int responseCode = connection.getResponseCode(); // actually does request
+        if (request.getReturnResponse()) {
+            return List.of(this.buildResponse(responseCode, connection, request));
+        }
+        return Collections.emptyList();
+    }
+
+    HttpHandlerResponse buildResponse(final int responseCode, final HttpURLConnection connection, final HttpHandlerRequest request) {
         final HttpHandlerResponse handlerResponse = new HttpHandlerResponse(request);
         handlerResponse.setResponseCode(responseCode);
-
-        final String response = this.getResponse(connection, request);
-        handlerResponse.setBody(response);
+        handlerResponse.setBody(this.getResponse(connection, request));
         handlerResponse.setHeaders(connection.getHeaderFields());
         return handlerResponse;
     }
 
-    private String getResponse(final HttpURLConnection connection, final HttpHandlerRequest request) {
+    String getResponse(final HttpURLConnection connection, final HttpHandlerRequest request) {
         try {
             final InputStream is = connection.getInputStream();
             try (final BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
@@ -119,14 +125,14 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
         return null;
     }
 
-    private void writeRequest(final HttpURLConnection connection, final HttpHandlerRequest request) {
+    void writeRequest(final HttpURLConnection connection, final HttpHandlerRequest request) {
         final String requestBody = request.getBody();
         if (StringUtils.isNotBlank(requestBody)) {
-            this.writeRequest(connection, this.httpHandlerUtil.getFullUrl(request), request.getBody());
+            this.writeRequest(connection, this.httpHandlerUtil.getFullUrl(request), requestBody);
         }
     }
 
-    private void writeRequest(final HttpURLConnection connection, final String url, final String requestBody) {
+    void writeRequest(final HttpURLConnection connection, final String url, final String requestBody) {
         try (final DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream())) {
             dataOutputStream.writeBytes(requestBody);
         } catch (final IOException e) {
@@ -156,6 +162,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
 
     Map<String, Object> mergeValuesOntoDefTemplate(final HandlerDefinition handlerDef, final Map<String, Object> requestBody) {
         final Map<String, Object> map = new HashMap<>();
+
         // only put keys which exist in the handler def
         requestBody.entrySet().stream()
                 .filter(e -> handlerDef.getDef().containsKey(e.getKey()))
@@ -166,7 +173,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
 
     @Override
     public String getName() {
-        return HttpHandler.HTTP_HANDLER;
+        return HttpHandler.NAME;
     }
 
     @Override

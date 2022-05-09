@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -37,8 +38,7 @@ public class HttpHandlerUtil {
     public boolean typeMatches(final Object expectedType, final Object value) {
         if (expectedType instanceof String expectedTypeString) {
             return this.typeMatches(expectedTypeString, value);
-        } else if (expectedType instanceof Class expectedTypeClass) {
-            // noinspection unchecked
+        } else if (expectedType instanceof Class<?> expectedTypeClass) {
             return expectedTypeClass.isAssignableFrom(value.getClass());
         } else {
             return expectedType.getClass().isAssignableFrom(value.getClass());
@@ -46,16 +46,16 @@ public class HttpHandlerUtil {
     }
 
     private boolean typeMatches(final String expectedType, final Object value) {
-        return switch (expectedType) {
-            case "string", "STRING" -> String.class.isAssignableFrom(value.getClass());
-            case "number", "NUMBER" -> this.isAssignableFromAny(value.getClass(), Number.class, int.class, double.class, byte.class, short.class, long.class);
-            case "object", "OBJECT" -> Map.class.isAssignableFrom(value.getClass());
-            case "boolean", "BOOLEAN", "bool", "BOOL" -> this.isAssignableFromAny(value.getClass(), Boolean.class, boolean.class);
+        return switch (expectedType.toLowerCase(Locale.ROOT)) {
+            case "string" -> String.class.isAssignableFrom(value.getClass());
+            case "number" -> this.isAssignableFromAny(value.getClass(), Number.class, int.class, double.class, byte.class, short.class, long.class);
+            case "object" -> Map.class.isAssignableFrom(value.getClass());
+            case "boolean", "bool" -> this.isAssignableFromAny(value.getClass(), Boolean.class, boolean.class);
             default -> throw new IllegalArgumentException("unexpected template data type");
         };
     }
 
     private boolean isAssignableFromAny(final Class<?> actualClass, final Class<?>... classes) {
-        return Arrays.stream(classes).anyMatch(cla$$ -> cla$$.isAssignableFrom(actualClass));
+        return Arrays.stream(classes).anyMatch(cla -> cla.isAssignableFrom(actualClass));
     }
 }
