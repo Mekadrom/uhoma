@@ -49,6 +49,8 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
+project.buildDir = file("${gradle.ext.distDir.path}/actionserver/build")
+
 sourceSets {
     itest {
         java {
@@ -83,6 +85,10 @@ pmd {
     ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
 }
 
+clean {
+    delete(files('build'))
+}
+
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
@@ -94,6 +100,7 @@ pitest {
     junit5PluginVersion = '0.14'
     timestampedReports = false
     outputFormats = ['HTML']
+    reportDir = file("${project.buildDir.path}/reports/pitest")
 }
 
 task itest(type: Test) {
@@ -108,8 +115,8 @@ jacocoTestReport {
     dependsOn itest
 
     reports.xml.enabled = true
-    reports.xml.destination file("build/jacoco/test/jacocoXml")
-    reports.html.destination file("build/jacoco/test/jacocoHtml")
+    reports.xml.destination file("${project.buildDir.path}/jacoco/test/jacocoXml")
+    reports.html.destination file("${project.buildDir.path}/jacoco/test/jacocoHtml")
 
     executionData tasks.withType(Test).findAll { it.state.executed }
     sourceSets sourceSets.main
@@ -123,16 +130,17 @@ sonarqube {
     properties {
         property 'sonar.projectName', 'Action Server'
         property 'sonar.projectKey', 'Action-Server'
+        property 'sonar.login', gradle.ext.actionserver_sonar_login
         property 'sonar.sources', 'src/main'
         property 'sonar.tests', 'src/test'
-        property 'sonar.java.binaries', 'build/classes'
-        property 'sonar.java.test.binaries', 'build/classes'
+        property 'sonar.java.binaries', "${gradle.ext.distDir.path}/actionserver/build/classes"
+        property 'sonar.java.test.binaries', "${gradle.ext.distDir.path}/actionserver/build/classes"
         property 'sonar.jdbc.dialect', 'org.h2.Driver'
-        property 'sonar.binaries', 'build/classes'
+        property 'sonar.binaries', "${gradle.ext.distDir.path}/actionserver/build/classes"
         property 'sonar.language', 'java'
         property 'sonar.sourceEncoding', 'UTF-8'
-        property 'sonar.junit.reportsPath', 'build/test-results'
+        property 'sonar.junit.reportsPath', "${gradle.ext.distDir.path}/actionserver/build/test-results"
         property 'sonar.java.coveragePlugin', 'jacoco'
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+        property 'sonar.coverage.jacoco.xmlReportPaths', "${gradle.ext.distDir.path}/actionserver/build/jacoco/test/jacocoXml"
     }
 }

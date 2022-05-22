@@ -1,14 +1,8 @@
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-}
-
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '6.3.0'
-    id 'org.springframework.boot' version '2.5.0'
     id 'pmd'
+    id 'io.freefair.lombok' version '6.3.0' apply false
+    id 'org.springframework.boot' version '2.5.0' apply false
     id 'com.adarshr.test-logger' version '3.2.0' apply false
     id 'info.solidsoft.pitest' version '1.7.0' apply false
     id 'org.sonarqube' version '3.3' apply false
@@ -36,74 +30,54 @@ repositories {
     mavenCentral()
 }
 
-task buildAll {
-    dependsOn ordered(':common:build', ':common:publishToMavenLocal', ':server:bootJar', ':simulator:build', ':actionserver:bootJar')
+compileJava.enabled = false
+compileTestJava.enabled = false
+
+build {
+    dependsOn ordered(':common:publishToMavenLocal', ':server:build', ':simulator:build', ':actionserver:build', project.hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev')
+    doLast {
+        delete files('build/tmp', 'build/lombok', 'build/libs')
+    }
 }
 
-compileJava {
-    enabled = false
+task distribute {
+    dependsOn ordered(':common:jar', ':server:bootJar', ':simulator:jar', ':actionserver:bootJar', project.hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev')
+    doLast {
+        delete files('build/tmp', 'build/lombok', 'build/libs')
+    }
+}
+
+task reports {
+    dependsOn ':clean'
+    dependsOn ':pmdMain'
+    dependsOn ':pmdTest'
+    dependsOn ':pmdItest'
+    dependsOn ':test'
+    dependsOn ':itest'
+    dependsOn ':pitest'
 }
 
 clean {
+    doFirst {
+        delete files(gradle.ext.distDir.path)
+    }
     dependsOn ':common:clean'
     dependsOn ':server:clean'
     dependsOn ':simulator:clean'
     dependsOn ':actionserver:clean'
     dependsOn ':frontend:clean'
-    doFirst {
-        delete "${gradle.ext.distDir}"
-    }
-}
-
-task distribute {
-    dependsOn ordered(':clean', ':buildAll', project.hasProperty('buildProd') ? ':frontend:buildFrontend' : ':frontend:buildFrontendDev')
-    finalizedBy 'copyToDist'
-}
-
-task copyToDist(type: Copy) {
-    doFirst {
-        mkdir "${gradle.ext.distDir}"
-
-        subprojects.stream().forEach {
-            mkdir "${gradle.ext.distDir}/${it.name}"
-        }
-    }
-
-    into("${gradle.ext.distDir}")
-
-    // only include fatjars
-    ['server', 'actionserver'].forEach { proj ->
-        into("${proj}") {
-            with copySpec {
-                from("${proj}/build/libs") {
-                    exclude '*-*'
-                }
-            }
-        }
-    }
-
-    // include all libs
-    ['common'].forEach { proj ->
-        into("${proj}") {
-            with copySpec {
-                from("${proj}/build/libs")
-            }
-        }
-    }
-
-    // not a jar
-    into('frontend') {
-        with copySpec {
-            from('frontend/dist/frontend')
-        }
-    }
 }
 
 test {
     dependsOn ':actionserver:test'
     dependsOn ':common:test'
-    dependsOn ':frontend:test'
     dependsOn ':server:test'
+}
+
+task itest {
+    dependsOn ':actionserver:itest'
+    dependsOn ':common:itest'
+    dependsOn ':server:itest'
 }
 
 pmdMain {
@@ -120,16 +94,37 @@ pmdTest {
     dependsOn ':actionserver:pmdTest'
 }
 
+task pmdItest {
+    dependsOn ':common:pmdItest'
+    dependsOn ':server:pmdItest'
+    dependsOn ':simulator:pmdItest'
+    dependsOn ':actionserver:pmdItest'
+}
+
+task pitest {
+    dependsOn ':common:pitest'
+    dependsOn ':server:pitest'
+    dependsOn ':simulator:pitest'
+    dependsOn ':actionserver:pitest'
+}
+
+task sonarqube {
+    dependsOn ':common:sonarqube'
+    dependsOn ':server:sonarqube'
+    dependsOn ':simulator:sonarqube'
+    dependsOn ':actionserver:sonarqube'
+}
+
 task buildServerImage(type: Exec) {
     dependsOn distribute
     executable = "${gradle.ext.imgBuildExec}"
-    args = ['build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir}/server/"]
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/server/build/libs/"]
 }
 
 task buildFrontendImage(type: Exec) {
     dependsOn distribute
     executable = "${gradle.ext.imgBuildExec}"
-    args = ['build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir}/frontend/"]
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/frontend/dist/frontend/"]
 }
 
 task pushServerImageToMinikube(type: Exec) {
@@ -179,12 +174,12 @@ task copyKustomizationFiles(type: Copy) {
         expand(ext.properties)
         expand(gradle.ext.properties)
     }
-    into 'dist/kubernetes'
+    into "${gradle.ext.distDir.path}/kubernetes/"
 }
 
 task kustomize(type: Exec) {
     dependsOn copyKustomizationFiles
-    workingDir = 'dist/kubernetes/'
+    workingDir = "${gradle.ext.distDir.path}/kubernetes/"
     executable = "${gradle.ext.kubeCmdExec}"
     args = ['kustomize', '-o', 'deployment.yml']
 }
@@ -195,7 +190,7 @@ task createSecret(type: Exec) {
 }
 
 task kubeApply(type: Exec) {
-    workingDir = "${gradle.ext.distDir}/kubernetes/"
+    workingDir = "${gradle.ext.distDir.path}/kubernetes/"
     executable = "${gradle.ext.kubeCmdExec}"
     args = ['apply', '-f', 'deployment.yml']
 }
