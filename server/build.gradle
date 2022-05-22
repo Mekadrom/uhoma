@@ -15,9 +15,9 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    compileOnly 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
@@ -52,9 +52,9 @@ dependencies {
 
     implementation group: 'com.higgs', name: 'common', version: version
 
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
 
     testImplementation 'com.h2database:h2'
 
@@ -63,7 +63,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.3.1'
@@ -71,6 +70,8 @@ dependencies {
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
+
+project.buildDir = file("${gradle.ext.distDir.path}/server/build")
 
 sourceSets {
     itest {
@@ -101,6 +102,10 @@ springBoot {
     buildInfo()
 }
 
+clean {
+    delete(files('build'))
+}
+
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
@@ -112,6 +117,7 @@ pitest {
     junit5PluginVersion = '0.14'
     timestampedReports = false
     outputFormats = ['HTML']
+    reportDir = file("${project.buildDir.path}/reports/pitest")
 }
 
 task itest(type: Test) {
@@ -126,8 +132,8 @@ jacocoTestReport {
     dependsOn itest
 
     reports.xml.enabled = true
-    reports.xml.destination file("build/jacoco/test/jacocoXml")
-    reports.html.destination file("build/jacoco/test/jacocoHtml")
+    reports.xml.destination file("${project.buildDir.path}/jacoco/test/jacocoXml")
+    reports.html.destination file("${project.buildDir.path}/jacoco/test/jacocoHtml")
 
     executionData tasks.withType(Test).findAll { it.state.executed }
     sourceSets sourceSets.main
@@ -146,17 +152,18 @@ sonarqube {
     properties {
         property 'sonar.projectName', 'Home Assistant Main Server'
         property 'sonar.projectKey', 'Home-Assistant-Main-Server'
+        property 'sonar.login', gradle.ext.server_sonar_login
         property 'sonar.projectVersion', version
         property 'sonar.sources', 'src/main'
         property 'sonar.tests', 'src/test'
-        property 'sonar.java.binaries', 'build/classes'
-        property 'sonar.java.test.binaries', 'build/classes'
+        property 'sonar.java.binaries', "${gradle.ext.distDir.path}/server/build/classes"
+        property 'sonar.java.test.binaries', "${gradle.ext.distDir.path}/server/build/classes"
         property 'sonar.jdbc.dialect', 'org.postgresql.Driver'
-        property 'sonar.binaries', 'build/classes'
+        property 'sonar.binaries', "${gradle.ext.distDir.path}/server/build/classes"
         property 'sonar.language', 'java'
         property 'sonar.sourceEncoding', 'UTF-8'
-        property 'sonar.junit.reportsPath', 'build/test-results'
+        property 'sonar.junit.reportsPath', "${gradle.ext.distDir.path}/server/build/test-results"
         property 'sonar.java.coveragePlugin', 'jacoco'
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+        property 'sonar.coverage.jacoco.xmlReportPaths', "${gradle.ext.distDir.path}/server/build/jacoco/test/jacocoXml"
     }
 }

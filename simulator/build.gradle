@@ -15,6 +15,8 @@ subprojects { subproject ->
     apply plugin: 'info.solidsoft.pitest'
     apply plugin: 'org.sonarqube'
 
+    subproject.buildDir = file("${gradle.ext.distDir.path}/simulator/${subproject.name}/build")
+
     bootJar {
         dependsOn processResources
         archiveFileName = "${archiveBaseName.get()}.jar"
@@ -35,9 +37,13 @@ subprojects { subproject ->
     sourceSets {
         itest {
             java {
-                srcDirs("${subproject.rootDir}src/itest")
+                srcDirs("src/itest")
             }
         }
+    }
+
+    clean {
+        delete(files('build'))
     }
 
     test {
@@ -57,8 +63,8 @@ subprojects { subproject ->
         dependsOn itest
 
         reports.xml.enabled = true
-        reports.xml.destination file("build/jacoco/test/jacocoXml")
-        reports.html.destination file("build/jacoco/test/jacocoHtml")
+        reports.xml.destination file("${subproject.buildDir.path}/jacoco/test/jacocoXml")
+        reports.html.destination file("${subproject.buildDir.path}/jacoco/test/jacocoHtml")
 
         executionData tasks.withType(Test).findAll { it.state.executed }
         sourceSets sourceSets.main
@@ -79,39 +85,59 @@ subprojects { subproject ->
         junit5PluginVersion = '0.14'
         timestampedReports = false
         outputFormats = ['HTML']
+        reportDir = file("${subproject.buildDir.path}/reports/pitest")
     }
 
     sonarqube {
         properties {
             property 'sonar.projectName', subproject.projectName
             property 'sonar.projectKey', subproject.projectKey
+            property 'sonar.login', "${gradle.ext.simulator_sonar_login}"
             property 'sonar.sources', 'src/main'
             property 'sonar.tests', 'src/test'
-            property 'sonar.java.binaries', 'build/classes'
-            property 'sonar.java.test.binaries', 'build/classes'
+            property 'sonar.java.binaries', "${gradle.ext.distDir.path}/simulator/${subproject.name}/build/classes"
+            property 'sonar.java.test.binaries', "${gradle.ext.distDir.path}/simulator/${subproject.name}/build/classes"
             property 'sonar.jdbc.dialect', 'org.h2.Driver'
-            property 'sonar.binaries', 'build/classes'
+            property 'sonar.binaries', "${gradle.ext.distDir.path}/simulator/${subproject.name}/build/classes"
             property 'sonar.language', 'java'
             property 'sonar.sourceEncoding', 'UTF-8'
-            property 'sonar.junit.reportsPath', 'build/test-results'
-            property 'sonar.java.coveragePlugin', 'jacoco'
-            property 'sonar.coverage.jacoco.xmlReportPaths', 'build/jacoco/test/jacocoXml'
+            property 'sonar.junit.reportsPath', "${gradle.ext.distDir.path}/simulator/${subproject.name}/build/test-results"
+            property 'sonar.java.coveragePlugin', "jacoco"
+            property 'sonar.coverage.jacoco.xmlReportPaths', "${gradle.ext.distDir.path}/simulator/${subproject.name}/build/jacoco/test/jacocoXml"
         }
     }
 }
 
 task clean {
-    dependsOn ':simulator:ProfiledHttpSimulator:clean'
+    dependsOn subprojects.collect { it.clean }
+    delete(files('build'))
 }
 
 task pmdMain {
-    dependsOn ':simulator:ProfiledHttpSimulator:pmdMain'
+    dependsOn subprojects.collect { it.pmdMain }
 }
 
 task pmdTest {
-    dependsOn ':simulator:ProfiledHttpSimulator:pmdTest'
+    dependsOn subprojects.collect { it.pmdTest }
+}
+
+task pmdItest {
+    dependsOn subprojects.collect { it.pmdItest }
+}
+
+task pitest {
+    // this one doesn't work the other way for some reason
+    dependsOn subprojects.collect { ':simulator:' + it.name + ':pitest' }
+}
+
+task sonarqube {
+    dependsOn subprojects.collect {':simulator:' + it.name + ':sonarqube' }
 }
 
 task build {
-    dependsOn ':simulator:ProfiledHttpSimulator:build'
+    dependsOn subprojects.collect { it.build }
+}
+
+task jar {
+    dependsOn subprojects.collect { it.jar }
 }

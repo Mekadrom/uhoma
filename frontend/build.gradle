@@ -7,18 +7,31 @@ node {
   download = true
 }
 
+task copyDistToMainDist(type: Copy) {
+  from "${projectDir}/dist"
+  into "${gradle.ext.distDir.path}/frontend/dist"
+}
+
 task buildFrontendDev(type: NpmTask, dependsOn: 'npmInstall') {
   group = 'build'
   description = 'Compile client side assets for development'
   args = ['run', 'buildDev']
+  finalizedBy copyDistToMainDist
 }
 
 task buildFrontend(type: NpmTask, dependsOn: 'npmInstall') {
   group = 'build'
   description = 'Compile client side assets for production'
   args = ['run', 'build']
+  finalizedBy copyDistToMainDist
 }
 
 task clean(type: Delete) {
   delete "${projectDir}/dist"
+}
+
+task test(type: NpmTask, dependsOn: 'npmInstall') {
+  group = 'test'
+  description = 'Run tests'
+  args = ['run', 'test']
 }
