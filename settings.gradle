@@ -12,3 +12,6 @@ def includeProject(projectName) {
     include projectName
     project(':' + projectName).projectDir = file(projectName.replace(":", File.separator))
 }
+
+enableFeaturePreview('TYPESAFE_PROJECT_ACCESSORS')
+enableFeaturePreview('VERSION_CATALOGS')

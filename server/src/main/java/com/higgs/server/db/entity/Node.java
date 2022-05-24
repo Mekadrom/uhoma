@@ -1,6 +1,7 @@
 package com.higgs.server.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Optional;
 

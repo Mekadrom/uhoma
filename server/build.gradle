@@ -15,63 +15,50 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor libs.lombok
 
-    compileOnly 'org.projectlombok:lombok:1.18.24'
+    compileOnly libs.lombok
 
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
-
-    implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
-
-    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-
-    implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.8'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-
-    implementation 'org.postgresql:postgresql'
-
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-
-    implementation 'com.h2database:h2'
-
-    implementation('org.springframework.boot:spring-boot-starter-web') {
+    implementation libs.bundles.jackson
+    implementation libs.commons.collections4
+    implementation libs.commons.io
+    implementation libs.commons.lang3
+    implementation libs.h2
+    implementation libs.higgs.common
+    implementation libs.jakarta.validation
+    implementation libs.javax.servlet
+    implementation libs.jjwt
+    implementation libs.postgresql
+    implementation libs.spring.boot.starter.data.jdbc
+    implementation libs.spring.boot.starter.data.jpa
+    implementation libs.spring.boot.starter.jdbc
+    implementation libs.spring.boot.starter.oauth2.client
+    implementation libs.spring.boot.starter.security
+    implementation(libs.spring.boot.starter.web) {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
+    implementation libs.spring.boot.starter.websocket
+    implementation libs.spring.kafka
+    implementation libs.spring.webmvc
 
-    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    testAnnotationProcessor libs.lombok
 
-    implementation group: 'com.higgs', name: 'common', version: version
+    testImplementation libs.lombok
 
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testImplementation libs.h2
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.spring.kafka.test
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testImplementation libs.bundles.junit
 
-    testImplementation 'com.h2database:h2'
+    testImplementation libs.bundles.mockito
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.3.1'
-    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '4.3.1'
-
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly libs.spring.boot.devtools
 }
 
 project.buildDir = file("${gradle.ext.distDir.path}/server/build")
+
+defaultTasks 'build'
 
 sourceSets {
     itest {

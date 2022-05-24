@@ -2,6 +2,7 @@ package com.higgs.simulator.httpsim.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -15,7 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data

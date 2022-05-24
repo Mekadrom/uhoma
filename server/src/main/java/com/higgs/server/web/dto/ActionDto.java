@@ -1,9 +1,8 @@
 package com.higgs.server.web.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Data

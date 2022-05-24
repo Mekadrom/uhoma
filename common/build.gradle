@@ -15,40 +15,28 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    annotationProcessor libs.lombok
 
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
-
-    implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.8'
-    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.7.6'
-
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
-    implementation('org.springframework.boot:spring-boot-starter-web') {
+    implementation libs.bundles.jackson
+    implementation libs.commons.lang3
+    implementation libs.jinjava
+    implementation libs.lombok
+    implementation libs.reflections
+    implementation(libs.spring.boot.starter.web) {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
+    implementation libs.spring.webmvc
+    implementation libs.spring.kafka
 
-    implementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
+    testAnnotationProcessor libs.lombok
 
-    implementation group: 'com.hubspot.jinjava', name: 'jinjava', version: '2.6.0'
+    testImplementation libs.bundles.junit
+    testImplementation libs.lombok
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.spring.kafka.test
+    testImplementation libs.wiremock
 
-    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-
-    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-
-    testImplementation "com.github.tomakehurst:wiremock-jre8:2.32.0"
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly libs.spring.boot.devtools
 }
 
 project.buildDir = file("${gradle.ext.distDir.path}/common/build")
