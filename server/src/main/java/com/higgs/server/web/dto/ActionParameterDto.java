@@ -1,10 +1,10 @@
 package com.higgs.server.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
 
 @Data
 public class ActionParameterDto {

@@ -2,6 +2,7 @@ package com.higgs.simulator.httpsim.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.higgs.simulator.httpsim.db.converter.JsonMapConverter;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import javax.annotation.Nullable;
@@ -15,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Data

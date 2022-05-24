@@ -5,6 +5,7 @@ import com.higgs.server.web.dto.AuthResult;
 import com.higgs.server.web.dto.UserRegistrationRequest;
 import com.higgs.server.web.rest.util.AuthSupplier;
 import com.higgs.server.web.svc.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.security.Principal;
 
 @Slf4j

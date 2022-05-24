@@ -1,8 +1,8 @@
 package com.higgs.server.web.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Data

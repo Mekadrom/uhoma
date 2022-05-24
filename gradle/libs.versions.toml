@@ -1,0 +1,57 @@
+[versions]
+commons-collections4 = '4.4'
+commons-io = '2.11.0'
+commons-lang3 = '3.12.0'
+h2 = '2.1.212'
+jackson = '2.13.3'
+jakarta-validation = '3.0.1'
+javax-servlet = '4.0.1'
+jinjava = '2.6.0'
+jjwt = '0.9.1'
+junit = '5.7.0'
+lombok = '1.18.24'
+mockito = '4.5.1'
+postgresql = '42.3.5'
+reflections = '0.10.2'
+spring-boot = '2.7.0'
+spring-kafka = '2.8.6'
+spring-webmvc = '5.3.7'
+wiremock = '2.72.2'
+
+[libraries]
+higgs-common = { group = 'com.higgs', name = 'common', version = { strictly = "[1.0.0, 2.0.0[" } }
+commons-collections4 = { group = 'org.apache.commons', name = 'commons-collections4', version.ref = 'commons-collections4' }
+commons-io = { group = 'commons-io', name = 'commons-io', version.ref = 'commons-io' }
+commons-lang3 = { group = 'org.apache.commons', name = 'commons-lang3', version.ref = 'commons-lang3' }
+h2 = { group = 'com.h2database', name = 'h2', version.ref = 'h2' }
+jackson-core = { group = 'com.fasterxml.jackson.core', name = 'jackson-core', version.ref = 'jackson' }
+jackson-databind = { group = 'com.fasterxml.jackson.core', name = 'jackson-databind', version.ref = 'jackson' }
+jakarta-validation = { group = 'jakarta.validation', name = 'jakarta.validation-api', version.ref = 'jakarta-validation' }
+javax-servlet = { group = 'javax.servlet', name = 'javax.servlet-api', version.ref = 'javax-servlet' }
+jinjava = { group = 'com.hubspot.jinjava', name = 'jinjava', version.ref = 'jinjava' }
+jjwt = { group = 'io.jsonwebtoken', name = 'jjwt', version.ref = 'jjwt' }
+junit-api = { group = 'org.junit.jupiter', name = 'junit-jupiter-api', version.ref = 'junit' }
+junit-engine = { group = 'org.junit.jupiter', name = 'junit-jupiter-engine', version.ref = 'junit' }
+lombok = { group = 'org.projectlombok', name = 'lombok', version.ref = 'lombok' }
+mockito-core = { group = 'org.mockito', name = 'mockito-core', version.ref = 'mockito' }
+mockito-junit = { group = 'org.mockito', name = 'mockito-junit-jupiter', version.ref = 'mockito' }
+postgresql = { group = 'org.postgresql', name = 'postgresql', version.ref = 'postgresql' }
+reflections = { group = 'org.reflections', name = 'reflections', version.ref = 'reflections' }
+spring-boot-devtools = { group = 'org.springframework.boot', name = 'spring-boot-devtools', version.ref = 'spring-boot' }
+spring-boot-starter-data-jdbc = { group = 'org.springframework.boot', name = 'spring-boot-starter-data-jdbc', version.ref = 'spring-boot' }
+spring-boot-starter-data-jpa = { group = 'org.springframework.boot', name = 'spring-boot-starter-data-jpa', version.ref = 'spring-boot' }
+spring-boot-starter-jdbc = { group = 'org.springframework.boot', name = 'spring-boot-starter-jdbc', version.ref = 'spring-boot' }
+spring-boot-starter-oauth2-client = { group = 'org.springframework.boot', name = 'spring-boot-starter-oauth2-client', version.ref = 'spring-boot' }
+spring-boot-starter-security = { group = 'org.springframework.boot', name = 'spring-boot-starter-security', version.ref = 'spring-boot' }
+spring-boot-starter-test = { group = 'org.springframework.boot', name = 'spring-boot-starter-test', version.ref = 'spring-boot' }
+spring-boot-starter-web = { group = 'org.springframework.boot', name = 'spring-boot-starter-web', version.ref = 'spring-boot' }
+spring-boot-starter-websocket = { group = 'org.springframework.boot', name = 'spring-boot-starter-websocket', version.ref = 'spring-boot' }
+spring-kafka = { group = 'org.springframework.kafka', name = 'spring-kafka', version.ref = 'spring-kafka' }
+spring-kafka-test = { group = 'org.springframework.kafka', name = 'spring-kafka-test', version.ref = 'spring-kafka' }
+spring-webmvc = { group = 'org.springframework', name = 'spring-webmvc', version.ref = 'spring-webmvc' }
+wiremock = { group = 'com.github.tomakehurst', name = 'wiremock-jre8', version.ref = 'wiremock' }
+
+[bundles]
+jackson = [ 'jackson-core', 'jackson-databind' ]
+junit = [ 'junit-api', 'junit-engine' ]
+mockito = [ 'mockito-core', 'mockito-junit' ]
