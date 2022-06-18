@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,10 +49,9 @@ class ActionServerConsumerTest {
 
     @Test
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     void testListenNodeMessageTopic() {
         final ActionServerConsumer actionServerConsumerSpy = spy(this.actionServerConsumer);
-        final MultiValueMap<String, String> headers = mock(MultiValueMap.class);
+        final Map<String, Object> headers = new HashMap<>();
 
         actionServerConsumerSpy.listenNodeMessageTopic(headers, "testmessage");
 
@@ -61,10 +61,9 @@ class ActionServerConsumerTest {
 
     @Test
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     void testListenNodeMessageTopicSwallowsException() {
         final ActionServerConsumer actionServerConsumerSpy = spy(this.actionServerConsumer);
-        final MultiValueMap<String, String> headers = mock(MultiValueMap.class);
+        final Map<String, Object> headers = new HashMap<>();
 
         doThrow(IOException.class).when(this.handlerHandler).process(headers, "testmessage");
 

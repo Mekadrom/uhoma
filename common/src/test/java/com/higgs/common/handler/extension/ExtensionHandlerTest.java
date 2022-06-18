@@ -38,7 +38,7 @@ class ExtensionHandlerTest {
     void testHandle() {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         final ExtensionHandlerRequest extensionHandlerRequest = mock(ExtensionHandlerRequest.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
 
@@ -57,7 +57,7 @@ class ExtensionHandlerTest {
     void testHandleSuperNotFound() {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         final ExtensionHandlerRequest extensionHandlerRequest = mock(ExtensionHandlerRequest.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
 
@@ -73,9 +73,8 @@ class ExtensionHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestHandleNullArgsParams")
-    void testHandleNullArgs(final HandlerDefinition handlerDefinition, final Map<String, List<String>> headers, final ExtensionHandlerRequest extensionHandlerRequest, final HandlerHandler handlerHandler) {
+    void testHandleNullArgs(final HandlerDefinition handlerDefinition, final Map<String, Object> headers, final ExtensionHandlerRequest extensionHandlerRequest, final HandlerHandler handlerHandler) {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
-
         assertThrows(IllegalArgumentException.class, () -> extensionHandlerSpy.handle(handlerDefinition, headers, extensionHandlerRequest, handlerHandler));
     }
 
@@ -94,7 +93,7 @@ class ExtensionHandlerTest {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
         final Handler<HandlerRequest, HandlerResponse> handler = mock(Handler.class);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         final ExtensionHandlerRequest extensionHandlerRequest = mock(ExtensionHandlerRequest.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
 
@@ -118,7 +117,7 @@ class ExtensionHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestHandleExtensionCallNullArgsParams")
-    void testHandleExtensionCallNullArgs(final Handler<HandlerRequest, HandlerResponse> handler, final HandlerDefinition extensionHandlerDef, final Map<String, List<String>> headers, final ExtensionHandlerRequest request, final HandlerHandler handlerHandler) {
+    void testHandleExtensionCallNullArgs(final Handler<HandlerRequest, HandlerResponse> handler, final HandlerDefinition extensionHandlerDef, final Map<String, Object> headers, final ExtensionHandlerRequest request, final HandlerHandler handlerHandler) {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
         assertThrows(IllegalArgumentException.class, () -> extensionHandlerSpy.handleExtensionCall(handler, extensionHandlerDef, headers, request, handlerHandler));
     }

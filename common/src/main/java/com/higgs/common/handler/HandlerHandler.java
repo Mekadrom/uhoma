@@ -20,14 +20,22 @@ public class HandlerHandler {
     private final List<Handler<HandlerRequest, HandlerResponse>> handlers;
     private final ProxyHandlerGenerator proxyHandlerGenerator;
 
-    public List<HandlerResponse> process(@NonNull final Map<String, List<String>> kafkaHeaders,
+    public List<HandlerResponse> process(@NonNull final Map<String, Object> kafkaHeaders,
                                          @NonNull final String body) throws IOException {
         return this.process(kafkaHeaders, this.commonUtils.parseMap(body));
     }
 
-    List<HandlerResponse> process(@NonNull final Map<String, List<String>> headers,
+    List<HandlerResponse> process(@NonNull final Map<String, Object> headers,
                                   @NonNull final Map<String, Object> body) throws JsonProcessingException {
-        return this.process(this.parseHandlerDef(String.valueOf(headers.get(HAKafkaConstants.HEADER_ACTION_HANDLER_DEF))), headers, body);
+        return this.process(this.parseHandlerDef(this.getStringHeader(headers, HAKafkaConstants.HEADER_ACTION_HANDLER_DEF)), headers, body);
+    }
+
+    String getStringHeader(final Map<String, Object> headers, final String headerName) {
+        return Optional.ofNullable(headers.get(headerName))
+                .filter(it -> it instanceof byte[])
+                .map(it -> (byte[]) it)
+                .map(String::new)
+                .orElse(null);
     }
 
     HandlerDefinition parseHandlerDef(final String handlerDef) throws JsonProcessingException {
@@ -35,7 +43,7 @@ public class HandlerHandler {
     }
 
     public List<HandlerResponse> process(final HandlerDefinition handlerDef,
-                                         @NonNull final Map<String, List<String>> headers,
+                                         @NonNull final Map<String, Object> headers,
                                          @NonNull final Map<String, Object> body) {
         final List<HandlerResponse> responses = new ArrayList<>();
         responses.addAll(this.processDefaultHandlers(handlerDef, headers, body));
@@ -44,7 +52,7 @@ public class HandlerHandler {
     }
 
     List<HandlerResponse> processDefaultHandlers(final HandlerDefinition handlerDef,
-                                                 @NonNull final Map<String, List<String>> headers,
+                                                 @NonNull final Map<String, Object> headers,
                                                  @NonNull final Map<String, Object> body) {
         return this.handlers.stream()
                 .filter(handler -> handler.qualifies(handlerDef))
@@ -53,7 +61,7 @@ public class HandlerHandler {
     }
 
     List<HandlerResponse> processWithProxyHandlers(final HandlerDefinition handlerDef,
-                                                   @NonNull final Map<String, List<String>> headers,
+                                                   @NonNull final Map<String, Object> headers,
                                                    @NonNull final Map<String, Object> body) {
         return this.proxyHandlerGenerator.buildProxyHandlers(handlerDef).stream()
                 .map(handler -> handler.handle(handlerDef, headers, body, this))

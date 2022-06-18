@@ -29,9 +29,9 @@ public class ServerProducer {
         return this.send(
                 this.haKafkaConfig.resolveTopicKeyReference(kafkaProducerEnum.getTopicKey()),
                 kafkaProducerEnum.getKeyMakerFunc().apply(message),
-                kafkaProducerEnum.getBodySerializer().writeValueAsString(message),
+                kafkaProducerEnum.getBodyMapper().writeValueAsString(message),
                 headers,
-                kafkaProducerEnum.getHeaderSerializer()
+                kafkaProducerEnum.getHeaderMapper()
         );
     }
 
@@ -55,7 +55,7 @@ public class ServerProducer {
         ServerProducer.log.error(throwable.getMessage(), throwable);
     }
 
-    Header convertHeader(final Map.Entry<String, Object> header, final ObjectMapper headerValueSerializer) {
+    Header convertHeader(final Map.Entry<String, Object> header, final ObjectMapper headerMapper) {
         return new Header() {
             @Override
             public String key() {
@@ -65,7 +65,7 @@ public class ServerProducer {
             @Override
             public byte[] value() {
                 try {
-                    return String.valueOf(headerValueSerializer.writeValueAsString(header.getValue())).getBytes(StandardCharsets.UTF_8);
+                    return ((header.getValue() instanceof String) ? (String) header.getValue() : headerMapper.writeValueAsString(header.getValue())).getBytes(StandardCharsets.UTF_8);
                 } catch (final JsonProcessingException e) {
                     ServerProducer.log.error(String.format("error serializing header: %s", header.getKey()), e);
                 }

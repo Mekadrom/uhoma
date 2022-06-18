@@ -16,8 +16,8 @@ class KafkaTopicEnumTest {
                 () -> assertThat(KafkaTopicEnum.NODE_ACTION.getTopicKey(), is(KafkaTopicEnum.NODE_ACTION_TOPIC_KEY)),
                 () -> assertNotNull(KafkaTopicEnum.NODE_ACTION.getKeyMakerFunc()),
                 () -> assertNull(KafkaTopicEnum.NODE_ACTION.getKeyMakerFunc().apply("")),
-                () -> assertThat(KafkaTopicEnum.NODE_ACTION.getBodySerializer().getClass(), is(ObjectMapper.class)),
-                () -> assertThat(KafkaTopicEnum.NODE_ACTION.getHeaderSerializer().getClass(), is(ObjectMapper.class))
+                () -> assertThat(KafkaTopicEnum.NODE_ACTION.getBodyMapper().getClass(), is(ObjectMapper.class)),
+                () -> assertThat(KafkaTopicEnum.NODE_ACTION.getHeaderMapper().getClass(), is(ObjectMapper.class))
         );
     }
 
@@ -27,8 +27,8 @@ class KafkaTopicEnumTest {
                 () -> assertThat(KafkaTopicEnum.NODE_RESPONSE.getTopicKey(), is(KafkaTopicEnum.NODE_RESPONSE_TOPIC_KEY)),
                 () -> assertNotNull(KafkaTopicEnum.NODE_RESPONSE.getKeyMakerFunc()),
                 () -> assertNull(KafkaTopicEnum.NODE_RESPONSE.getKeyMakerFunc().apply("")),
-                () -> assertThat(KafkaTopicEnum.NODE_RESPONSE.getBodySerializer().getClass(), is(ObjectMapper.class)),
-                () -> assertThat(KafkaTopicEnum.NODE_RESPONSE.getHeaderSerializer().getClass(), is(ObjectMapper.class))
+                () -> assertThat(KafkaTopicEnum.NODE_RESPONSE.getBodyMapper().getClass(), is(ObjectMapper.class)),
+                () -> assertThat(KafkaTopicEnum.NODE_RESPONSE.getHeaderMapper().getClass(), is(ObjectMapper.class))
         );
     }
 
@@ -38,8 +38,8 @@ class KafkaTopicEnumTest {
                 () -> assertThat(KafkaTopicEnum.NODE_TELEMETRY.getTopicKey(), is(KafkaTopicEnum.NODE_TELEMETRY_TOPIC_KEY)),
                 () -> assertNotNull(KafkaTopicEnum.NODE_TELEMETRY.getKeyMakerFunc()),
                 () -> assertNull(KafkaTopicEnum.NODE_TELEMETRY.getKeyMakerFunc().apply("")),
-                () -> assertThat(KafkaTopicEnum.NODE_TELEMETRY.getBodySerializer().getClass(), is(ObjectMapper.class)),
-                () -> assertThat(KafkaTopicEnum.NODE_TELEMETRY.getHeaderSerializer().getClass(), is(ObjectMapper.class))
+                () -> assertThat(KafkaTopicEnum.NODE_TELEMETRY.getBodyMapper().getClass(), is(ObjectMapper.class)),
+                () -> assertThat(KafkaTopicEnum.NODE_TELEMETRY.getHeaderMapper().getClass(), is(ObjectMapper.class))
         );
     }
 }

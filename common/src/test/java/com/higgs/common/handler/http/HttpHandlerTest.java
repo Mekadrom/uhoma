@@ -68,7 +68,7 @@ class HttpHandlerTest {
     void testHandle(final WireMockRuntimeInfo wireMockRuntimeInfo) {
         final HttpHandler httpHandlerSpy = spy(this.httpHandler);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
         final HttpHandlerResponse response = mock(HttpHandlerResponse.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
@@ -83,7 +83,7 @@ class HttpHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestHandleInvalidArgsParams")
-    void testHandleInvalidArgs(final Map<String, List<String>> headers, final HttpHandlerRequest request, final HandlerHandler handlerHandler) {
+    void testHandleInvalidArgs(final Map<String, Object> headers, final HttpHandlerRequest request, final HandlerHandler handlerHandler) {
         assertThrows(IllegalArgumentException.class, () -> this.httpHandler.handle(null, headers, request, handlerHandler));
     }
 
@@ -101,7 +101,7 @@ class HttpHandlerTest {
     void testHandleNoConnection() {
         final HttpHandler httpHandlerSpy = spy(this.httpHandler);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
         doCallRealMethod().when(httpHandlerSpy).handle(any(), any(), any(), any());
@@ -354,7 +354,7 @@ class HttpHandlerTest {
     void testHandleClosesConnection() {
         final HttpHandler httpHandlerSpy = spy(this.httpHandler);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = Map.of("test", List.of("test"));
+        final Map<String, Object> headers = Map.of("test", "test");
         final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
 

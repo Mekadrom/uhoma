@@ -67,17 +67,17 @@ class ServerProducerTest {
         doReturn(future).when(serverProducerSpy).send(any(), any(), any(), any(), any());
         when(this.haKafkaConfig.resolveTopicKeyReference(any())).thenReturn("topic");
         when(kafkaTopicEnum.getTopicKey()).thenReturn("topic");
-        when(kafkaTopicEnum.getBodySerializer()).thenReturn(objectMapper);
-        when(kafkaTopicEnum.getHeaderSerializer()).thenReturn(objectMapper);
+        when(kafkaTopicEnum.getBodyMapper()).thenReturn(objectMapper);
+        when(kafkaTopicEnum.getHeaderMapper()).thenReturn(objectMapper);
         when(kafkaTopicEnum.getKeyMakerFunc()).thenReturn(keyMakerFunc);
         when(objectMapper.writeValueAsString(any())).thenReturn(message);
         final Future<SendResult<String, String>> actual = serverProducerSpy.send(kafkaTopicEnum, message, headers);
         verify(kafkaTopicEnum, times(1)).getTopicKey();
         verify(kafkaTopicEnum, times(1)).getKeyMakerFunc();
         verify(keyMakerFunc, times(1)).apply(any());
-        verify(kafkaTopicEnum, times(1)).getBodySerializer();
+        verify(kafkaTopicEnum, times(1)).getBodyMapper();
         verify(objectMapper, times(1)).writeValueAsString(message);
-        verify(kafkaTopicEnum, times(1)).getHeaderSerializer();
+        verify(kafkaTopicEnum, times(1)).getHeaderMapper();
         verify(serverProducerSpy).send("topic", null, message, headers, objectMapper);
         assertThat(actual, is(future));
     }
@@ -128,7 +128,7 @@ class ServerProducerTest {
     @Test
     @SneakyThrows
     void testConvertHeaders() {
-        final Map<String, Object> headers = Map.of("header", "value");
+        final Map<String, Object> headers = Map.of("header", new Object());
         final ObjectMapper objectMapper = mock(ObjectMapper.class);
         when(objectMapper.writeValueAsString(any())).thenReturn("value");
         final Collection<Header> actual = this.serverProducer.convertHeaders(headers, objectMapper);
@@ -178,7 +178,7 @@ class ServerProducerTest {
     @Test
     @SneakyThrows
     void testInnerHeaderClassFailsSoft() {
-        final Map.Entry<String, Object> entry = Map.entry("header", "value");
+        final Map.Entry<String, Object> entry = Map.entry("header", new Object());
         final ObjectMapper objectMapper = mock(ObjectMapper.class);
 
         // json mapping exception is only subclass of JsonProcessingException that can be instantiated outside its package

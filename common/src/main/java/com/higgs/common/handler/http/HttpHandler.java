@@ -64,7 +64,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
 
     @Override
     public List<HttpHandlerResponse> handle(@Nullable final HandlerDefinition handlerDef,
-                                            @NonNull final Map<String, List<String>> headers,
+                                            @NonNull final Map<String, Object> headers,
                                             @NonNull final HttpHandlerRequest request,
                                             @NonNull final HandlerHandler handlerHandler) {
         final String fullUrl = this.httpHandlerUtil.getFullUrl(request);

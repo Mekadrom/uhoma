@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     String BUILTIN_TYPE = "builtin_type";
@@ -14,26 +15,26 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     String IS_EXTENSION = "is_extension";
     String EXTENDS_FROM = "extends_from";
 
-    List<R> handle(HandlerDefinition handlerDef, @NonNull Map<String, List<String>> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
+    List<R> handle(HandlerDefinition handlerDef, @NonNull Map<String, Object> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
 
-    default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody, @NonNull final HandlerHandler handlerHandler) {
+    default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, Object> headers, @NonNull final Map<String, Object> requestBody, @NonNull final HandlerHandler handlerHandler) {
         return this.handle(handlerDef, headers, this.processRequest(headers, requestBody), handlerHandler);
     }
 
-    default T processRequest(@NonNull final Map<String, List<String>> headers, @NonNull final Map<String, Object> requestBody) {
+    default T processRequest(@NonNull final Map<String, Object> headers, @NonNull final Map<String, Object> requestBody) {
         final T request = this.requestBodyToRequestObj(requestBody);
         request.setToNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ));
         request.setFromNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_SENDING_NODE_SEQ));
-        request.setToUsername(headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME).stream().findAny().orElse(null));
-        request.setFromUsername(headers.get(HAKafkaConstants.HEADER_SENDING_USERNAME).stream().findAny().orElse(null));
+        request.setToUsername(String.valueOf(headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME)));
+        request.setFromUsername(String.valueOf(headers.get(HAKafkaConstants.HEADER_SENDING_USERNAME)));
         return request;
     }
 
-    default Long getLongHeader(@NonNull final Map<String, List<String>> headers, @NonNull final String headerName) {
-        return headers.getOrDefault(headerName, new ArrayList<>()).stream()
+    default Long getLongHeader(@NonNull final Map<String, Object> headers, @NonNull final String headerName) {
+        return Optional.ofNullable(headers.get(headerName))
+                .map(String::valueOf)
                 .filter(StringUtils::isNumeric)
                 .map(Long::valueOf)
-                .findAny()
                 .orElse(null);
     }
 

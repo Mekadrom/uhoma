@@ -33,7 +33,7 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
 
     @Override
     public List<HandlerResponse> handle(@NonNull final HandlerDefinition handlerDef,
-                                        @NonNull final Map<String, List<String>> headers,
+                                        @NonNull final Map<String, Object> headers,
                                         @NonNull final ExtensionHandlerRequest request,
                                         @NonNull final HandlerHandler handlerHandler) {
         final Optional<Handler<HandlerRequest, HandlerResponse>> extendsFrom =
@@ -46,7 +46,7 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
 
     List<HandlerResponse> handleExtensionCall(@NonNull final Handler<HandlerRequest, HandlerResponse> handler,
                                               @NonNull final HandlerDefinition extensionHandlerDef,
-                                              @NonNull final Map<String, List<String>> headers,
+                                              @NonNull final Map<String, Object> headers,
                                               @NonNull final ExtensionHandlerRequest request,
                                               @NonNull final HandlerHandler handlerHandler) {
         final HandlerDefinition prototypeHandlerDef = handler.getPrototypeHandlerDef();
