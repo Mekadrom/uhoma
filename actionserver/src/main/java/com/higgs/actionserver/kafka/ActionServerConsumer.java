@@ -12,7 +12,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,7 +25,7 @@ public class ActionServerConsumer {
     private final HandlerHandler handlerHandler;
 
     @KafkaListener(topics = "${kafka.topics." + KafkaTopicEnum.NODE_ACTION_TOPIC_KEY + ":node_action}")
-    public void listenNodeMessageTopic(@Headers final MultiValueMap<String, String> headers, @Payload final String message) {
+    public void listenNodeMessageTopic(@Headers final Map<String, Object> headers, @Payload final String message) {
         try {
             this.handleResponses(this.handlerHandler.process(headers, message));
         } catch (final IOException e) {

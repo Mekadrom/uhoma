@@ -16,7 +16,7 @@ reflections = '0.10.2'
 spring-boot = '2.7.0'
 spring-kafka = '2.8.6'
 spring-webmvc = '5.3.7'
-wiremock = '2.72.2'
+wiremock = '2.33.2'
 
 [libraries]
 higgs-common = { group = 'com.higgs', name = 'common', version = { strictly = "[1.0.0, 2.0.0[" } }

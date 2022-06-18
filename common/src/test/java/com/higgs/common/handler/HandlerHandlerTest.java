@@ -44,7 +44,7 @@ class HandlerHandlerTest {
         final HandlerResponse handlerResponse = mock(HandlerResponse.class);
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
         final HandlerHandler handlerHandlerSpy = spy(handlerHandler);
-        final Map<String, List<String>> headers = Map.of("1", List.of("1"));
+        final Map<String, Object> headers = Map.of("1", "1");
         final String body = "{\"body\":\"body\"}";
         doReturn(List.of(handlerResponse)).when(handlerHandlerSpy).process(eq(headers), any(Map.class));
         when(this.commonUtils.parseMap(body)).thenReturn(Map.of("body", "body"));
@@ -56,7 +56,7 @@ class HandlerHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestProcessDelegatesInvalidArgsParams")
-    void testProcessDelegatesInvalidArgs(final Map<String, List<String>> headers, final String body) {
+    void testProcessDelegatesInvalidArgs(final Map<String, Object> headers, final String body) {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
         assertThrows(IllegalArgumentException.class, () -> handlerHandler.process(headers, body));
     }
@@ -76,7 +76,7 @@ class HandlerHandlerTest {
         final HandlerHandler handlerHandlerSpy = spy(handlerHandler);
         final HandlerResponse handlerResponse = mock(HandlerResponse.class);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = Map.of("1", List.of("1"));
+        final Map<String, Object> headers = Map.of("1", "1");
         final Map<String, Object> body = Map.of("body", "body");
         doReturn(handlerDefinition).when(handlerHandlerSpy).parseHandlerDef(any());
         doReturn(List.of(handlerResponse)).when(handlerHandlerSpy).process(handlerDefinition, headers, body);
@@ -88,7 +88,7 @@ class HandlerHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestProcessDelegateInvalidArgsParams")
-    void testProcessDelegateInvalidArgs(final Map<String, List<String>> headers, final Map<String, Object> body) {
+    void testProcessDelegateInvalidArgs(final Map<String, Object> headers, final Map<String, Object> body) {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
         assertThrows(IllegalArgumentException.class, () -> handlerHandler.process(headers, body));
     }
@@ -122,7 +122,7 @@ class HandlerHandlerTest {
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
         final HandlerResponse handlerResponse1 = mock(HandlerResponse.class);
         final HandlerResponse handlerResponse2 = mock(HandlerResponse.class);
-        final Map<String, List<String>> headers = Map.of("1", List.of("1"));
+        final Map<String, Object> headers = Map.of("1", List.of("1"));
         final Map<String, Object> body = Map.of("body", "body");
         doReturn(List.of(handlerResponse1)).when(handlerHandlerSpy).processDefaultHandlers(handlerDefinition, headers, body);
         doReturn(List.of(handlerResponse2)).when(handlerHandlerSpy).processWithProxyHandlers(handlerDefinition, headers, body);
@@ -134,7 +134,7 @@ class HandlerHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestProcessInvalidArgsParams")
-    void testProcessInvalidArgs(final HandlerDefinition handlerDefinition, final Map<String, List<String>> headers, final Map<String, Object> body) {
+    void testProcessInvalidArgs(final HandlerDefinition handlerDefinition, final Map<String, Object> headers, final Map<String, Object> body) {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
         assertThrows(IllegalArgumentException.class, () -> handlerHandler.process(handlerDefinition, headers, body));
     }
@@ -155,7 +155,7 @@ class HandlerHandlerTest {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, List.of(handler1, handler2), this.proxyHandlerGenerator);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
         final HandlerResponse handlerResponse = mock(HandlerResponse.class);
-        final Map<String, List<String>> headers = Map.of("1", List.of("1"));
+        final Map<String, Object> headers = Map.of("1", List.of("1"));
         final Map<String, Object> body = Map.of("body", "body");
         when(handler1.qualifies(any())).thenReturn(true);
         when(handler2.qualifies(any())).thenReturn(false);
@@ -170,7 +170,7 @@ class HandlerHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestProcessDefaultHandlersInvalidArgsParams")
-    void testProcessDefaultHandlersInvalidArgs(final HandlerDefinition handlerDefinition, final Map<String, List<String>> headers, final Map<String, Object> body) {
+    void testProcessDefaultHandlersInvalidArgs(final HandlerDefinition handlerDefinition, Map<String, Object> headers, final Map<String, Object> body) {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
         assertThrows(IllegalArgumentException.class, () -> handlerHandler.processDefaultHandlers(handlerDefinition, headers, body));
     }
@@ -190,7 +190,7 @@ class HandlerHandlerTest {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, List.of(handler), this.proxyHandlerGenerator);
         final HandlerResponse handlerResponse = mock(HandlerResponse.class);
         final HandlerDefinition handlerDefinition = mock(HandlerDefinition.class);
-        final Map<String, List<String>> headers = Map.of("1", List.of("1"));
+        final Map<String, Object> headers = Map.of("1", List.of("1"));
         final Map<String, Object> body = Map.of("body", "body");
         when(this.proxyHandlerGenerator.buildProxyHandlers(any())).thenReturn(List.of(handler));
         when(handler.handle(any(), any(), any(Map.class), any())).thenReturn(List.of(handlerResponse));
@@ -202,7 +202,7 @@ class HandlerHandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestProcessWithProxyHandlersInvalidArgsParams")
-    void testProcessWithProxyHandlersInvalidArgs(final HandlerDefinition handlerDefinition, final Map<String, List<String>> headers, final Map<String, Object> body) {
+    void testProcessWithProxyHandlersInvalidArgs(final HandlerDefinition handlerDefinition, final Map<String, Object> headers, final Map<String, Object> body) {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
         assertThrows(IllegalArgumentException.class, () -> handlerHandler.processWithProxyHandlers(handlerDefinition, headers, body));
     }

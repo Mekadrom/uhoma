@@ -17,8 +17,6 @@ repositories {
 dependencies {
     annotationProcessor libs.lombok
 
-    compileOnly libs.lombok
-
     implementation libs.bundles.jackson
     implementation libs.commons.collections4
     implementation libs.commons.io
@@ -28,15 +26,14 @@ dependencies {
     implementation libs.jakarta.validation
     implementation libs.javax.servlet
     implementation libs.jjwt
+    implementation libs.lombok
     implementation libs.postgresql
     implementation libs.spring.boot.starter.data.jdbc
     implementation libs.spring.boot.starter.data.jpa
     implementation libs.spring.boot.starter.jdbc
     implementation libs.spring.boot.starter.oauth2.client
     implementation libs.spring.boot.starter.security
-    implementation(libs.spring.boot.starter.web) {
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
+    implementation libs.spring.boot.starter.web
     implementation libs.spring.boot.starter.websocket
     implementation libs.spring.kafka
     implementation libs.spring.webmvc

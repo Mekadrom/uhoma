@@ -19,6 +19,6 @@ public enum KafkaTopicEnum {
 
     private final String topicKey;
     private final Function<Object, String> keyMakerFunc;
-    private final ObjectMapper bodySerializer;
-    private final ObjectMapper headerSerializer;
+    private final ObjectMapper bodyMapper;
+    private final ObjectMapper headerMapper;
 }

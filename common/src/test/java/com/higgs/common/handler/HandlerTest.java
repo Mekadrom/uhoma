@@ -34,7 +34,7 @@ class HandlerTest {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
         final HandlerRequest request = mock(HandlerRequest.class);
         final HandlerResponse response = mock(HandlerResponse.class);
-        final Map<String, List<String>> headers = Map.of("1", List.of("2"));
+        final Map<String, Object> headers = Map.of("1", "2");
         final Map<String, Object> requestBody = Map.of("body", "body");
         doReturn(request).when(handlerSpy).processRequest(headers, requestBody);
         doReturn(List.of(response)).when(handlerSpy).handle(any(), eq(headers), eq(request), any());
@@ -46,7 +46,7 @@ class HandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestHandleDelegatesInvalidArgsParams")
-    void testHandleDelegatesInvalidArgs(final Map<String, List<String>> headers, final Map<String, Object> requestBody, final HandlerHandler handlerHandler) {
+    void testHandleDelegatesInvalidArgs(final Map<String, Object> headers, final Map<String, Object> requestBody, final HandlerHandler handlerHandler) {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
         doCallRealMethod().when(handlerSpy).handle(any(), eq(headers), eq(requestBody), any());
         assertThrows(IllegalArgumentException.class, () -> handlerSpy.handle(mock(HandlerDefinition.class), headers, requestBody, handlerHandler));
@@ -55,15 +55,15 @@ class HandlerTest {
     public static Stream<Arguments> getTestHandleDelegatesInvalidArgsParams() {
         return Stream.of(
                 Arguments.of(null, Map.of("body", "body"), mock(HandlerHandler.class)),
-                Arguments.of(Map.of("1", List.of("2")), null, mock(HandlerHandler.class)),
-                Arguments.of(Map.of("1", List.of("2")), Map.of("body", "body"), null)
+                Arguments.of(Map.of("1", "2"), null, mock(HandlerHandler.class)),
+                Arguments.of(Map.of("1", "2"), Map.of("body", "body"), null)
         );
     }
 
     @Test
     void testProcessRequest() {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
-        final Map<String, List<String>> headers = Map.of(HAKafkaConstants.HEADER_RECEIVING_USERNAME, List.of("recuser"), HAKafkaConstants.HEADER_SENDING_USERNAME, List.of("senduser"));
+        final Map<String, Object> headers = Map.of(HAKafkaConstants.HEADER_RECEIVING_USERNAME, "recuser", HAKafkaConstants.HEADER_SENDING_USERNAME, "senduser");
         final Map<String, Object> requestBody = Map.of("body", "body");
         final HandlerRequest request = new HandlerRequest() {};
 
@@ -86,7 +86,7 @@ class HandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestProcessRequestNullArgsParams")
-    void testProcessRequestNullArgs(final Map<String, List<String>> headers, final Map<String, Object> requestBody) {
+    void testProcessRequestNullArgs(final Map<String, Object> headers, final Map<String, Object> requestBody) {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
         assertThrows(IllegalArgumentException.class, () -> handlerSpy.processRequest(headers, requestBody));
     }
@@ -94,7 +94,7 @@ class HandlerTest {
     public static Stream<Arguments> getTestProcessRequestNullArgsParams() {
         return Stream.of(
                 Arguments.of(null, null),
-                Arguments.of(Map.of("1", List.of("2")), null),
+                Arguments.of(Map.of("1", "2"), null),
                 Arguments.of(null, Map.of("body", "body"))
         );
     }
@@ -102,7 +102,7 @@ class HandlerTest {
     @Test
     void testGetLongHeader() {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
-        final Map<String, List<String>> headers = Map.of(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, List.of("1"), HAKafkaConstants.HEADER_SENDING_NODE_SEQ, List.of("2"), "nonnumeric", List.of("three"));
+        final Map<String, Object> headers = Map.of(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, "1", HAKafkaConstants.HEADER_SENDING_NODE_SEQ, "2", "nonnumeric", "three");
 
         assertThat(handlerSpy.getLongHeader(headers, HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ), is(1L));
         assertThat(handlerSpy.getLongHeader(headers, HAKafkaConstants.HEADER_SENDING_NODE_SEQ), is(2L));
@@ -112,7 +112,7 @@ class HandlerTest {
 
     @ParameterizedTest
     @MethodSource("getTestGetLongHeaderNullArgsParams")
-    void testGetLongHeaderNullArgs(final Map<String, List<String>> headers, final String headerName) {
+    void testGetLongHeaderNullArgs(final Map<String, Object> headers, final String headerName) {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
         assertThrows(IllegalArgumentException.class, () -> handlerSpy.getLongHeader(headers, headerName));
     }
@@ -120,7 +120,7 @@ class HandlerTest {
     public static Stream<Arguments> getTestGetLongHeaderNullArgsParams() {
         return Stream.of(
                 Arguments.of(null, null),
-                Arguments.of(Map.of("1", List.of("2")), null),
+                Arguments.of(Map.of("1", "2"), null),
                 Arguments.of(null, "invalid")
         );
     }

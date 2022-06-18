@@ -22,9 +22,7 @@ dependencies {
     implementation libs.higgs.common
     implementation libs.lombok
     implementation libs.reflections
-    implementation(libs.spring.boot.starter.web) {
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
+    implementation libs.spring.boot.starter.web
     implementation libs.spring.kafka
     implementation libs.spring.webmvc
 
