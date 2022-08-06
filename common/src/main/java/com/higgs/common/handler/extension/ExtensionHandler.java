@@ -36,21 +36,28 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
                                         @NonNull final Map<String, Object> headers,
                                         @NonNull final ExtensionHandlerRequest request,
                                         @NonNull final HandlerHandler handlerHandler) {
-        final Optional<Handler<HandlerRequest, HandlerResponse>> extendsFrom =
+        final Optional<Handler<? extends HandlerRequest, ? extends HandlerResponse>> extendsFrom =
                 handlerHandler.findHandlerByName(String.valueOf(handlerDef.getMetadata().get(Handler.EXTENDS_FROM)));
         if (extendsFrom.isPresent()) {
-            return this.handleExtensionCall(extendsFrom.get(), handlerDef, headers, request, handlerHandler);
+            final Handler<? extends HandlerRequest, ? extends HandlerResponse> parent = extendsFrom.get();
+            ExtensionHandler.log.debug("Handling extended action which extends from: {}", parent.getName());
+            return this.handleExtensionCall(parent, handlerDef, headers, request, handlerHandler);
         }
         return Collections.emptyList();
     }
 
-    List<HandlerResponse> handleExtensionCall(@NonNull final Handler<HandlerRequest, HandlerResponse> handler,
+    List<HandlerResponse> handleExtensionCall(@NonNull final Handler<? extends HandlerRequest, ? extends HandlerResponse> handler,
                                               @NonNull final HandlerDefinition extensionHandlerDef,
                                               @NonNull final Map<String, Object> headers,
                                               @NonNull final ExtensionHandlerRequest request,
                                               @NonNull final HandlerHandler handlerHandler) {
         final HandlerDefinition prototypeHandlerDef = handler.getPrototypeHandlerDef();
-        return handlerHandler.process(prototypeHandlerDef, headers, this.interpolateFieldValues(this.copyFieldTemplateValues(prototypeHandlerDef, extensionHandlerDef), request));
+        ExtensionHandler.log.info("Handling extension call for handler def: {}", prototypeHandlerDef);
+        final Map<String, Object> fieldsToInterpolate = this.copyFieldTemplateValues(prototypeHandlerDef, extensionHandlerDef);
+        ExtensionHandler.log.info("pre-interpolated fields: {}", fieldsToInterpolate);
+        final Map<String, Object> interpolatedFieldValues = this.interpolateFieldValues(fieldsToInterpolate, request);
+        ExtensionHandler.log.info("interpolated fields: {}", interpolatedFieldValues);
+        return handlerHandler.process(prototypeHandlerDef, headers, interpolatedFieldValues);
     }
 
     Map<String, Object> copyFieldTemplateValues(@NonNull final HandlerDefinition prototypeHandlerDef, @NonNull final HandlerDefinition extensionHandlerDef) {
@@ -65,15 +72,18 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
     Map<String, Object> copyFieldTemplateValues(@NonNull final Map<String, Object> prototypeDef, @NonNull final Map<String, Object> extensionDef) {
         // for every expected key in the extended handler's prototype definition, get that value from the extension's
         // handler def and use it as input
-        return prototypeDef.keySet().stream()
-                .filter(extensionDef.keySet()::contains)
+        return extensionDef.keySet().stream()
+                .filter(prototypeDef.keySet()::contains)
                 .collect(Collectors.toMap(key -> key, extensionDef::get));
     }
 
     Map<String, Object> interpolateFieldValues(@NonNull final Map<String, Object> toInterpolate, @NonNull final ExtensionHandlerRequest request) {
         return toInterpolate.entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof String)
-                .peek(strEntry -> strEntry.setValue(this.getJinjaEngine().render(((String) strEntry.getValue()), request)))
+                .peek(entry -> {
+                    if (entry.getValue() instanceof String strEntry) {
+                        entry.setValue(this.getJinjaEngine().render(strEntry, request.getParameters()));
+                    }
+                })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 

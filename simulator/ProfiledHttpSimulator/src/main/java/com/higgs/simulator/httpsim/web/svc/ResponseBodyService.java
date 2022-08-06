@@ -1,5 +1,6 @@
 package com.higgs.simulator.httpsim.web.svc;
 
+import com.higgs.simulator.httpsim.db.entity.Profile;
 import com.higgs.simulator.httpsim.db.entity.ResponseBody;
 import com.higgs.simulator.httpsim.db.entity.ResponseGroup;
 import com.higgs.simulator.httpsim.db.repo.ResponseBodyRepository;
@@ -21,23 +22,34 @@ public class ResponseBodyService {
 
     private final ResponseBodyRepository responseBodyRepository;
 
-    public ResponseBody findByResponseGroupAndKeyedFieldsOrDefault(final ResponseGroup responseGroup, final Map<String, Object> keyedFields, final Map<String, Object> headers, final Integer responseCode) {
-        return this.findByResponseGroupAndKeyedFields(responseGroup, keyedFields).orElseGet(() -> this.createResponseBody(responseGroup, keyedFields, headers, responseCode));
+    public ResponseBody findByResponseGroupAndKeyedFieldsOrDefault(final Profile profile, final ResponseGroup responseGroup, final Map<String, Object> keyedFields, final Map<String, Object> body, final Map<String, Object> headers, final Integer responseCode) {
+        return this.findByResponseGroupAndKeyedFields(responseGroup, keyedFields).orElseGet(() -> this.createResponseBody(profile, responseGroup, keyedFields, body, headers, responseCode));
     }
 
     public Optional<ResponseBody> findByResponseGroupAndKeyedFields(final ResponseGroup responseGroup, final Map<String, Object> keyedFields) {
-        return this.determineResponseBody(this.responseBodyRepository.findByResponseGroupResponseGroupSeq(responseGroup.getResponseGroupSeq()), keyedFields);
+        return this.determineResponseBody(this.responseBodyRepository.findByResponseGroupSeq(responseGroup.getResponseGroupSeq()), keyedFields);
     }
 
-    ResponseBody createResponseBody(final ResponseGroup responseGroup, final Map<String, Object> body, final Map<String, Object> headers, final Integer responseCode) {
+    ResponseBody createResponseBody(final Profile profile, final ResponseGroup responseGroup, final Map<String, Object> keyedFieldValues, final Map<String, Object> body, final Map<String, Object> headers, final Integer responseCode) {
         return this.responseBodyRepository.save(new ResponseBody()
-                .setResponseGroup(responseGroup)
-                .setKeyedFieldValues(body)
+                .setResponseGroupSeq(responseGroup.getResponseGroupSeq())
+                .setKeyedFieldValues(keyedFieldValues)
                 .setHeaders(this.filterHeaders(headers))
                 .setResponseCode(responseCode)
-                .setBody(Optional.ofNullable(JsonUtils.convertMapToJsonString(this.removeKeyedFields(body, responseGroup.getProfile().getKeyedFields())))
-                        .map(it -> it.replaceAll("\\s*", ""))
-                        .orElse("")));
+                .setBody(this.getCleanBody(body, profile.getKeyedFields())));
+    }
+
+    public void updateResponseBody(final Profile profile, final ResponseBody responseBody, final Integer responseCode, final Map<String, Object> headers, final Map<String, Object> requestFields) {
+        this.responseBodyRepository.save(responseBody
+                .setBody(this.getCleanBody(requestFields, profile.getKeyedFields()))
+                .setResponseCode(responseCode)
+                .setHeaders(this.filterHeaders(headers)));
+    }
+
+    String getCleanBody(final Map<String, Object> body, final Set<String> keyedFields) {
+        return Optional.ofNullable(JsonUtils.convertMapToJsonString(this.removeKeyedFields(body, keyedFields)))
+                .map(it -> it.replaceAll("\\s*", ""))
+                .orElse("");
     }
 
     Map<String, Object> removeKeyedFields(final Map<String, Object> body, final Set<String> keyedFields) {

@@ -157,11 +157,11 @@ class JsonProfileHttpRestControllerTest {
         responseBody.setResponseCode(HttpStatus.OK.value());
         when(this.profileService.findByEndpoint(any())).thenReturn(Optional.of(profile));
         when(this.responseGroupService.findByProfileAndEndpointOrDefault(any(), any())).thenReturn(responseGroup);
-        when(this.responseBodyService.findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any())).thenReturn(responseBody);
+        when(this.responseBodyService.findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any(), any())).thenReturn(responseBody);
         final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), responseBody.getBody());
         verify(this.profileService, times(1)).findByEndpoint("test");
         verify(this.responseGroupService, times(1)).findByProfileAndEndpointOrDefault(profile, "endpoint");
-        verify(this.responseBodyService, times(1)).findByResponseGroupAndKeyedFieldsOrDefault(responseGroup, Map.of("bruh", "test"), Map.of("header", "value"), HttpStatus.OK.value());
+        verify(this.responseBodyService, times(1)).findByResponseGroupAndKeyedFieldsOrDefault(responseGroup, Map.of("bruh", "test"), Map.of("bruh", "test", "non", "keyed"), Map.of("header", "value"), HttpStatus.OK.value());
         assertAll(
                 () -> assertThat(actual.getStatusCode(), is(HttpStatus.OK)),
                 () -> assertThat(actual.getBody(), is(JsonUtils.serialize(responseBody)))
@@ -174,11 +174,11 @@ class JsonProfileHttpRestControllerTest {
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
         when(this.profileService.findByEndpoint(any())).thenReturn(Optional.of(profile));
         when(this.responseGroupService.findByProfileAndEndpointOrDefault(any(), any())).thenReturn(responseGroup);
-        when(this.responseBodyService.findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any())).thenReturn(null);
-        final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), "{\"bruh\":\"test\"}", Map.of("bruh", "test"));
+        when(this.responseBodyService.findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any(), any())).thenReturn(null);
+        final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), Map.of("bruh", "test"));
         verify(this.profileService, times(1)).findByEndpoint("test");
         verify(this.responseGroupService, times(1)).findByProfileAndEndpointOrDefault(profile, "endpoint");
-        verify(this.responseBodyService, times(1)).findByResponseGroupAndKeyedFieldsOrDefault(responseGroup, Map.of("bruh", "test"), Map.of("header", "value"), HttpStatus.OK.value());
+        verify(this.responseBodyService, times(1)).findByResponseGroupAndKeyedFieldsOrDefault(responseGroup, Map.of("bruh", "test"), Map.of("bruh", "test", "non", "keyed"), Map.of("header", "value"), HttpStatus.OK.value());
         assertAll(
                 () -> assertThat(actual.getStatusCode(), is(HttpStatus.BAD_REQUEST)),
                 () -> assertThat(actual.getBody(), is("{\"error\":\"Unable to set response body for request {\"bruh\":\"test\"}\"}"))
@@ -188,10 +188,10 @@ class JsonProfileHttpRestControllerTest {
     @Test
     void testPutPostMappingProfileNotFound() {
         when(this.profileService.findByEndpoint(any())).thenReturn(Optional.empty());
-        final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), "{\"bruh\":\"test\"}", Map.of("bruh", "test"));
+        final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), Map.of("bruh", "test"));
         verify(this.profileService, times(1)).findByEndpoint("test");
         verify(this.responseGroupService, times(0)).findByProfileAndEndpointOrDefault(any(), any());
-        verify(this.responseBodyService, times(0)).findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any());
+        verify(this.responseBodyService, times(0)).findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any(), any());
         assertAll(
                 () -> assertThat(actual.getStatusCode(), is(HttpStatus.BAD_REQUEST)),
                 () -> assertThat(actual.getBody(), is("{\"error\":\"Unable to set response body for request {\"bruh\":\"test\"}\"}"))
@@ -200,10 +200,10 @@ class JsonProfileHttpRestControllerTest {
 
     @Test
     void testPutPostMappingKeyedFieldsNull() {
-        final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), "{\"bruh\":\"test\"}", null);
+        final ResponseEntity<String> actual = this.jsonProfileHttpRestController.putPostMapping("test", "endpoint", HttpStatus.OK.value(), Map.of("header", "value"), (Map<String, Object>) null);
         verify(this.profileService, times(0)).findByEndpoint("test");
         verify(this.responseGroupService, times(0)).findByProfileAndEndpointOrDefault(any(), any());
-        verify(this.responseBodyService, times(0)).findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any());
+        verify(this.responseBodyService, times(0)).findByResponseGroupAndKeyedFieldsOrDefault(any(), any(), any(), any(), any());
         assertAll(
                 () -> assertThat(actual.getStatusCode(), is(HttpStatus.BAD_REQUEST)),
                 () -> assertThat(actual.getBody(), is("{\"error\":\"Unable to set response body for request {\"bruh\":\"test\"}\"}"))

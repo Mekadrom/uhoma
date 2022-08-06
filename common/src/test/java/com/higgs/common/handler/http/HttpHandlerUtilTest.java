@@ -21,21 +21,21 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { HttpHandler.class, HttpHandlerUtil.class })
+@SpringBootTest(classes = { HttpHandlerUtils.class })
 class HttpHandlerUtilTest {
     @Autowired
-    private HttpHandlerUtil httpHandlerUtil;
+    private HttpHandlerUtils httpHandlerUtils;
 
     @Test
     @SuppressWarnings("ConstantConditions")
     void testGetFullUrlNull() {
-        assertThrows(IllegalArgumentException.class, () -> this.httpHandlerUtil.getFullUrl(null));
+        assertThrows(IllegalArgumentException.class, () -> this.httpHandlerUtils.getFullUrl(null));
     }
 
     @ParameterizedTest
     @MethodSource("testGetFullUrlNonNullParams")
     void testGetFullUrlNonNull(final HttpHandlerRequest request, final String expectedFullUrl) {
-        assertThat(this.httpHandlerUtil.getFullUrl(request), is(equalTo(expectedFullUrl)));
+        assertThat(this.httpHandlerUtils.getFullUrl(request), is(equalTo(expectedFullUrl)));
     }
 
     static Stream<Arguments> testGetFullUrlNonNullParams() {
@@ -162,13 +162,13 @@ class HttpHandlerUtilTest {
 
     @Test
     void testTypeMatchesThrows() {
-        assertThrows(IllegalArgumentException.class, () -> this.httpHandlerUtil.typeMatches("not a type", "valid value"));
+        assertThrows(IllegalArgumentException.class, () -> this.httpHandlerUtils.typeMatches("not a type", "valid value"));
     }
 
     @ParameterizedTest
     @MethodSource("getTestTypeMatchesParams")
     void testTypeMatches(final Object type, final Object value, final boolean expectedMatches) {
-        assertThat(this.httpHandlerUtil.typeMatches(type, value), is(equalTo(expectedMatches)));
+        assertThat(this.httpHandlerUtils.typeMatches(type, value), is(equalTo(expectedMatches)));
     }
 
     static Stream<Arguments> getTestTypeMatchesParams() {

@@ -7,10 +7,12 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
-        type: TRACE
+        type: INFO
 server:
-  port: 8087
+  port: 8082
 spring:
+  application:
+    name: profiled-http-simulator
   datasource:
     url: jdbc:h2:file:./build/db/spring-datasource
     driverClassName: org.h2.Driver

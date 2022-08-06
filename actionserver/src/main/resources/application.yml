@@ -1,6 +1,3 @@
-server:
-  name: actionserver
-  port: 8081
 kafka:
   bootstrap-address: localhost:9092
   topics:
@@ -10,3 +7,9 @@ kafka:
   consumer:
     group-id: action-consumer
     should-filter-consumer: true
+server:
+  name: actionserver
+  port: 8081
+spring:
+  application:
+    name: action-server

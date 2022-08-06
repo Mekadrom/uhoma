@@ -5,6 +5,7 @@ import com.higgs.common.kafka.HAKafkaConstants;
 import com.higgs.common.util.CommonUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -13,11 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class HandlerHandler {
     private final CommonUtils commonUtils;
-    private final List<Handler<HandlerRequest, HandlerResponse>> handlers;
+    private final List<Handler<? extends HandlerRequest, ? extends HandlerResponse>> handlers;
     private final ProxyHandlerGenerator proxyHandlerGenerator;
 
     public List<HandlerResponse> process(@NonNull final Map<String, Object> kafkaHeaders,
@@ -56,6 +58,7 @@ public class HandlerHandler {
                                                  @NonNull final Map<String, Object> body) {
         return this.handlers.stream()
                 .filter(handler -> handler.qualifies(handlerDef))
+                .peek(it -> HandlerHandler.log.debug("qualifies: {}", it.getName()))
                 .map(handler -> handler.handle(handlerDef, headers, body, this))
                 .collect(ArrayList::new, List::addAll, List::addAll);
     }
@@ -68,7 +71,7 @@ public class HandlerHandler {
                 .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
-    public Optional<Handler<HandlerRequest, HandlerResponse>> findHandlerByName(final String handlerName) {
+    public Optional<Handler<? extends HandlerRequest, ? extends HandlerResponse>> findHandlerByName(final String handlerName) {
         return this.handlers.stream().filter(it -> it.getName().equals(handlerName)).findFirst();
     }
 }

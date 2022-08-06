@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: action-server0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: action-server
+  template:
+    metadata:
+      labels:
+        app: action-server
+    spec:
+      containers:
+        - name: action-server
+          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-actionserver:${version}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER_INTERNAL_IP
+              value: "action-server:8081"
+            - name: KAFKA_BROKER_URL
+              value: "kafka-broker:9092"
+            - name: JAVA_OPTIONS
+              value: "-Dspring.profiles.active=prod"
+      imagePullSecrets:
+        - name: gcr-json-key

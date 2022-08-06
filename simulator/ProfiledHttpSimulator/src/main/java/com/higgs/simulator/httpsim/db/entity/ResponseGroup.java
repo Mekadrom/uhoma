@@ -1,6 +1,5 @@
 package com.higgs.simulator.httpsim.db.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -11,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -29,18 +27,11 @@ public class ResponseGroup {
     @GeneratedValue(generator = "SQ_RESPONSE_GROUP", strategy = GenerationType.SEQUENCE)
     private Long responseGroupSeq;
 
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "PROFILE_SEQ", nullable = false)
-    private Profile profile;
+    @NotNull
+    @Column(name = "PROFILE_SEQ", nullable = false)
+    private Long profileSeq;
 
     @NotNull
     @Column(name = "ENDPOINT", nullable = false)
     private String endpoint;
-
-    @NotNull
-    @OneToMany
-    @JsonManagedReference
-    @JoinColumn(name = "RESPONSE_GROUP_SEQ")
-    private List<ResponseBody> responseBodies;
 }

@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class HttpHandlerUtil {
+public class HttpHandlerUtils {
     public String getFullUrl(@NonNull final HttpHandlerRequest request) {
         final String intendedConnectType = request.getConnectType() != null ? request.getConnectType() : "http";
-        final String intendedPort = request.getPort() == null ? StringUtils.EMPTY : ":" + request.getPort();
+        final String intendedPort = StringUtils.isBlank(request.getPort()) ? StringUtils.EMPTY : ":" + request.getPort();
         return String.format("%s://%s%s/%s%s", intendedConnectType, request.getUrl(), intendedPort, this.getFormattedEndpoint(request), this.getQueryParamsString(request.getQueryParams()));
     }
 

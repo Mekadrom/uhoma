@@ -37,9 +37,4 @@ public class Profile {
     @NotNull
     @Column(name = "ENDPOINT", nullable = false)
     private String endpoint;
-
-    @OneToMany
-    @JsonManagedReference
-    @JoinColumn(name = "PROFILE_SEQ")
-    private List<ResponseGroup> responseGroups;
 }

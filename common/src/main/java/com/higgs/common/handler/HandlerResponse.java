@@ -1,22 +1,52 @@
 package com.higgs.common.handler;
 
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-public class HandlerResponse {
-    private boolean isExpected;
-    private Long toNodeSeq;
-    private Long fromNodeSeq;
-    private String toUsername;
-    private String fromUsername;
+import java.io.Serial;
+import java.util.HashMap;
 
-    public HandlerResponse(final HandlerRequest requestFor) {
-        this.setExpected(requestFor.getReturnResponse());
-        this.setToNodeSeq(requestFor.getToNodeSeq());
-        this.setFromNodeSeq(requestFor.getFromNodeSeq());
-        this.setToUsername(requestFor.getToUsername());
-        this.setFromUsername(requestFor.getFromUsername());
+@NoArgsConstructor
+public class HandlerResponse extends HashMap<String, Object> {
+    @Serial
+    private static final long serialVersionUID = 181L;
+
+    public boolean isExpected() {
+        return (boolean) this.get("expected");
+    }
+
+    public void setExpected(final boolean expected) {
+        this.put("expected", expected);
+    }
+
+    public Long getToNodeSeq() {
+        return (Long) this.get("toNodeSeq");
+    }
+
+    public void setToNodeSeq(final Long toNodeSeq) {
+        this.put("toNodeSeq", toNodeSeq);
+    }
+
+    public Long getFromNodeSeq() {
+        return (Long) this.get("fromNodeSeq");
+    }
+
+    public void setFromNodeSeq(final Long fromNodeSeq) {
+        this.put("fromNodeSeq", fromNodeSeq);
+    }
+
+    public String getToUsername() {
+        return (String) this.get("toUsername");
+    }
+
+    public void setToUsername(final String toUsername) {
+        this.put("toUsername", toUsername);
+    }
+
+    public String getFromUsername() {
+        return (String) this.get("fromUsername");
+    }
+
+    public void setFromUsername(final String fromUsername) {
+        this.put("fromUsername", fromUsername);
     }
 }

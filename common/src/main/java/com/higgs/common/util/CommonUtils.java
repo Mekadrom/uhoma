@@ -3,10 +3,9 @@ package com.higgs.common.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
@@ -16,7 +15,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class CommonUtils {
     @Getter
     @NonNull
@@ -39,5 +37,13 @@ public class CommonUtils {
                         .findFirst()
                         .orElse(null)))
                 .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+    }
+
+    public String getStringValue(final Object value) {
+        return value == null ? null : value.toString();
+    }
+
+    public boolean getBooleanValue(final String value, final boolean defaultValue) {
+        return StringUtils.isNotBlank(value) ? Boolean.parseBoolean(value) : defaultValue;
     }
 }

@@ -63,7 +63,7 @@ class HandlerTest {
     @Test
     void testProcessRequest() {
         final Handler<HandlerRequest, HandlerResponse> handlerSpy = spy(Handler.class);
-        final Map<String, Object> headers = Map.of(HAKafkaConstants.HEADER_RECEIVING_USERNAME, "recuser", HAKafkaConstants.HEADER_SENDING_USERNAME, "senduser");
+        final Map<String, Object> headers = Map.of(HAKafkaConstants.HEADER_RECEIVING_USERNAME, "recuser".getBytes(), HAKafkaConstants.HEADER_SENDING_USERNAME, "senduser".getBytes());
         final Map<String, Object> requestBody = Map.of("body", "body");
         final HandlerRequest request = new HandlerRequest() {};
 
@@ -141,11 +141,11 @@ class HandlerTest {
         return Stream.of(
                 Arguments.of(true, true, true, true),
                 Arguments.of(true, true, false, true),
-                Arguments.of(true, false, true, true),
+                Arguments.of(true, false, true, false),
                 Arguments.of(true, false, false, false),
-                Arguments.of(false, true, true, true),
+                Arguments.of(false, true, true, false),
                 Arguments.of(false, true, false, false),
-                Arguments.of(false, false, true, true),
+                Arguments.of(false, false, true, false),
                 Arguments.of(false, false, false, false)
         );
     }

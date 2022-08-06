@@ -14,6 +14,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,11 +47,11 @@ public class ActionServerConsumer {
     }
 
     Map<String, Object> buildResponseHeaders(@NonNull final HandlerResponse response) {
-        return Map.of(
-                HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, response.getToNodeSeq(),
-                HAKafkaConstants.HEADER_SENDING_NODE_SEQ, response.getFromNodeSeq(),
-                HAKafkaConstants.HEADER_RECEIVING_USERNAME, response.getToUsername(),
-                HAKafkaConstants.HEADER_SENDING_USERNAME, response.getFromUsername()
-        );
+        final Map<String, Object> responseHeaders = new HashMap<>();
+        responseHeaders.put(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ, response.getToNodeSeq());
+        responseHeaders.put(HAKafkaConstants.HEADER_SENDING_NODE_SEQ, response.getFromNodeSeq());
+        responseHeaders.put(HAKafkaConstants.HEADER_RECEIVING_USERNAME, response.getToUsername());
+        responseHeaders.put(HAKafkaConstants.HEADER_SENDING_USERNAME, response.getFromUsername());
+        return responseHeaders;
     }
 }

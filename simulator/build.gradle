@@ -17,6 +17,13 @@ subprojects { subproject ->
 
     subproject.buildDir = file("${gradle.ext.distDir.path}/simulator/${subproject.name}/build")
 
+    bootRun {
+        systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active') ?: 'local'
+        if (System.hasProperty('server.port')) {
+            systemProperty 'server.port', System.getProperty('server.port')
+        }
+    }
+
     bootJar {
         dependsOn processResources
         archiveFileName = "${archiveBaseName.get()}.jar"

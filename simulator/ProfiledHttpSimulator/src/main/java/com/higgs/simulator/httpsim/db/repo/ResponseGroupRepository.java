@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface ResponseGroupRepository extends JpaRepository<ResponseGroup, Long>, JpaSpecificationExecutor<ResponseGroup> {
-    Optional<ResponseGroup> findByProfileProfileSeqAndEndpoint(Long profileSeq, String endpoint);
+    Optional<ResponseGroup> findByProfileSeqAndEndpoint(Long profileSeq, String endpoint);
 }

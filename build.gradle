@@ -121,6 +121,12 @@ task buildServerImage(type: Exec) {
     args = ['build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/server/build/libs/"]
 }
 
+task buildActionServerImage(type: Exec) {
+    dependsOn distribute
+    executable = "${gradle.ext.imgBuildExec}"
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/actionserver/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.actionServerArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/actionserver/build/libs/"]
+}
+
 task buildFrontendImage(type: Exec) {
     dependsOn distribute
     executable = "${gradle.ext.imgBuildExec}"
@@ -132,6 +138,11 @@ task pushServerImageToMinikube(type: Exec) {
     args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}"]
 }
 
+task pushActionServerImageToMinikube(type: Exec) {
+    executable = "${gradle.ext.clusterExec}"
+    args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.actionServerArtifactName}:${version}"]
+}
+
 task pushFrontendImageToMinikube(type: Exec) {
     executable = "${gradle.ext.clusterExec}"
     args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}"]
@@ -139,12 +150,18 @@ task pushFrontendImageToMinikube(type: Exec) {
 
 task pushImagesToMinikube() {
     dependsOn pushServerImageToMinikube
+    dependsOn pushActionServerImageToMinikube
     dependsOn pushFrontendImageToMinikube
 }
 
 task pushServerImage(type: Exec) {
     executable = "${gradle.ext.imgBuildExec}"
     args = ['push', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}"]
+}
+
+task pushActionServerImage(type: Exec) {
+    executable = "${gradle.ext.imgBuildExec}"
+    args = ['push', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.actionServerArtifactName}:${version}"]
 }
 
 task pushFrontendImage(type: Exec) {
@@ -154,11 +171,13 @@ task pushFrontendImage(type: Exec) {
 
 task buildImages {
     dependsOn buildServerImage
+    dependsOn buildActionServerImage
     dependsOn buildFrontendImage
 }
 
 task pushImages {
     dependsOn pushServerImage
+    dependsOn pushActionServerImage
     dependsOn pushFrontendImage
 }
 
@@ -238,6 +257,11 @@ task deleteServerImageDeployment(type: Exec) {
     args = ['delete', 'deployment', 'app-server0']
 }
 
+task deleteActionServerImageDeployment(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['delete', 'deployment', 'action-server0']
+}
+
 task deleteFrontendImageDeployment(type: Exec) {
     executable = "${gradle.ext.kubeCmdExec}"
     args = ['delete', 'deployment', 'frontend0']
@@ -245,12 +269,18 @@ task deleteFrontendImageDeployment(type: Exec) {
 
 task deleteImageDeployments {
     dependsOn deleteServerImageDeployment
+    dependsOn deleteActionServerImageDeployment
     dependsOn deleteFrontendImageDeployment
 }
 
 task deleteServerContainerService(type: Exec) {
     executable = "${gradle.ext.kubeCmdExec}"
     args = ['delete', 'service', 'app-server']
+}
+
+task deleteActionServerContainerService(type: Exec) {
+    executable = "${gradle.ext.kubeCmdExec}"
+    args = ['delete', 'service', 'action-server']
 }
 
 task deleteFrontendContainerService(type: Exec) {
@@ -260,6 +290,7 @@ task deleteFrontendContainerService(type: Exec) {
 
 task deleteImageServices {
     dependsOn deleteServerContainerService
+    dependsOn deleteActionServerContainerService
     dependsOn deleteFrontendContainerService
 }
 
@@ -295,4 +326,8 @@ task deltaRun(type: Exec) {
     workingDir = 'hadb/'
     executable = './deltarun.sh'
     args = ['-u', "${gradle.ext.dbUsername}", '-p', "${gradle.ext.dbPassword}", '-U', "${gradle.ext.dbUrl}", '-P', "${gradle.ext.dbPort}", '-d', "${gradle.ext.dbDomain}"]
+}
+
+task reloadDb {
+    dependsOn ordered(':cleanDb', ':initDb', ':deltaRun')
 }

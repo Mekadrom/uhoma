@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -66,5 +67,35 @@ class CommonUtilTest {
     @Test
     void getDefaultMapper() {
         assertNotNull(this.commonUtils.getDefaultMapper());
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestGetStringValueParams")
+    void testGetStringValue(final Object value, final String expected) {
+        assertEquals(expected, this.commonUtils.getStringValue(value));
+    }
+
+    public static Stream<Arguments> getTestGetStringValueParams() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of("", ""),
+                Arguments.of("test", "test")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestGetBooleanValueParams")
+    void testGetBooleanValue(final String value, final boolean defaultValue, final boolean expected) {
+        assertEquals(expected, this.commonUtils.getBooleanValue(value, defaultValue));
+    }
+
+    public static Stream<Arguments> getTestGetBooleanValueParams() {
+        return Stream.of(
+                Arguments.of(null, false, false),
+                Arguments.of(null, true, true),
+                Arguments.of("", true, true),
+                Arguments.of("true", false, true),
+                Arguments.of("false", true, false)
+        );
     }
 }

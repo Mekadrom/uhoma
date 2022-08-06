@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: action-server
+  labels:
+    name: action-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: action-server
+  ports:
+    - port: 8081
+      name: action-server-port
+      protocol: TCP

@@ -17,5 +17,6 @@
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnitAssertionsShouldIncludeMessage"/>
         <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="UnusedPrivateField"/>
     </rule>
 </ruleset>

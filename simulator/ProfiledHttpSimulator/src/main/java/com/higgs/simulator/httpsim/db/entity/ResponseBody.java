@@ -46,8 +46,6 @@ public class ResponseBody {
     private String body;
 
     @NotNull
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "RESPONSE_GROUP_SEQ", nullable = false)
-    private ResponseGroup responseGroup;
+    @Column(name = "RESPONSE_GROUP_SEQ", nullable = false)
+    private Long responseGroupSeq;
 }

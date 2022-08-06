@@ -12,6 +12,14 @@ task copyDistToMainDist(type: Copy) {
   into "${gradle.ext.distDir.path}/frontend/dist"
 }
 
+/**
+ * todo: make this executable agnostic somehow?
+ */
+task run(type: Exec) {
+  executable = "ng"
+  args = ["serve"]
+}
+
 task buildFrontendDev(type: NpmTask, dependsOn: 'npmInstall') {
   group = 'build'
   description = 'Compile client side assets for development'
