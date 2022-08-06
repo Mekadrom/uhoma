@@ -10,3 +10,6 @@ spring:
         ddl-auto: validate
 kafka:
   bootstrap-address: kafka-broker:9092
+logging:
+  level:
+    root: INFO

@@ -40,9 +40,9 @@ class ResponseGroupServiceTest {
         final Profile profile = mock(Profile.class);
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
         when(profile.getProfileSeq()).thenReturn(1L);
-        when(this.responseGroupRepository.findByProfileProfileSeqAndEndpoint(any(), any())).thenReturn(Optional.of(responseGroup));
+        when(this.responseGroupRepository.findByProfileSeqAndEndpoint(any(), any())).thenReturn(Optional.of(responseGroup));
         assertThat(responseGroupServiceSpy.findByProfileAndEndpointOrDefault(profile, "endpoint"), is(equalTo(responseGroup)));
-        verify(this.responseGroupRepository, times(1)).findByProfileProfileSeqAndEndpoint(1L, "endpoint");
+        verify(this.responseGroupRepository, times(1)).findByProfileSeqAndEndpoint(1L, "endpoint");
         verify(responseGroupServiceSpy, times(0)).createNewResponseGroup(profile, "endpoint");
     }
 
@@ -53,16 +53,16 @@ class ResponseGroupServiceTest {
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
         when(profile.getProfileSeq()).thenReturn(1L);
         doReturn(responseGroup).when(responseGroupServiceSpy).createNewResponseGroup(any(), any());
-        when(this.responseGroupRepository.findByProfileProfileSeqAndEndpoint(any(), any())).thenReturn(Optional.empty());
+        when(this.responseGroupRepository.findByProfileSeqAndEndpoint(any(), any())).thenReturn(Optional.empty());
         assertThat(responseGroupServiceSpy.findByProfileAndEndpointOrDefault(profile, "endpoint"), is(equalTo(responseGroup)));
-        verify(this.responseGroupRepository, times(1)).findByProfileProfileSeqAndEndpoint(1L, "endpoint");
+        verify(this.responseGroupRepository, times(1)).findByProfileSeqAndEndpoint(1L, "endpoint");
         verify(responseGroupServiceSpy, times(1)).createNewResponseGroup(profile, "endpoint");
     }
 
     @Test
     void testCreateNewResponseGroup() {
         final Profile profile = mock(Profile.class);
-        final ResponseGroup responseGroup = new ResponseGroup().setProfile(profile).setEndpoint("endpoint");
+        final ResponseGroup responseGroup = new ResponseGroup().setProfileSeq(profile).setEndpoint("endpoint");
         when(this.responseGroupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         assertThat(this.responseGroupService.createNewResponseGroup(profile, "endpoint"), is(equalTo(responseGroup)));
         verify(this.responseGroupRepository, times(1)).save(responseGroup);

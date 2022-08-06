@@ -3,8 +3,9 @@ package com.higgs.common.handler.http;
 import com.higgs.common.handler.Handler;
 import com.higgs.common.handler.HandlerDefinition;
 import com.higgs.common.handler.HandlerHandler;
-import lombok.AllArgsConstructor;
+import com.higgs.common.util.CommonUtils;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
@@ -23,12 +24,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerResponse> {
     private static final String CONNECTION_FAILURE_ERROR = "couldn't create connection for url %s";
 
@@ -43,31 +45,31 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     static final String HEADERS_FIELD = "headers";
     static final String BODY_FIELD = "body";
 
-    private static final String STRING_TYPE = "string";
-    private static final String OBJECT_TYPE = "object";
-
     static final HandlerDefinition PROTOTYPE_HANDLER_DEF = new HandlerDefinition(
             Map.of(Handler.IS_BUILTIN, true, Handler.BUILTIN_TYPE, HttpHandler.NAME),
             Map.of(
-                    HttpHandler.METHOD_FIELD, HttpHandler.STRING_TYPE,
-                    HttpHandler.CONNECT_TYPE_FIELD, HttpHandler.STRING_TYPE,
-                    HttpHandler.URL_FIELD, HttpHandler.STRING_TYPE,
-                    HttpHandler.PORT_FIELD, HttpHandler.STRING_TYPE,
-                    HttpHandler.ENDPOINT_FIELD, HttpHandler.STRING_TYPE,
-                    HttpHandler.QUERY_PARAMS_FIELD, HttpHandler.OBJECT_TYPE,
-                    HttpHandler.HEADERS_FIELD, HttpHandler.OBJECT_TYPE,
-                    HttpHandler.BODY_FIELD, HttpHandler.STRING_TYPE
+                    Handler.RETURN_RESPONSE, Handler.BOOLEAN_TYPE,
+                    HttpHandler.METHOD_FIELD, Handler.STRING_TYPE,
+                    HttpHandler.CONNECT_TYPE_FIELD, Handler.STRING_TYPE,
+                    HttpHandler.URL_FIELD, Handler.STRING_TYPE,
+                    HttpHandler.PORT_FIELD, Handler.STRING_TYPE,
+                    HttpHandler.ENDPOINT_FIELD, Handler.STRING_TYPE,
+                    HttpHandler.QUERY_PARAMS_FIELD, Handler.OBJECT_TYPE,
+                    HttpHandler.HEADERS_FIELD, Handler.OBJECT_TYPE,
+                    HttpHandler.BODY_FIELD, Handler.STRING_TYPE
             )
     );
 
-    private final HttpHandlerUtil httpHandlerUtil;
+    private final CommonUtils commonUtils;
+    private final HttpHandlerUtils httpHandlerUtils;
 
     @Override
     public List<HttpHandlerResponse> handle(@Nullable final HandlerDefinition handlerDef,
                                             @NonNull final Map<String, Object> headers,
                                             @NonNull final HttpHandlerRequest request,
                                             @NonNull final HandlerHandler handlerHandler) {
-        final String fullUrl = this.httpHandlerUtil.getFullUrl(request);
+        final String fullUrl = this.httpHandlerUtils.getFullUrl(request);
+        HttpHandler.log.info("Handling {} request for url {} with headers: {} \n\tand body: \n\t\t{}", request.getHttpMethod(), fullUrl, request.getHeaders(), request.getBody());
         try {
             final HttpURLConnection connection = (HttpURLConnection) this.getUrl(fullUrl).openConnection();
             try {
@@ -88,13 +90,17 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     List<HttpHandlerResponse> configureAndHandle(@NonNull final HttpURLConnection connection, @NonNull final HttpHandlerRequest request) throws IOException {
         this.setHeaders(connection, request.getHeaders());
 
-        connection.setRequestMethod(Optional.ofNullable(request.getHttpMethod()).map(Enum::toString).orElse("GET"));
+        connection.setRequestMethod(Optional.ofNullable(request.getHttpMethod())
+                .map(Enum::toString)
+                .map(it -> it.toUpperCase(Locale.ROOT))
+                .orElse(HttpMethod.GET.name().toUpperCase(Locale.ROOT)));
+
         connection.setUseCaches(false);
         connection.setDoOutput(true);
 
         this.writeRequest(connection, request);
         final int responseCode = connection.getResponseCode(); // actually does request
-        if (request.getReturnResponse()) {
+        if (request.isReturnResponse()) {
             return List.of(this.buildResponse(responseCode, connection, request));
         }
         return Collections.emptyList();
@@ -120,7 +126,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
                 return String.join("\n", lines);
             }
         } catch (final IOException e) {
-            HttpHandler.log.error(String.format("couldn't response for url %s", this.httpHandlerUtil.getFullUrl(request)), e);
+            HttpHandler.log.error(String.format("couldn't get response for url %s", this.httpHandlerUtils.getFullUrl(request)), e);
         }
         return null;
     }
@@ -128,7 +134,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     void writeRequest(final HttpURLConnection connection, final HttpHandlerRequest request) {
         final String requestBody = request.getBody();
         if (StringUtils.isNotBlank(requestBody)) {
-            this.writeRequest(connection, this.httpHandlerUtil.getFullUrl(request), requestBody);
+            this.writeRequest(connection, this.httpHandlerUtils.getFullUrl(request), requestBody);
         }
     }
 
@@ -148,7 +154,9 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
     @SuppressWarnings("unchecked")
     public HttpHandlerRequest requestBodyToRequestObj(@NonNull final Map<String, Object> requestBody) {
         final HttpHandlerRequest request = new HttpHandlerRequest();
-        final Map<String, Object> valueMap = this.mergeValuesOntoDefTemplate(HttpHandler.PROTOTYPE_HANDLER_DEF, requestBody);
+        final Map<String, Object> parameterValueMap = this.getParameterValueMap(requestBody);
+        final Map<String, Object> valueMap = this.mergeValuesOntoDefTemplate(HttpHandler.PROTOTYPE_HANDLER_DEF, parameterValueMap);
+        request.setReturnResponse(this.commonUtils.getBooleanValue(this.commonUtils.getStringValue(valueMap.get(Handler.RETURN_RESPONSE)), false));
         request.setHttpMethod(HttpMethod.valueOf(String.valueOf(valueMap.get(HttpHandler.METHOD_FIELD))));
         request.setConnectType(String.valueOf(valueMap.get(HttpHandler.CONNECT_TYPE_FIELD)));
         request.setUrl(String.valueOf(valueMap.get(HttpHandler.URL_FIELD)));
@@ -160,13 +168,17 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
         return request;
     }
 
+    private Map<String, Object> getParameterValueMap(final Map<String, Object> requestBody) {
+        return requestBody;
+    }
+
     Map<String, Object> mergeValuesOntoDefTemplate(final HandlerDefinition handlerDef, final Map<String, Object> requestBody) {
         final Map<String, Object> map = new HashMap<>();
 
         // only put keys which exist in the handler def
         requestBody.entrySet().stream()
                 .filter(e -> handlerDef.getDef().containsKey(e.getKey()))
-                .filter(e -> this.httpHandlerUtil.typeMatches(handlerDef.getDef().get(e.getKey()), e.getValue()))
+                .filter(e -> this.httpHandlerUtils.typeMatches(handlerDef.getDef().get(e.getKey()), e.getValue()))
                 .forEach(e -> map.put(e.getKey(), e.getValue()));
         return map;
     }

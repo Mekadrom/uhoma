@@ -15,6 +15,12 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     String IS_EXTENSION = "is_extension";
     String EXTENDS_FROM = "extends_from";
 
+    String RETURN_RESPONSE = "return_response";
+
+    String BOOLEAN_TYPE = "boolean";
+    String STRING_TYPE = "string";
+    String OBJECT_TYPE = "object";
+
     List<R> handle(HandlerDefinition handlerDef, @NonNull Map<String, Object> headers, @NonNull T request, @NonNull HandlerHandler handlerHandler);
 
     default List<R> handle(final HandlerDefinition handlerDef, @NonNull final Map<String, Object> headers, @NonNull final Map<String, Object> requestBody, @NonNull final HandlerHandler handlerHandler) {
@@ -25,8 +31,8 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
         final T request = this.requestBodyToRequestObj(requestBody);
         request.setToNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ));
         request.setFromNodeSeq(this.getLongHeader(headers, HAKafkaConstants.HEADER_SENDING_NODE_SEQ));
-        request.setToUsername(String.valueOf(headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME)));
-        request.setFromUsername(String.valueOf(headers.get(HAKafkaConstants.HEADER_SENDING_USERNAME)));
+        request.setToUsername(new String((byte[]) headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME)));
+        request.setFromUsername(new String((byte[]) headers.get(HAKafkaConstants.HEADER_SENDING_USERNAME)));
         return request;
     }
 
@@ -41,7 +47,7 @@ public interface Handler<T extends HandlerRequest, R extends HandlerResponse> {
     T requestBodyToRequestObj(@NonNull Map<String, Object> requestBody);
 
     default boolean qualifies(@NonNull final HandlerDefinition handlerDef) {
-        return (this.isBuiltin(handlerDef) && this.builtinTypeIs(handlerDef, this.getName())) || this.extendsFrom(handlerDef, this.getName());
+        return this.isBuiltin(handlerDef) && this.builtinTypeIs(handlerDef, this.getName());
     }
 
     default boolean isBuiltin(@NonNull final HandlerDefinition handlerDef) {

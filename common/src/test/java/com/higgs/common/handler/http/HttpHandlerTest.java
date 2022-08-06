@@ -4,16 +4,18 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.higgs.common.handler.HandlerDefinition;
 import com.higgs.common.handler.HandlerHandler;
+import com.higgs.common.util.CommonUtils;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,17 +53,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @WireMockTest
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = { HttpHandler.class })
 class HttpHandlerTest {
-    @Mock
-    private HttpHandlerUtil httpHandlerUtil;
+    @MockBean
+    private CommonUtils commonUtils;
 
+    @MockBean
+    private HttpHandlerUtils httpHandlerUtils;
+
+    @Autowired
     private HttpHandler httpHandler;
-
-    @BeforeEach
-    void setUp() {
-        this.httpHandler = new HttpHandler(this.httpHandlerUtil);
-    }
 
     @Test
     @SneakyThrows
@@ -75,7 +77,7 @@ class HttpHandlerTest {
         doCallRealMethod().when(httpHandlerSpy).handle(any(), any(), any(), any());
         doReturn(List.of(response)).when(httpHandlerSpy).configureAndHandle(any(), any());
         stubFor(get("/test").willReturn(ok()));
-        when(this.httpHandlerUtil.getFullUrl(any())).thenReturn("http://localhost:0/test");
+        when(this.httpHandlerUtils.getFullUrl(any())).thenReturn("http://localhost:0/test");
         final List<HttpHandlerResponse> actual = httpHandlerSpy.handle(handlerDefinition, headers, request, handlerHandler);
         verify(httpHandlerSpy, times(1)).configureAndHandle(any(), any());
         assertThat(actual, is(List.of(response)));
@@ -105,7 +107,7 @@ class HttpHandlerTest {
         final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
         final HandlerHandler handlerHandler = mock(HandlerHandler.class);
         doCallRealMethod().when(httpHandlerSpy).handle(any(), any(), any(), any());
-        when(this.httpHandlerUtil.getFullUrl(any())).thenReturn("invalid url");
+        when(this.httpHandlerUtils.getFullUrl(any())).thenReturn("invalid url");
         final List<HttpHandlerResponse> actual = assertDoesNotThrow(() -> httpHandlerSpy.handle(handlerDefinition, headers, request, handlerHandler));
         verify(httpHandlerSpy, times(0)).configureAndHandle(any(), any());
         assertThat(actual, is(Collections.emptyList()));
@@ -134,7 +136,7 @@ class HttpHandlerTest {
         final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
         final HttpHandlerResponse response = mock(HttpHandlerResponse.class);
         doCallRealMethod().when(httpHandlerSpy).configureAndHandle(any(), any());
-        when(request.getReturnResponse()).thenReturn(true);
+        when(request.isReturnResponse()).thenReturn(true);
         doReturn(response).when(httpHandlerSpy).buildResponse(anyInt(), any(), any());
         final List<HttpHandlerResponse> actual = httpHandlerSpy.configureAndHandle(httpUrlConnection, request);
         assertThat(actual, is(List.of(response)));
@@ -281,8 +283,8 @@ class HttpHandlerTest {
 
     @Test
     void testMergeValuesOntoDefTemplateCorrectType() {
-        final HttpHandlerUtil httpHandlerUtil = new HttpHandlerUtil();
-        final HttpHandler httpHandler = new HttpHandler(httpHandlerUtil);
+        final HttpHandlerUtils httpHandlerUtil = new HttpHandlerUtils();
+        final HttpHandler httpHandler = new HttpHandler(this.commonUtils, httpHandlerUtil);
         final HandlerDefinition handlerDefinition = HttpHandler.PROTOTYPE_HANDLER_DEF;
         final Map<String, Object> requestBody = Map.of(
                 HttpHandler.METHOD_FIELD, "GET",
@@ -311,8 +313,8 @@ class HttpHandlerTest {
 
     @Test
     void testMergeValuesOntoDefTemplateWrongTypes() {
-        final HttpHandlerUtil httpHandlerUtil = new HttpHandlerUtil();
-        final HttpHandler httpHandler = new HttpHandler(httpHandlerUtil);
+        final HttpHandlerUtils httpHandlerUtil = new HttpHandlerUtils();
+        final HttpHandler httpHandler = new HttpHandler(this.commonUtils, httpHandlerUtil);
         final HandlerDefinition handlerDefinition = HttpHandler.PROTOTYPE_HANDLER_DEF;
         final Map<String, Object> requestBody = Map.of(
                 HttpHandler.METHOD_FIELD, 1,
@@ -363,7 +365,7 @@ class HttpHandlerTest {
         final HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
 
         doReturn(url).when(httpHandlerSpy).getUrl(any());
-        when(this.httpHandlerUtil.getFullUrl(any())).thenReturn("url");
+        when(this.httpHandlerUtils.getFullUrl(any())).thenReturn("url");
         when(url.openConnection()).thenReturn(httpURLConnection);
 
         httpHandlerSpy.handle(handlerDefinition, headers, request, handlerHandler);

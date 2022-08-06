@@ -1,12 +1,12 @@
 package com.higgs.server.kafka;
 
 import com.higgs.common.kafka.HAKafkaConstants;
-import com.higgs.common.util.CommonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.MultiValueMap;
 
@@ -30,16 +30,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class MainServerConsumerTest {
     @Mock
-    private CommonUtils commonUtils;
-
-    @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
 
     private MainServerConsumer mainServerConsumer;
 
     @BeforeEach
     void setUp() {
-        this.mainServerConsumer = new MainServerConsumer(this.commonUtils, this.simpMessagingTemplate);
+        this.mainServerConsumer = new MainServerConsumer(this.simpMessagingTemplate);
     }
 
     /**
@@ -47,11 +44,10 @@ class MainServerConsumerTest {
      * {@link MainServerConsumer#transmit(MultiValueMap, String)} with the correct inputs.
      */
     @Test
-    @SuppressWarnings("unchecked")
     void testListenNodeMessageTopic() {
-        final MainServerConsumer mainServerConsumer = new MainServerConsumer(this.commonUtils, this.simpMessagingTemplate);
+        final MainServerConsumer mainServerConsumer = new MainServerConsumer(this.simpMessagingTemplate);
         final MainServerConsumer mainServerConsumerSpy = spy(mainServerConsumer);
-        final MultiValueMap<String, String> headers = (MultiValueMap<String, String>) mock(MultiValueMap.class);
+        final MessageHeaders headers = mock(MessageHeaders.class);
         mainServerConsumerSpy.listenNodeMessageTopic(headers, "test");
         verify(mainServerConsumerSpy).transmit(headers, "test");
     }
@@ -61,9 +57,9 @@ class MainServerConsumerTest {
      * {@link SimpMessagingTemplate#convertAndSendToUser(String, String, Object, Map)} method with the correct inputs.
      */
     @Test
-    @SuppressWarnings({ "unchecked", "ConstantConditions" })
+    @SuppressWarnings("ConstantConditions")
     void testTransmit() {
-        final MultiValueMap<String, String> headers = (MultiValueMap<String, String>) mock(MultiValueMap.class);
+        final MessageHeaders headers = mock(MessageHeaders.class);
         final Map<String, Object> map = new HashMap<>();
         when(this.commonUtils.toObjectMap(any())).thenReturn(map);
         this.mainServerConsumer.transmit(headers, "test");
@@ -75,9 +71,8 @@ class MainServerConsumerTest {
      * node from the headers of the kafka event.
      */
     @Test
-    @SuppressWarnings("unchecked")
     void testExtractUser() {
-        final MultiValueMap<String, String> headers = (MultiValueMap<String, String>) mock(MultiValueMap.class);
+        final MessageHeaders headers = mock(MessageHeaders.class);
         when(headers.get(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ)).thenReturn(List.of("1"));
         assertThat(this.mainServerConsumer.extractUser(headers), is(equalTo("1")));
     }

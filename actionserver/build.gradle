@@ -52,6 +52,11 @@ bootJar {
 }
 
 bootRun {
+    systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active') ?: 'local'
+    if (System.hasProperty('server.port')) {
+        systemProperty 'server.port', System.getProperty('server.port')
+    }
+
     jvmArgs = ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
 }
 

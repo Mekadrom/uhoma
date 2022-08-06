@@ -71,7 +71,13 @@ bootJar {
 }
 
 bootRun {
-    jvmArgs = ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
+    systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active') ?: 'local'
+    if (System.hasProperty('server.port')) {
+        systemProperty 'server.port', System.getProperty('server.port')
+    }
+    systemProperty 'security.auth.jwt.signing-key', System.getProperty('security.auth.jwt.signing-key') ?: 'devsigningkey'
+
+    jvmArgs = ['-Dorg.slf4j.simpleLogger.defaultLogLevel=debug']
 }
 
 processResources {

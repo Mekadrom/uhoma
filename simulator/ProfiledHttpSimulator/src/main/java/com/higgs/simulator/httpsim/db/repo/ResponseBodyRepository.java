@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ResponseBodyRepository extends JpaRepository<ResponseBody, Long>, JpaSpecificationExecutor<ResponseBody> {
-    List<ResponseBody> findByResponseGroupResponseGroupSeq(Long responseGroupSeq);
+    List<ResponseBody> findByResponseGroupSeq(Long responseGroupSeq);
 }

@@ -198,19 +198,20 @@ class ExtensionHandlerTest {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
         final Jinjava jinjava = mock(Jinjava.class);
         final Map<String, Object> toInterpolate = new HashMap<>();
-        toInterpolate.put("key", "value");
+        toInterpolate.put("key1", "value1");
         toInterpolate.put("key2", "value2");
-        final ExtensionHandlerRequest request = new ExtensionHandlerRequest(new HashMap<>());
+        final ExtensionHandlerRequest request = mock(ExtensionHandlerRequest.class);
 
-        request.put("key", "value");
+        request.put("key1", "value1");
         request.put("key2", "value2");
 
         doReturn(jinjava).when(extensionHandlerSpy).getJinjaEngine();
+        when(request.getParameters()).thenReturn(request);
         when(jinjava.render(any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         assertThat(extensionHandlerSpy.interpolateFieldValues(toInterpolate, request), is(toInterpolate));
 
-        verify(jinjava, times(1)).render("value", request);
+        verify(jinjava, times(1)).render("value1", request);
         verify(jinjava, times(1)).render("value2", request);
     }
 
@@ -234,17 +235,19 @@ class ExtensionHandlerTest {
         final ExtensionHandler extensionHandlerSpy = spy(ExtensionHandler.class);
         final Jinjava jinjava = mock(Jinjava.class);
         final Map<String, Object> toInterpolate = new HashMap<>();
-        toInterpolate.put("key", new Object());
+        final Object randomObject = new Object();
+        toInterpolate.put("key1", randomObject);
         toInterpolate.put("key2", "value2");
-        final ExtensionHandlerRequest request = new ExtensionHandlerRequest(new HashMap<>());
+        final ExtensionHandlerRequest request = mock(ExtensionHandlerRequest.class);
 
-        request.put("key", "value");
+        request.put("key1", "value1");
         request.put("key2", "value2");
 
         doReturn(jinjava).when(extensionHandlerSpy).getJinjaEngine();
+        when(request.getParameters()).thenReturn(request);
         when(jinjava.render(any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThat(extensionHandlerSpy.interpolateFieldValues(toInterpolate, request), is(Map.of("key2", "value2")));
+        assertThat(extensionHandlerSpy.interpolateFieldValues(toInterpolate, request), is(Map.of("key1", randomObject, "key2", "value2")));
 
         verify(jinjava, times(1)).render(any(), eq(request));
     }

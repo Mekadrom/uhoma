@@ -1,2 +1,6 @@
 kafka:
   bootstrap-address: localhost:9092
+logging:
+  level:
+    com:
+      higgs: DEBUG

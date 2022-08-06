@@ -79,10 +79,10 @@ class ResponseBodyServiceTest {
         final Map<String, Object> keyedFields = Map.of("bruh", "test");
         when(responseGroup.getResponseGroupSeq()).thenReturn(1L);
         doReturn(Optional.of(responseBody)).when(responseBodyServiceSpy).determineResponseBody(any(), any());
-        when(this.responseBodyRepository.findByResponseGroupResponseGroupSeq(any())).thenReturn(List.of(responseBody));
+        when(this.responseBodyRepository.findByResponseGroupSeq(any())).thenReturn(List.of(responseBody));
         assertThat(responseBodyServiceSpy.findByResponseGroupAndKeyedFields(responseGroup, keyedFields), is(equalTo(Optional.of(responseBody))));
         verify(responseBodyServiceSpy, times(1)).determineResponseBody(List.of(responseBody), keyedFields);
-        verify(this.responseBodyRepository, times(1)).findByResponseGroupResponseGroupSeq(1L);
+        verify(this.responseBodyRepository, times(1)).findByResponseGroupSeq(1L);
     }
 
     @Test
@@ -92,7 +92,7 @@ class ResponseBodyServiceTest {
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
         final Map<String, Object> body = Map.of("bruh", "test", "bruh1", "test1");
         final Map<String, Object> headers = Map.of("test", "bruh");
-        when(responseGroup.getProfile()).thenReturn(profile);
+        when(responseGroup.getProfileSeq()).thenReturn(profile);
         when(profile.getKeyedFields()).thenReturn(Set.of("bruh"));
         when(this.responseBodyRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         doReturn(headers).when(responseBodyServiceSpy).filterHeaders(any());
@@ -102,7 +102,7 @@ class ResponseBodyServiceTest {
         verify(responseBodyServiceSpy, times(1)).removeKeyedFields(body, Set.of("bruh"));
         verify(responseBodyServiceSpy, times(1)).filterHeaders(headers);
         assertAll(
-                () -> assertThat(actual.getResponseGroup(), is(equalTo(responseGroup))),
+                () -> assertThat(actual.getResponseGroupSeq(), is(equalTo(responseGroup))),
                 () -> assertThat(actual.getBody(), is(equalTo("{\"bruh1\":\"test1\"}"))),
                 () -> assertThat(actual.getHeaders(), is(equalTo(headers))),
                 () -> assertThat(actual.getResponseCode(), is(equalTo(200)))

@@ -14,10 +14,10 @@ public class ResponseGroupService {
     private final ResponseGroupRepository responseGroupRepository;
 
     public ResponseGroup findByProfileAndEndpointOrDefault(final Profile profile, final String endpoint) {
-        return this.responseGroupRepository.findByProfileProfileSeqAndEndpoint(profile.getProfileSeq(), endpoint).orElseGet(() -> this.createNewResponseGroup(profile, endpoint));
+        return this.responseGroupRepository.findByProfileSeqAndEndpoint(profile.getProfileSeq(), endpoint).orElseGet(() -> this.createNewResponseGroup(profile, endpoint));
     }
 
     ResponseGroup createNewResponseGroup(final Profile profile, final String endpoint) {
-        return this.responseGroupRepository.save(new ResponseGroup().setProfile(profile).setEndpoint(endpoint));
+        return this.responseGroupRepository.save(new ResponseGroup().setProfileSeq(profile.getProfileSeq()).setEndpoint(endpoint));
     }
 }

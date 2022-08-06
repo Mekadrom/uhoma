@@ -223,7 +223,7 @@ class HandlerHandlerTest {
         final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, List.of(handler1, handler2), this.proxyHandlerGenerator);
         when(handler1.getName()).thenReturn("not_name");
         when(handler2.getName()).thenReturn("name");
-        final Optional<Handler<HandlerRequest, HandlerResponse>> actual = handlerHandler.findHandlerByName("name");
+        final Optional<Handler<? extends HandlerRequest, ? extends HandlerResponse>> actual = handlerHandler.findHandlerByName("name");
         verify(handler1, times(1)).getName();
         verify(handler2, times(1)).getName();
         assertThat(actual.isPresent(), is(true));
