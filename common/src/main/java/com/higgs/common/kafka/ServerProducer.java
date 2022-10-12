@@ -55,6 +55,7 @@ public class ServerProducer {
         ServerProducer.log.error(throwable.getMessage(), throwable);
     }
 
+    @NonNull
     Header convertHeader(final Map.Entry<String, Object> header, final ObjectMapper headerMapper) {
         return new Header() {
             @Override
@@ -62,10 +63,20 @@ public class ServerProducer {
                 return header.getKey();
             }
 
+            @NonNull
             @Override
             public byte[] value() {
                 try {
-                    return ((header.getValue() instanceof String) ? (String) header.getValue() : headerMapper.writeValueAsString(header.getValue())).getBytes(StandardCharsets.UTF_8);
+                    final Object value = header.getValue();
+                    if (value == null) {
+                        return new byte[0];
+                    }
+
+                    if (value instanceof String str) {
+                        return str.getBytes(StandardCharsets.UTF_8);
+                    }
+
+                    return headerMapper.writeValueAsString(header.getValue()).getBytes(StandardCharsets.UTF_8);
                 } catch (final JsonProcessingException e) {
                     ServerProducer.log.error(String.format("error serializing header: %s", header.getKey()), e);
                 }

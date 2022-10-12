@@ -37,9 +37,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -130,7 +132,7 @@ class HttpHandlerTest {
 
     @Test
     @SneakyThrows
-    void testConfigureAndHandlerResponseReturned() {
+    void testConfigureAndHandleResponseReturned() {
         final HttpHandler httpHandlerSpy = spy(this.httpHandler);
         final HttpURLConnection httpUrlConnection = mock(HttpURLConnection.class);
         final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
@@ -154,6 +156,18 @@ class HttpHandlerTest {
                 Arguments.of(mock(HttpURLConnection.class), null),
                 Arguments.of(null, mock(HttpHandlerRequest.class))
         );
+    }
+
+    @Test
+    @SneakyThrows
+    void testConfigureAndHandleUpperCasesRequestMethod() {
+        final HttpHandler httpHandlerSpy = spy(this.httpHandler);
+        final HttpURLConnection httpUrlConnection = mock(HttpURLConnection.class);
+        final HttpHandlerRequest request = mock(HttpHandlerRequest.class);
+        doCallRealMethod().when(httpHandlerSpy).configureAndHandle(any(), any());
+        when(request.getHttpMethod()).thenReturn(HttpMethod.POST);
+        httpHandlerSpy.configureAndHandle(httpUrlConnection, request);
+        verify(httpUrlConnection, times(1)).setRequestMethod("POST");
     }
 
     @Test
@@ -258,9 +272,12 @@ class HttpHandlerTest {
                 HttpHandler.ENDPOINT_FIELD, "endpoint",
                 HttpHandler.QUERY_PARAMS_FIELD, Map.of("test1", "test1"),
                 HttpHandler.HEADERS_FIELD, Map.of("test2", "test2"),
-                HttpHandler.BODY_FIELD, "body"
+                HttpHandler.BODY_FIELD, "body",
+                HttpHandler.RETURN_RESPONSE, true
         );
         doReturn(requestBody).when(httpHandlerSpy).mergeValuesOntoDefTemplate(any(), any());
+        when(this.commonUtils.getStringValue(anyBoolean())).thenReturn("true");
+        when(this.commonUtils.getBooleanValue(any(), anyBoolean())).thenReturn(true);
         final HttpHandlerRequest actual = httpHandlerSpy.requestBodyToRequestObj(requestBody);
         assertAll(
                 () -> assertThat(actual.getHttpMethod(), is(HttpMethod.GET)),
@@ -270,7 +287,8 @@ class HttpHandlerTest {
                 () -> assertThat(actual.getEndpoint(), is("endpoint")),
                 () -> assertThat(actual.getQueryParams(), is(Map.of("test1", "test1"))),
                 () -> assertThat(actual.getHeaders(), is(Map.of("test2", "test2"))),
-                () -> assertThat(actual.getBody(), is("body"))
+                () -> assertThat(actual.getBody(), is("body")),
+                () -> assertTrue(actual.isReturnResponse())
         );
     }
 
@@ -373,5 +391,15 @@ class HttpHandlerTest {
         verify(httpHandlerSpy, times(1)).getUrl("url");
         verify(httpHandlerSpy, times(1)).configureAndHandle(httpURLConnection, request);
         verify(httpURLConnection, times(1)).disconnect();
+    }
+
+    @Test
+    void getParameterValueMap() {
+        final Map<String, Object> parameters = Map.of(
+                "test1", "test1",
+                "test2", "test2",
+                "test3", "test3"
+        );
+        assertEquals(parameters, this.httpHandler.getParameterValueMap(parameters));
     }
 }

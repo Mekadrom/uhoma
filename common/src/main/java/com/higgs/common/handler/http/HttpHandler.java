@@ -168,7 +168,7 @@ public class HttpHandler implements Handler<HttpHandlerRequest, HttpHandlerRespo
         return request;
     }
 
-    private Map<String, Object> getParameterValueMap(final Map<String, Object> requestBody) {
+    Map<String, Object> getParameterValueMap(final Map<String, Object> requestBody) {
         return requestBody;
     }
 

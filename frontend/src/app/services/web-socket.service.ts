@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Client, Message, Stomp } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
@@ -13,6 +13,8 @@ import { AuthService, UrlProviderService, UserProviderService } from '../service
 })
 export class WebSocketService {
   client?: any;
+
+  public userResponse: EventEmitter<string> = new EventEmitter();
 
   constructor(private authService: AuthService,
               private cookieService: CookieService,
@@ -31,16 +33,11 @@ export class WebSocketService {
         }
         const userView: UserView | null | undefined = this.userProviderService.getUserView();
         if (userView) {
-          const nodeSeq: number | null | undefined = userView.node?.nodeSeq;
-          const userLoginSeq: number | null = userView.userLoginSeq;
-          if (nodeSeq) {
-            this.client.subscribe("/${nodeSeq}/queue/reply", (message: any) => {
-              console.log("node response: " + message.body);
-            }, { Authorization: 'Bearer ' + jwt });
-          }
-          if (userLoginSeq) {
-            this.client.subscribe("/${userLoginSeq}/queue/reply", (message: any) => {
+          const username: string | null = userView.username;
+          if (username) {
+            this.client.subscribe(`/user/queue/reply`, (message: any) => {
               console.log("user response: " + message.body);
+              this.userResponse.emit(message.body);
             }, { Authorization: 'Bearer ' + jwt });
           }
         }

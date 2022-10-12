@@ -6,6 +6,7 @@ import com.higgs.simulator.httpsim.db.entity.ResponseGroup;
 import com.higgs.simulator.httpsim.db.repo.ResponseBodyRepository;
 import com.higgs.simulator.httpsim.util.JsonUtils;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,20 +40,20 @@ public class ResponseBodyService {
                 .setBody(this.getCleanBody(body, profile.getKeyedFields())));
     }
 
-    public void updateResponseBody(final Profile profile, final ResponseBody responseBody, final Integer responseCode, final Map<String, Object> headers, final Map<String, Object> requestFields) {
+    public void updateResponseBody(final Profile profile, final ResponseBody responseBody, final Integer responseCode, final Map<String, Object> headers, @NonNull final Map<String, Object> requestFields) {
         this.responseBodyRepository.save(responseBody
                 .setBody(this.getCleanBody(requestFields, profile.getKeyedFields()))
                 .setResponseCode(responseCode)
                 .setHeaders(this.filterHeaders(headers)));
     }
 
-    String getCleanBody(final Map<String, Object> body, final Set<String> keyedFields) {
+    String getCleanBody(@NonNull final Map<String, Object> body, @NonNull final Set<String> keyedFields) {
         return Optional.ofNullable(JsonUtils.convertMapToJsonString(this.removeKeyedFields(body, keyedFields)))
                 .map(it -> it.replaceAll("\\s*", ""))
                 .orElse("");
     }
 
-    Map<String, Object> removeKeyedFields(final Map<String, Object> body, final Set<String> keyedFields) {
+    Map<String, Object> removeKeyedFields(@NonNull final Map<String, Object> body, @NonNull final Set<String> keyedFields) {
         return body.entrySet().stream()
                 .filter(it -> !keyedFields.contains(it.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

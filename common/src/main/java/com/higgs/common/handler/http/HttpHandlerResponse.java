@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.io.Serial;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -16,10 +17,10 @@ public class HttpHandlerResponse extends HandlerResponse {
 
     public HttpHandlerResponse(final HttpHandlerRequest requestFor) {
         this.setExpected(requestFor.isReturnResponse());
-        this.setToNodeSeq(requestFor.getToNodeSeq());
-        this.setFromNodeSeq(requestFor.getFromNodeSeq());
-        this.setToUsername(requestFor.getToUsername());
-        this.setFromUsername(requestFor.getFromUsername());
+        this.setToNodeSeq(requestFor.getFromNodeSeq());
+        this.setFromNodeSeq(Optional.ofNullable(requestFor.getToNodeSeq()).orElseGet(requestFor::getFromNodeSeq));
+        this.setToUsername(requestFor.getFromUsername());
+        this.setFromUsername(Optional.ofNullable(requestFor.getToUsername()).orElseGet(requestFor::getFromUsername));
     }
 
     public int getResponseCode() {

@@ -8,10 +8,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +23,8 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -99,6 +105,45 @@ class HandlerHandlerTest {
                 Arguments.of(Map.of(), null),
                 Arguments.of(null, null)
         );
+    }
+
+    @Test
+    void testGetStringHeader() {
+        final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
+        final Map<String, Object> headers = Map.of("1", "1".getBytes(StandardCharsets.UTF_8));
+        final String actual = handlerHandler.getStringHeader(headers, "1");
+        assertThat(actual, is("1"));
+    }
+
+    @Test
+    void testGetStringHeaderNull() {
+        final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put("1", null);
+        assertNull(handlerHandler.getStringHeader(headers, "1"));
+    }
+
+    @NullSource
+    @ParameterizedTest
+    void testGetStringHeaderNullMapThrows(final Map<String, Object> nullValue) {
+        final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
+        assertThrows(IllegalArgumentException.class, () -> handlerHandler.getStringHeader(nullValue, "1"));
+    }
+
+    @Test
+    void testGetStringHeaderEmpty() {
+        final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put("1", "".getBytes(StandardCharsets.UTF_8));
+        assertEquals("", handlerHandler.getStringHeader(headers, "1"));
+    }
+
+    @Test
+    void testGetStringHeaderNonByteArray() {
+        final HandlerHandler handlerHandler = new HandlerHandler(this.commonUtils, Collections.emptyList(), this.proxyHandlerGenerator);
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put("1", "1");
+        assertNull(handlerHandler.getStringHeader(headers, "1"));
     }
 
     @Test

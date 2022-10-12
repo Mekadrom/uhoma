@@ -61,8 +61,9 @@ class ResponseGroupServiceTest {
 
     @Test
     void testCreateNewResponseGroup() {
-        final Profile profile = mock(Profile.class);
-        final ResponseGroup responseGroup = new ResponseGroup().setProfileSeq(profile).setEndpoint("endpoint");
+        final Profile profile = new Profile();
+        profile.setProfileSeq(1L);
+        final ResponseGroup responseGroup = new ResponseGroup().setProfileSeq(1L).setEndpoint("endpoint");
         when(this.responseGroupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         assertThat(this.responseGroupService.createNewResponseGroup(profile, "endpoint"), is(equalTo(responseGroup)));
         verify(this.responseGroupRepository, times(1)).save(responseGroup);

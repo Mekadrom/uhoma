@@ -46,6 +46,9 @@ class ServerProducerTest {
     @Mock
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    @Mock
+    private Map.Entry<String, Object> mockEntry;
+
     private ServerProducer serverProducer;
 
     @BeforeEach
@@ -184,5 +187,23 @@ class ServerProducerTest {
         // json mapping exception is only subclass of JsonProcessingException that can be instantiated outside its package
         when(objectMapper.writeValueAsString(any())).thenThrow(new JsonMappingException(null, ""));
         assertThat(this.serverProducer.convertHeader(entry, objectMapper).value(), is(new byte[0]));
+    }
+
+    @Test
+    void testInnerHeaderClassReturnsNonNull() {
+        when(this.mockEntry.getValue()).thenReturn(null);
+
+        final ObjectMapper objectMapper = mock(ObjectMapper.class);
+
+        assertThat(this.serverProducer.convertHeader(this.mockEntry, objectMapper).value(), is(new byte[0]));
+    }
+
+    @Test
+    void testInnerHeaderClassReturnsStringValue() {
+        when(this.mockEntry.getValue()).thenReturn("value");
+
+        final ObjectMapper objectMapper = mock(ObjectMapper.class);
+
+        assertThat(this.serverProducer.convertHeader(this.mockEntry, objectMapper).value(), is("value".getBytes(StandardCharsets.UTF_8)));
     }
 }
