@@ -37,13 +37,13 @@ public class MainServerConsumer {
     String extractUser(@NonNull final MessageHeaders headers) {
         // TODO: replace with uuids that can identify either nodes or users
         return Optional.ofNullable(headers.get(HAKafkaConstants.HEADER_RECEIVING_NODE_SEQ))
-                .filter(it -> it instanceof byte[])
-                .map(it -> (byte[]) it)
+                .filter(byte[].class::isInstance)
+                .map(byte[].class::cast)
                 .filter(it -> it.length > 0)
                 .map(String::new)
                 .orElseGet(() -> Optional.ofNullable(headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME))
-                        .filter(it -> it instanceof byte[])
-                        .map(it -> (byte[]) it)
+                        .filter(byte[].class::isInstance)
+                        .map(byte[].class::cast)
                         .filter(it -> it.length > 0)
                         .map(String::new)
                         .orElseThrow(() -> new IllegalStateException("No recipient found in headers")));

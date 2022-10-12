@@ -135,15 +135,18 @@ class ResponseBodyServiceTest {
         verify(responseBodyServiceSpy, times(1)).getCleanBody(any(), any());
         verify(responseBodyServiceSpy, times(1)).filterHeaders(any());
 
-        assertEquals(responseBody.getBody(), "{\"bruh\":\"test\"}");
-        assertEquals(responseBody.getResponseCode(), 200);
-        assertEquals(responseBody.getHeaders(), headers);
+        assertEquals("{\"bruh\":\"test\"}", responseBody.getBody());
+        assertEquals(200, responseBody.getResponseCode());
+        assertEquals(headers, responseBody.getHeaders());
     }
 
     @NullSource
     @ParameterizedTest
     void testUpdateResponseBodyInvalidArgs(final Map<String, Object> nullValue) {
-        assertThrows(IllegalArgumentException.class, () -> this.responseBodyService.updateResponseBody(mock(Profile.class), mock(ResponseBody.class), 200, Collections.emptyMap(), nullValue));
+        final Profile profile = mock(Profile.class);
+        final ResponseBody responseBody = mock(ResponseBody.class);
+        final Map<String, Object> headers = Collections.emptyMap();
+        assertThrows(IllegalArgumentException.class, () -> this.responseBodyService.updateResponseBody(profile, responseBody, 200, headers, nullValue));
     }
 
     public static Stream<Arguments> getTestGetCleanBodyInvalidArgsParams() {
