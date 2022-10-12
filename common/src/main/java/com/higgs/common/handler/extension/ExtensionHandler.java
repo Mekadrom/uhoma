@@ -78,13 +78,12 @@ public class ExtensionHandler implements Handler<ExtensionHandlerRequest, Handle
     }
 
     Map<String, Object> interpolateFieldValues(@NonNull final Map<String, Object> toInterpolate, @NonNull final ExtensionHandlerRequest request) {
-        return toInterpolate.entrySet().stream()
-                .peek(entry -> {
-                    if (entry.getValue() instanceof String strEntry) {
-                        entry.setValue(this.getJinjaEngine().render(strEntry, request.getParameters()));
-                    }
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return toInterpolate.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
+            if (entry.getValue() instanceof String strEntry) {
+                return this.getJinjaEngine().render(strEntry, request.getParameters());
+            }
+            return entry.getValue();
+        }));
     }
 
     Jinjava getJinjaEngine() {

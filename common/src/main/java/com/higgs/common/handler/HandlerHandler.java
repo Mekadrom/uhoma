@@ -34,8 +34,8 @@ public class HandlerHandler {
 
     String getStringHeader(@NonNull final Map<String, Object> headers, final String headerName) {
         return Optional.ofNullable(headers.get(headerName))
-                .filter(it -> it instanceof byte[])
-                .map(it -> (byte[]) it)
+                .filter(byte[].class::isInstance)
+                .map(byte[].class::cast)
                 .map(String::new)
                 .orElse(null);
     }
