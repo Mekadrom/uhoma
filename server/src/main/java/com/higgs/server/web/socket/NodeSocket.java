@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class NodeSocket {
         final List<Long> ownedNodeSeqs = this.nodeService.getNodesForHomeSeqs(homeSeqs).stream()
                 .map(Node::getNodeSeq)
                 .toList();
-        if (!ownedNodeSeqs.containsAll(nodeSeqs)) {
+        if (!new HashSet<>(ownedNodeSeqs).containsAll(nodeSeqs)) {
             throw new AccessDeniedException(String.format("principal \"%s\" does not have access to one or more nodes: %s", principal.getName(), nodeSeqs));
         }
     }

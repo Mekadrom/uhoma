@@ -90,7 +90,7 @@ class NodeSocketBrokerConfigurerTest {
         this.nodeSocketBrokerConfigurer.configureMessageBroker(messageBrokerRegistry);
 
         verify(messageBrokerRegistry, times(1)).setApplicationDestinationPrefixes("/app");
-        verify(messageBrokerRegistry, times(1)).enableSimpleBroker("/topic");
+        verify(messageBrokerRegistry, times(1)).enableSimpleBroker("/topic", "/queue");
     }
 
     /**

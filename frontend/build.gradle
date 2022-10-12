@@ -38,8 +38,8 @@ task clean(type: Delete) {
   delete "${projectDir}/dist"
 }
 
-task test(type: NpmTask, dependsOn: 'npmInstall') {
-  group = 'test'
-  description = 'Run tests'
-  args = ['run', 'test']
-}
+//task test(type: NpmTask, dependsOn: 'npmInstall') {
+//  group = 'test'
+//  description = 'Run tests'
+//  args = ['run', 'test']
+//}

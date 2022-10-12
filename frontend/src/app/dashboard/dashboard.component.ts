@@ -45,6 +45,7 @@ export class DashboardComponent implements AfterViewInit {
 
   loading: boolean = true;
   failedToLoad: boolean = false;
+  subscribed: boolean = false;
 
   newHomeName: string = '';
 
@@ -85,6 +86,12 @@ export class DashboardComponent implements AfterViewInit {
     }
     if (this.cookieService.get('bearer') && this.userProviderService.getUserView() && !this.webSocketService.isConnected()) {
       this.webSocketService.attach(this.cookieService.get('bearer'));
+      if (!this.subscribed) {
+        this.webSocketService.userResponse.subscribe((msg) => {
+          this.toastr.info(msg);
+        });
+        this.subscribed = true;
+      }
     }
     this.fetch(false);
   }
@@ -593,6 +600,12 @@ export class DashboardComponent implements AfterViewInit {
     const action: Action | null = this.getAction(this.getSelectedActionRow());
     if (action) {
       this.webSocketService.executeAction(action, false, '');
+      if (!this.subscribed) {
+        this.webSocketService.userResponse.subscribe((msg) => {
+          this.toastr.info(JSON.parse(msg).body);
+        });
+        this.subscribed = true;
+      }
     }
   }
 

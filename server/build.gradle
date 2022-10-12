@@ -40,6 +40,10 @@ dependencies {
 
     testAnnotationProcessor libs.lombok
 
+    // some mockito plugin doesn't load without these
+    testImplementation libs.byte.buddy
+    testImplementation libs.byte.buddy.agent
+
     testImplementation libs.lombok
 
     testImplementation libs.h2

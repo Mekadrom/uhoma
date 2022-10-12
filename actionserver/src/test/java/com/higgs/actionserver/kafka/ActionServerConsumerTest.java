@@ -148,7 +148,7 @@ class ActionServerConsumerTest {
         assertEquals(2L, headers.get(HAKafkaConstants.HEADER_SENDING_NODE_SEQ));
         assertEquals("recuser", headers.get(HAKafkaConstants.HEADER_RECEIVING_USERNAME));
         assertEquals("senduser", headers.get(HAKafkaConstants.HEADER_SENDING_USERNAME));
-        assertThrows(UnsupportedOperationException.class, () -> headers.put("test", "test"));
+        assertDoesNotThrow(() -> headers.put("test", "test"));
     }
 
     @Test

@@ -72,47 +72,55 @@ test {
     dependsOn ':actionserver:test'
     dependsOn ':common:test'
     dependsOn ':server:test'
+    dependsOn ':simulator:test'
 }
 
 task itest {
     dependsOn ':actionserver:itest'
     dependsOn ':common:itest'
     dependsOn ':server:itest'
+    dependsOn ':simulator:itest'
+}
+
+task pmd {
+    dependsOn pmdMain
+    dependsOn pmdTest
+    dependsOn ':pmdItest'
 }
 
 pmdMain {
+    dependsOn ':actionserver:pmdMain'
     dependsOn ':common:pmdMain'
     dependsOn ':server:pmdMain'
     dependsOn ':simulator:pmdMain'
-    dependsOn ':actionserver:pmdMain'
 }
 
 pmdTest {
+    dependsOn ':actionserver:pmdTest'
     dependsOn ':common:pmdTest'
     dependsOn ':server:pmdTest'
     dependsOn ':simulator:pmdTest'
-    dependsOn ':actionserver:pmdTest'
 }
 
 task pmdItest {
+    dependsOn ':actionserver:pmdItest'
     dependsOn ':common:pmdItest'
     dependsOn ':server:pmdItest'
     dependsOn ':simulator:pmdItest'
-    dependsOn ':actionserver:pmdItest'
 }
 
 task pitest {
+    dependsOn ':actionserver:pitest'
     dependsOn ':common:pitest'
     dependsOn ':server:pitest'
     dependsOn ':simulator:pitest'
-    dependsOn ':actionserver:pitest'
 }
 
 task sonarqube {
+    dependsOn ':actionserver:sonarqube'
     dependsOn ':common:sonarqube'
     dependsOn ':server:sonarqube'
     dependsOn ':simulator:sonarqube'
-    dependsOn ':actionserver:sonarqube'
 }
 
 task buildServerImage(type: Exec) {

@@ -32,7 +32,7 @@ public class HandlerHandler {
         return this.process(this.parseHandlerDef(this.getStringHeader(headers, HAKafkaConstants.HEADER_ACTION_HANDLER_DEF)), headers, body);
     }
 
-    String getStringHeader(final Map<String, Object> headers, final String headerName) {
+    String getStringHeader(@NonNull final Map<String, Object> headers, final String headerName) {
         return Optional.ofNullable(headers.get(headerName))
                 .filter(it -> it instanceof byte[])
                 .map(it -> (byte[]) it)

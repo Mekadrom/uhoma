@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,6 +25,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -46,29 +49,35 @@ class ResponseBodyServiceTest {
 
     @Test
     void testFindByResponseGroupAndKeyedFieldsOrDefault() {
+        final Profile profile = new Profile();
         final ResponseBodyService responseBodyServiceSpy = spy(this.responseBodyService);
         final ResponseBody responseBody = mock(ResponseBody.class);
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
         final Map<String, Object> keyedFields = Map.of("bruh", "test");
+        final Map<String, Object> body = Map.of("hurb", "tset");
         final Map<String, Object> headers = Map.of("test", "bruh");
+        profile.setKeyedFields(Set.of("bruh"));
         doReturn(Optional.of(responseBody)).when(responseBodyServiceSpy).findByResponseGroupAndKeyedFields(any(), any());
-        assertThat(responseBodyServiceSpy.findByResponseGroupAndKeyedFieldsOrDefault(responseGroup, keyedFields, headers, 200), is(equalTo(responseBody)));
+        assertThat(responseBodyServiceSpy.findByResponseGroupAndKeyedFieldsOrDefault(profile, responseGroup, keyedFields, body, headers, 200), is(equalTo(responseBody)));
         verify(responseBodyServiceSpy, times(1)).findByResponseGroupAndKeyedFields(responseGroup, keyedFields);
-        verify(responseBodyServiceSpy, times(0)).createResponseBody(responseGroup, keyedFields, headers, 200);
+        verify(responseBodyServiceSpy, times(0)).createResponseBody(profile, responseGroup, keyedFields, body, headers, 200);
     }
 
     @Test
     void testFindByResponseGroupAndKeyedFieldsOrDefaultDefaults() {
+        final Profile profile = new Profile();
         final ResponseBodyService responseBodyServiceSpy = spy(this.responseBodyService);
         final ResponseBody responseBody = mock(ResponseBody.class);
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
         final Map<String, Object> keyedFields = Map.of("bruh", "test");
+        final Map<String, Object> body = Map.of("hurb", "tset");
         final Map<String, Object> headers = Map.of("test", "bruh");
+        profile.setKeyedFields(Set.of("bruh"));
         when(responseGroup.getResponseGroupSeq()).thenReturn(1L);
-        doReturn(responseBody).when(responseBodyServiceSpy).createResponseBody(any(), any(), any(), any());
-        assertThat(responseBodyServiceSpy.findByResponseGroupAndKeyedFieldsOrDefault(responseGroup, keyedFields, headers, 200), is(equalTo(responseBody)));
+        doReturn(responseBody).when(responseBodyServiceSpy).createResponseBody(any(), any(), any(), any(), any(), any());
+        assertThat(responseBodyServiceSpy.findByResponseGroupAndKeyedFieldsOrDefault(profile, responseGroup, keyedFields, body, headers, 200), is(equalTo(responseBody)));
         verify(responseBodyServiceSpy, times(1)).findByResponseGroupAndKeyedFields(responseGroup, keyedFields);
-        verify(responseBodyServiceSpy, times(1)).createResponseBody(responseGroup, keyedFields, headers, 200);
+        verify(responseBodyServiceSpy, times(1)).createResponseBody(profile, responseGroup, keyedFields, body, headers, 200);
     }
 
     @Test
@@ -88,25 +97,67 @@ class ResponseBodyServiceTest {
     @Test
     void testCreateResponseBody() {
         final ResponseBodyService responseBodyServiceSpy = spy(this.responseBodyService);
-        final Profile profile = mock(Profile.class);
+        final Profile profile = new Profile();
         final ResponseGroup responseGroup = mock(ResponseGroup.class);
+        final Map<String, Object> keyedFields = Map.of("bruh", "test");
         final Map<String, Object> body = Map.of("bruh", "test", "bruh1", "test1");
         final Map<String, Object> headers = Map.of("test", "bruh");
-        when(responseGroup.getProfileSeq()).thenReturn(profile);
-        when(profile.getKeyedFields()).thenReturn(Set.of("bruh"));
+        profile.setProfileSeq(1L);
+        profile.setKeyedFields(Set.of("bruh"));
         when(this.responseBodyRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         doReturn(headers).when(responseBodyServiceSpy).filterHeaders(any());
         doReturn(Map.of("bruh1", "test1")).when(responseBodyServiceSpy).removeKeyedFields(any(), any());
-        final ResponseBody actual = responseBodyServiceSpy.createResponseBody(responseGroup, body, headers, 200);
+        final ResponseBody actual = responseBodyServiceSpy.createResponseBody(profile, responseGroup, keyedFields, body, headers, 200);
         verify(this.responseBodyRepository, times(1)).save(any());
         verify(responseBodyServiceSpy, times(1)).removeKeyedFields(body, Set.of("bruh"));
         verify(responseBodyServiceSpy, times(1)).filterHeaders(headers);
         assertAll(
-                () -> assertThat(actual.getResponseGroupSeq(), is(equalTo(responseGroup))),
                 () -> assertThat(actual.getBody(), is(equalTo("{\"bruh1\":\"test1\"}"))),
                 () -> assertThat(actual.getHeaders(), is(equalTo(headers))),
                 () -> assertThat(actual.getResponseCode(), is(equalTo(200)))
         );
+    }
+
+    @Test
+    void testUpdateResponseBody() {
+        final ResponseBodyService responseBodyServiceSpy = spy(this.responseBodyService);
+        final Profile profile = mock(Profile.class);
+        final ResponseBody responseBody = new ResponseBody();
+        final Map<String, Object> headers = Map.of("bruh", "test");
+        final Map<String, Object> body = Map.of("bruh", "test");
+
+        doReturn("{\"bruh\":\"test\"}").when(responseBodyServiceSpy).getCleanBody(any(), any());
+        doReturn(headers).when(responseBodyServiceSpy).filterHeaders(any());
+
+        responseBodyServiceSpy.updateResponseBody(profile, responseBody, 200, headers, body);
+
+        verify(this.responseBodyRepository, times(1)).save(responseBody);
+        verify(responseBodyServiceSpy, times(1)).getCleanBody(any(), any());
+        verify(responseBodyServiceSpy, times(1)).filterHeaders(any());
+
+        assertEquals(responseBody.getBody(), "{\"bruh\":\"test\"}");
+        assertEquals(responseBody.getResponseCode(), 200);
+        assertEquals(responseBody.getHeaders(), headers);
+    }
+
+    @NullSource
+    @ParameterizedTest
+    void testUpdateResponseBodyInvalidArgs(final Map<String, Object> nullValue) {
+        assertThrows(IllegalArgumentException.class, () -> this.responseBodyService.updateResponseBody(mock(Profile.class), mock(ResponseBody.class), 200, Collections.emptyMap(), nullValue));
+    }
+
+    public static Stream<Arguments> getTestGetCleanBodyInvalidArgsParams() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(Collections.emptyMap(), null),
+                Arguments.of(null, Collections.emptySet())
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestGetCleanBodyInvalidArgsParams")
+    void testGetCleanBodyInvalidArgs(final Map<String, Object> body, final Set<String> keyedFields) {
+        assertThrows(IllegalArgumentException.class, () -> this.responseBodyService.getCleanBody(body, keyedFields));
     }
 
     @ParameterizedTest
@@ -121,6 +172,20 @@ class ResponseBodyServiceTest {
                 Arguments.of(Map.of("bruh", "test", "bruh1", "test1"), Set.of("bruh"), Map.of("bruh1", "test1")),
                 Arguments.of(Map.of("bruh", "test", "bruh1", "test1"), Set.of("bruh", "bruh1"), Map.of())
         );
+    }
+
+    public static Stream<Arguments> getTestRemoveKeyedFieldsInvalidArgsParams() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(Collections.emptyMap(), null),
+                Arguments.of(null, Collections.emptySet())
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestRemoveKeyedFieldsInvalidArgsParams")
+    void testRemoveKeyedFieldsInvalidArgs(final Map<String, Object> body, final Set<String> keyedFields) {
+        assertThrows(IllegalArgumentException.class, () -> this.responseBodyService.removeKeyedFields(body, keyedFields));
     }
 
     @ParameterizedTest

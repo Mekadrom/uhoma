@@ -33,6 +33,6 @@ public class NodeSocketBrokerConfigurer implements WebSocketMessageBrokerConfigu
     @Override
     public void configureMessageBroker(@NonNull final MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app")
-                .enableSimpleBroker("/topic");
+                .enableSimpleBroker("/topic", "/queue");
     }
 }

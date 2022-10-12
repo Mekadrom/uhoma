@@ -1,4 +1,5 @@
 [versions]
+byte-buddy = '1.12.13'
 commons-collections4 = '4.4'
 commons-io = '2.11.0'
 commons-lang3 = '3.12.0'
@@ -10,7 +11,7 @@ jinjava = '2.6.0'
 jjwt = '0.9.1'
 junit = '5.7.0'
 lombok = '1.18.24'
-mockito = '4.5.1'
+mockito = '4.6.1'
 postgresql = '42.3.5'
 reflections = '0.10.2'
 spring-boot = '2.7.0'
@@ -20,6 +21,8 @@ wiremock = '2.33.2'
 
 [libraries]
 higgs-common = { group = 'com.higgs', name = 'common', version = { strictly = "[1.0.0, 2.0.0[" } }
+byte-buddy = { group = 'net.bytebuddy', name = 'byte-buddy', version.ref = 'byte-buddy' }
+byte-buddy-agent = { group = 'net.bytebuddy', name = 'byte-buddy-agent', version.ref = 'byte-buddy' }
 commons-collections4 = { group = 'org.apache.commons', name = 'commons-collections4', version.ref = 'commons-collections4' }
 commons-io = { group = 'commons-io', name = 'commons-io', version.ref = 'commons-io' }
 commons-lang3 = { group = 'org.apache.commons', name = 'commons-lang3', version.ref = 'commons-lang3' }

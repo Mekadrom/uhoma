@@ -17,7 +17,7 @@ public class ProfileService {
         return this.profileRepository.save(new Profile().setEndpoint(endpoint).setKeyedFields(keyedFields));
     }
 
-    public Optional<Profile> findByEndpoint(final String root) {
-        return this.profileRepository.findByEndpoint(root);
+    public Optional<Profile> findByEndpoint(final String endpoint) {
+        return this.profileRepository.findByEndpoint(endpoint);
     }
 }

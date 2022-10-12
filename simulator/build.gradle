@@ -115,6 +115,14 @@ subprojects { subproject ->
     }
 }
 
+task test {
+    dependsOn subprojects.collect { it.test }
+}
+
+task itest {
+    dependsOn subprojects.collect { it.itest }
+}
+
 task clean {
     dependsOn subprojects.collect { it.clean }
     delete(files('build'))
