@@ -28,6 +28,8 @@ import { FourOhFourComponent } from './fourohfour/fourohfour.component';
 import { TypedEditableTableComponent } from './typed-editable-table/typed-editable-table.component';
 import { NewHomeDialogComponent } from './new-home-dialog/new-home-dialog.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { LoginFormComponent } from './login-form/login-form.component';
+import { RegisterFormComponent } from './register-form/register-form.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,9 @@ import { NavbarComponent } from './navbar/navbar.component';
     FourOhFourComponent,
     TypedEditableTableComponent,
     NewHomeDialogComponent,
-    NavbarComponent
+    NavbarComponent,
+    LoginFormComponent,
+    RegisterFormComponent
   ],
   imports: [
     AppRoutingModule,

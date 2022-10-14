@@ -1,0 +1,31 @@
+@import "~../../_variables.scss";
+
+.register-input {
+  width: 100%;
+
+  color: invert($accent);
+  background-color: invert($primary);
+
+  font-size: 30px;
+  padding: 0.2em;
+  margin-bottom: 10px;
+
+  border: 1px solid $primary;
+}
+
+.register-button {
+  margin: auto;
+}
+
+.register-outer-container {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.register-inner-container {
+  width: 80%;
+  height: 240px;
+  margin: 0 auto;
+  margin-top: 10px;
+}

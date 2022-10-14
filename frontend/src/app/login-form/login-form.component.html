@@ -1,0 +1,26 @@
+<div class="login-inner-container">
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <input matInput
+           formControlName="username"
+           id="username"
+           maxlength="32"
+           placeholder="username"
+           class="login-input"
+           (keydown.enter)="attemptLogin()"
+           (keypress)="commonUtilsService.omitSpecialChar($event)"
+           [(ngModel)]="username"/>
+    <input matInput
+           formControlName="password"
+           type="password"
+           id="password"
+           maxlength="32"
+           placeholder="password"
+           class="login-input"
+           (keydown.enter)="attemptLogin()"
+           (keypress)="commonUtilsService.omitSpecialChar($event)"
+           [(ngModel)]="password"/>
+    <button type="submit" mat-flat-button class="mdc-icon-button text-button" [disabled]="!loginForm.valid">
+      <span>Login</span>
+    </button>
+  </form>
+</div>

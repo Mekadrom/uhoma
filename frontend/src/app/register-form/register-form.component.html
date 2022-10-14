@@ -1,0 +1,44 @@
+<div class="register-inner-container">
+  <input matInput
+         id="username-register"
+         maxlength="32"
+         placeholder="username"
+         class="register-input"
+         (keydown.enter)="attemptRegister()"
+         (keypress)="commonUtilsService.omitSpecialChar($event)"
+         [(ngModel)]="usernameRegister"/>
+  <form [formGroup]="registerForm" (ngSubmit)="register()">
+    <input
+      matInput
+      formControlName="passwordRegister"
+      type="password"
+      id="passwordRegister"
+      maxlength="32"
+      placeholder="password"
+      class="register-input"
+      (keydown.enter)="attemptRegister()"
+      (keypress)="commonUtilsService.omitSpecialChar($event)"
+      [(ngModel)]="passwordRegister"/>
+    <div *ngIf="registerFormControls.passwordRegister.touched && registerFormControls.passwordRegister.invalid" class="alert alert-danger">
+      <div *ngIf="registerFormControls.passwordRegister.errors.required">Password is required.</div>
+    </div>
+    <input
+      matInput
+      formControlName="passwordRegisterConfirm"
+      type="password"
+      id="passwordRegisterConfirm"
+      maxlength="32"
+      placeholder="confirm password"
+      class="register-input"
+      (keydown.enter)="attemptRegister()"
+      (keypress)="commonUtilsService.omitSpecialChar($event)"
+      [(ngModel)]="passwordRegisterConfirm"/>
+    <div *ngIf="registerFormControls.passwordRegisterConfirm.touched && registerFormControls.passwordRegisterConfirm.invalid" class="alert alert-danger">
+      <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.required">Password is required.</div>
+      <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.confirmedValidator">Password and Confirmation Password must be match.</div>
+    </div>
+    <button mat-flat-button type="submit" class="mdc-icon-button text-button" [disabled]="!registerForm.valid">
+      <span>Register</span>
+    </button>
+  </form>
+</div>

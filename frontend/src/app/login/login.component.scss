@@ -1,33 +1,9 @@
 @import "~../../_variables.scss";
 
-.login-input {
-  width: 100%;
-
-  color: invert($accent);
-  background-color: invert($primary);
-
-  font-size: 30px;
-  padding: 0.2em;
-  margin-bottom: 10px;
-
-  border: 1px solid $primary;
-}
-
-.login-button {
-  margin: auto;
-}
-
 .login-outer-container {
   display: flex;
   justify-content: center;
   position: relative;
-}
-
-.login-inner-container {
-  width: 80%;
-  height: 240px;
-  margin: 0 auto;
-  margin-top: 10px;
 }
 
 mat-tab-body-wrapper {
