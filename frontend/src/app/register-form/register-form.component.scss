@@ -3,29 +3,29 @@
 .register-input {
   width: 100%;
 
+  box-sizing: border-box;
+
   color: invert($accent);
   background-color: invert($primary);
 
   font-size: 30px;
   padding: 0.2em;
-  margin-bottom: 10px;
+  margin-top: 10px;
 
   border: 1px solid $primary;
 }
 
 .register-button {
-  margin: auto;
+  margin-top: 10px;
 }
 
-.register-outer-container {
-  display: flex;
-  justify-content: center;
-  position: relative;
+.password-required {
+  color: invert($accent);
+  width: 100%;
+  font-size: 20px;
+  margin-top: 5px;
 }
 
 .register-inner-container {
-  width: 80%;
-  height: 240px;
-  margin: 0 auto;
-  margin-top: 10px;
+  margin: 10 auto;
 }

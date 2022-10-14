@@ -19,7 +19,7 @@
            (keydown.enter)="attemptLogin()"
            (keypress)="commonUtilsService.omitSpecialChar($event)"
            [(ngModel)]="password"/>
-    <button type="submit" mat-flat-button class="mdc-icon-button text-button" [disabled]="!loginForm.valid">
+    <button type="submit" mat-flat-button class="mdc-icon-button text-button login-button" [disabled]="!loginForm.valid">
       <span>Login</span>
     </button>
   </form>

@@ -20,7 +20,7 @@
       (keypress)="commonUtilsService.omitSpecialChar($event)"
       [(ngModel)]="passwordRegister"/>
     <div *ngIf="registerFormControls.passwordRegister.touched && registerFormControls.passwordRegister.invalid" class="alert alert-danger">
-      <div *ngIf="registerFormControls.passwordRegister.errors.required">Password is required.</div>
+      <div *ngIf="registerFormControls.passwordRegister.errors.required" class="password-required">Password is required.</div>
     </div>
     <input
       matInput
@@ -34,10 +34,10 @@
       (keypress)="commonUtilsService.omitSpecialChar($event)"
       [(ngModel)]="passwordRegisterConfirm"/>
     <div *ngIf="registerFormControls.passwordRegisterConfirm.touched && registerFormControls.passwordRegisterConfirm.invalid" class="alert alert-danger">
-      <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.required">Password is required.</div>
-      <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.confirmedValidator">Password and Confirmation Password must be match.</div>
+      <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.required" class="password-required">Password confirmation is required.</div>
+      <div *ngIf="registerFormControls.passwordRegisterConfirm.errors.confirmedValidator" class="password-required">Password and Confirmation Password must match.</div>
     </div>
-    <button mat-flat-button type="submit" class="mdc-icon-button text-button" [disabled]="!registerForm.valid">
+    <button mat-flat-button type="submit" class="mdc-icon-button text-button register-button" [disabled]="!registerForm.valid">
       <span>Register</span>
     </button>
   </form>
