@@ -27,6 +27,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { FourOhFourComponent } from './fourohfour/fourohfour.component';
 import { TypedEditableTableComponent } from './typed-editable-table/typed-editable-table.component';
 import { NewHomeDialogComponent } from './new-home-dialog/new-home-dialog.component';
+import { NavbarComponent } from './navbar/navbar.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { NewHomeDialogComponent } from './new-home-dialog/new-home-dialog.compon
     SettingsComponent,
     FourOhFourComponent,
     TypedEditableTableComponent,
-    NewHomeDialogComponent
+    NewHomeDialogComponent,
+    NavbarComponent
   ],
   imports: [
     AppRoutingModule,

@@ -1,0 +1,8 @@
+<nav class="navbar">
+  <button routerLink="/login" mat-flat-button [ngClass]="{'selected-nav': router.url === '/login'}" class="nav-button">
+    <mat-icon>home</mat-icon>
+  </button>
+  <button routerLink="/dashboard" mat-flat-button [ngClass]="{'selected-nav': router.url === '/dashboard'}" class="nav-button">
+    <mat-icon>dashboard</mat-icon>
+  </button>
+</nav>
