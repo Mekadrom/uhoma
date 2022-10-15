@@ -1,24 +1,6 @@
 <div class="blade-container">
   <div class="menubar-container">
-    <div class="breadcrumbs-container">
-      <mat-form-field class="menu-item">
-        <mat-label>Home</mat-label>
-        <mat-select [(ngModel)]="homeSearchCriteria">
-          <mat-option (click)="clearNodeSearchCriteriaAndRefresh()" *ngFor="let home of homes" [value]="home" class="home-selection">{{ home.name }}</mat-option>
-<!--          <mat-option class="home-selection">All Homes</mat-option>-->
-          <mat-option (click)="createNewHomeDialog(); clearNodeSearchCriteriaAndRefresh()" class="home-selection">Create New Home</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <span class="breadcrumb-trail-mark">►</span>
-      <span *ngIf="!getNode(getSelectedNodeRow())?.name" class="breadcrumb-trail-mark">None selected</span>
-      <span class="breadcrumb-text">{{ getNode(getSelectedNodeRow())?.room?.name }}</span>
-      <span *ngIf="getNode(getSelectedNodeRow())?.name" class="breadcrumb-trail-mark">►</span>
-      <span class="breadcrumb-text">{{ getNode(getSelectedNodeRow())?.name }}</span>
-      <span *ngIf="getAction(getSelectedActionRow())?.name" class="breadcrumb-trail-mark">►</span>
-      <span class="breadcrumb-text">{{ getAction(getSelectedActionRow())?.name }}</span>
-      <span *ngIf="getParameter(getSelectedParameterRow())?.name" class="breadcrumb-trail-mark">►</span>
-      <span class="breadcrumb-text">{{ getParameter(getSelectedParameterRow())?.name }}</span>
-    </div>
+    <app-dashboard-breadcrumbs (changeHomeSelectionEmitter)="changeHomeSelection($event)" [breadcrumbEmitter]="breadcrumbEmitter"></app-dashboard-breadcrumbs>
     <div fxLayout="row" fxLayoutAlign="space-between center" class="top-button-container">
       <div fxLayout="row" fxLayoutAlign="start end" class="node-save-container">
         <button mat-flat-button

@@ -1,11 +1,9 @@
-import { Inject, Component, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Inject  } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 
-import { NewHomeDialogComponent } from '../new-home-dialog/new-home-dialog.component';
-import { Action, ActionHandler, ActionParameter, ActionParameterType, Home, Node, Room } from '../models';
+import { Action, ActionHandler, ActionParameter, ActionParameterType, DashboardBreadCrumb, Home, Node, Room } from '../models';
 import { ActionHandlerService, ActionParameterTypeService, AuthService, CommonUtilsService, HomeService, NodeService, RoomService, UserProviderService, WebSocketService } from '../services';
 
 @Component({
@@ -47,8 +45,6 @@ export class DashboardComponent implements AfterViewInit {
   failedToLoad: boolean = false;
   subscribed: boolean = false;
 
-  newHomeName: string = '';
-
   newActionName: string = '';
   newActionActionHandler?: ActionHandler;
 
@@ -66,18 +62,21 @@ export class DashboardComponent implements AfterViewInit {
 
   editingParameterRow: number = -1;
 
+  breadcrumbEmitter: EventEmitter<DashboardBreadCrumb>;
+
   constructor(private actionHandlerService: ActionHandlerService,
               private actionParameterTypeService: ActionParameterTypeService,
               private authService: AuthService,
               public commonUtilsService: CommonUtilsService,
               private cookieService: CookieService,
-              private dialog: MatDialog,
               private homeService: HomeService,
               private nodeService: NodeService,
               private roomService: RoomService,
               private toastr: ToastrService,
               private userProviderService: UserProviderService,
-              private webSocketService: WebSocketService) { }
+              private webSocketService: WebSocketService) {
+    this.breadcrumbEmitter = new EventEmitter<DashboardBreadCrumb>();
+  }
 
   ngAfterViewInit(): void {
     const jwt: string | null | undefined = this.cookieService.get('bearer');
@@ -108,13 +107,14 @@ export class DashboardComponent implements AfterViewInit {
     }
   }
 
-  fetchHomes(): void {
+  fetchHomes(selectHome?: string): void {
     this.homeService.getHomes().subscribe(
       (resp: Home[]) => {
         this.homes = resp;
         if (this.homes && this.homes.length > 0) {
           if (!this.homeSearchCriteria) {
-            this.homeSearchCriteria = this.homes[0];
+            this.homeSearchCriteria = this.homes.findIndex((home) => home.name === selectHome) > -1 ? this.homes.find((home) => home.name === selectHome) : this.homes[0];
+            this.breadcrumbEmitter.emit(this.getBreadcrumbData());
           }
           this.fetchRooms();
           this.fetchActionHandlers();
@@ -185,6 +185,10 @@ export class DashboardComponent implements AfterViewInit {
     );
   }
 
+  getHomeIndex(homeName: string): number {
+    return this.homes.findIndex(home => home.name === homeName);
+  }
+
   setNodeData(nodes: Node[]): void {
     this.savedNodes = nodes;
     this.mutableNodes = JSON.parse(JSON.stringify(this.savedNodes)) as Node[];
@@ -215,6 +219,7 @@ export class DashboardComponent implements AfterViewInit {
       this.selectedActionRow = -1;
       this.selectedParameterRow = -1;
     }
+    this.breadcrumbEmitter.emit(this.getBreadcrumbData());
   }
 
   getNodeRow(findNode: Node): number {
@@ -262,6 +267,7 @@ export class DashboardComponent implements AfterViewInit {
       }
       this.selectedParameterRow = -1;
     }
+    this.breadcrumbEmitter.emit(this.getBreadcrumbData());
   }
 
   getActionRow(findAction: Action): number {
@@ -310,6 +316,7 @@ export class DashboardComponent implements AfterViewInit {
         this.selectedParameterRow = rowOf;
       }
     }
+    this.breadcrumbEmitter.emit(this.getBreadcrumbData());
   }
 
   getFilteredNodeCount(): number {
@@ -590,10 +597,12 @@ export class DashboardComponent implements AfterViewInit {
 
   setSelectedParameterRow(event: any) {
     this.selectedParameterRow = event as number;
+    this.breadcrumbEmitter.emit(this.getBreadcrumbData());
   }
 
   setEditingParameterRow(event: any) {
     this.editingParameterRow = event as number;
+    this.setSelectedParameterRow(event);
   }
 
   executeAction(): void {
@@ -609,31 +618,20 @@ export class DashboardComponent implements AfterViewInit {
     }
   }
 
-  createNewHomeDialog(): void {
-    const dialogRef = this.dialog.open(NewHomeDialogComponent, {
-      width: '250px',
-      data: this.newHomeName,
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.createNewHome(result);
-      } else {
-        this.homeSearchCriteria = this.homes[0];
-      }
-    });
+  changeHomeSelection(event: string): void {
+    console.debug('changeHomeSelectionEmit received: ' + event);
+    this.homeSearchCriteria = this.homes[this.getHomeIndex(event)];
+    this.fetchHomes();
   }
 
-  createNewHome(name: string): void {
-    if (name) {
-      this.homeService.createNewHome(name).subscribe(
-        (resp: any) => {
-          this.fetch(true);
-        },
-        (err: any) => {
-          this.toastr.error(err.message, 'New home creation failed');
-        }
-      );
-    }
+  getBreadcrumbData(): DashboardBreadCrumb {
+    return {
+      home: this.homeSearchCriteria?.name,
+      homes: this.homes.map((home: Home) => home.name),
+      room: this.getNode(this.getSelectedNodeRow())?.room?.name,
+      node: this.getNode(this.getSelectedNodeRow())?.name,
+      action: this.getAction(this.getSelectedActionRow())?.name,
+      parameter: this.getParameter(this.getSelectedParameterRow())?.name
+    } as DashboardBreadCrumb;
   }
 }

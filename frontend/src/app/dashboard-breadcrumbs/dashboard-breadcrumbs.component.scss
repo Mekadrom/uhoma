@@ -1,0 +1,16 @@
+@import "~../../styles.scss";
+
+.breadcrumb-trail-mark {
+  padding-left: 6px;
+  padding-right: 6px;
+
+  font-size: 20px;
+
+  color: invert($accent);
+}
+
+.breadcrumb-text {
+  font-size: 20px;
+
+  color: invert($accent);
+}

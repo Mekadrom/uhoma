@@ -30,6 +30,7 @@ import { NewHomeDialogComponent } from './new-home-dialog/new-home-dialog.compon
 import { NavbarComponent } from './navbar/navbar.component';
 import { LoginFormComponent } from './login-form/login-form.component';
 import { RegisterFormComponent } from './register-form/register-form.component';
+import { DashboardBreadcrumbsComponent } from './dashboard-breadcrumbs/dashboard-breadcrumbs.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { RegisterFormComponent } from './register-form/register-form.component';
     NewHomeDialogComponent,
     NavbarComponent,
     LoginFormComponent,
-    RegisterFormComponent
+    RegisterFormComponent,
+    DashboardBreadcrumbsComponent
   ],
   imports: [
     AppRoutingModule,

@@ -318,6 +318,10 @@ task takeDownProjectContainers {
     dependsOn ordered(':deleteImageDeployments', ':deleteImageServices')
 }
 
+task fullClusterSetupLocalDev {
+    dependsOn ordered(':fullClusterSetupLocal', ':takeDownProjectContainers')
+}
+
 task initDb(type: Exec) {
     workingDir = 'hadb/'
     executable = "./initdb.sh"

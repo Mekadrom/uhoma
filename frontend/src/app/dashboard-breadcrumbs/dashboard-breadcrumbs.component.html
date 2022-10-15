@@ -1,0 +1,20 @@
+<div class="breadcrumbs-container">
+  <mat-form-field class="menu-item">
+    <mat-label>Home</mat-label>
+    <mat-select [(ngModel)]="homeSearchCriteria">
+      <mat-option (click)="changeHomeSelection()" *ngFor="let home of breadcrumbData?.homes" [value]="home" class="home-selection">{{ home }}</mat-option>
+      <mat-option (click)="createNewHomeDialog(); changeHomeSelection();" class="home-selection">Create New Home</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <span *ngIf="breadcrumbData && breadcrumbData.homes && homeSearchCriteria">
+    <span class="breadcrumb-trail-mark">►</span>
+    <span *ngIf="!breadcrumbData.room" class="breadcrumb-trail-mark">None selected</span>
+    <span class="breadcrumb-text">{{ breadcrumbData.room }}</span>
+    <span *ngIf="breadcrumbData.node" class="breadcrumb-trail-mark">►</span>
+    <span class="breadcrumb-text">{{ breadcrumbData.node }}</span>
+    <span *ngIf="breadcrumbData.action" class="breadcrumb-trail-mark">►</span>
+    <span class="breadcrumb-text">{{ breadcrumbData.action }}</span>
+    <span *ngIf="breadcrumbData.parameter" class="breadcrumb-trail-mark">►</span>
+    <span class="breadcrumb-text">{{ breadcrumbData.parameter }}</span>
+  </span>
+</div>
