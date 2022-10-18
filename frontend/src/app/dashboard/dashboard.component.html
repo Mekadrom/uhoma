@@ -1,34 +1,7 @@
 <div class="blade-container">
   <div class="menubar-container">
     <app-dashboard-breadcrumbs (changeHomeSelectionEmitter)="changeHomeSelection($event)" [breadcrumbEmitter]="breadcrumbEmitter"></app-dashboard-breadcrumbs>
-    <div fxLayout="row" fxLayoutAlign="space-between center" class="top-button-container">
-      <div fxLayout="row" fxLayoutAlign="start end" class="node-save-container">
-        <button mat-flat-button
-                matTooltip="Save the current changes"
-                matTooltipPosition="above"
-                (click)="save()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>done</mat-icon>
-        </button>
-        <button mat-flat-button
-                matTooltip="Reset the current changes"
-                matTooltipPosition="above"
-                (click)="resetAll()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>cached</mat-icon>
-        </button>
-      </div>
-      <div fxLayout="row" fxLayoutAlign="start end">
-        <button mat-flat-button
-                *ngIf="selectedActionRow !== -1"
-                matTooltip="Run the currently selected action with the given parameter values"
-                matTooltipPosition="above"
-                (click)="executeAction()"
-                class="mdc-icon-button menu-button">
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
-      </div>
-    </div>
+    <app-dashboard-menubar-buttons (saveCallback)="save()" (resetAllCallback)="resetAll()" (executeActionCallback)="executeAction()" [selectedActionRowEmitter]="selectedActionRowEmitter"></app-dashboard-menubar-buttons>
   </div>
   <div fxLayout="row" fxLayoutAlign="start end" class="row-align-container">
     <div class="node-search-table-container">

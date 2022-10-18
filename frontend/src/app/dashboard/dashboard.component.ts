@@ -64,6 +64,8 @@ export class DashboardComponent implements AfterViewInit {
 
   breadcrumbEmitter: EventEmitter<DashboardBreadCrumb>;
 
+  selectedActionRowEmitter: EventEmitter<number>;
+
   constructor(private actionHandlerService: ActionHandlerService,
               private actionParameterTypeService: ActionParameterTypeService,
               private authService: AuthService,
@@ -76,6 +78,7 @@ export class DashboardComponent implements AfterViewInit {
               private userProviderService: UserProviderService,
               private webSocketService: WebSocketService) {
     this.breadcrumbEmitter = new EventEmitter<DashboardBreadCrumb>();
+    this.selectedActionRowEmitter = new EventEmitter<number>();
   }
 
   ngAfterViewInit(): void {
@@ -268,6 +271,7 @@ export class DashboardComponent implements AfterViewInit {
       this.selectedParameterRow = -1;
     }
     this.breadcrumbEmitter.emit(this.getBreadcrumbData());
+    this.selectedActionRowEmitter.emit(this.selectedActionRow);
   }
 
   getActionRow(findAction: Action): number {

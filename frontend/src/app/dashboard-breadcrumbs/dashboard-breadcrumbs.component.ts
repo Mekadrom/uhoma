@@ -29,7 +29,6 @@ export class DashboardBreadcrumbsComponent implements OnInit {
     this.breadcrumbEmitter?.subscribe((e: DashboardBreadCrumb) => {
       this.breadcrumbData = e;
       this.homeSearchCriteria = this.breadcrumbData.home;
-      console.debug(JSON.stringify(this.breadcrumbData));
     });
   }
 

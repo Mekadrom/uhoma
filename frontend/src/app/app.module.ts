@@ -31,6 +31,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { LoginFormComponent } from './login-form/login-form.component';
 import { RegisterFormComponent } from './register-form/register-form.component';
 import { DashboardBreadcrumbsComponent } from './dashboard-breadcrumbs/dashboard-breadcrumbs.component';
+import { DashboardMenubarButtonsComponent } from './dashboard-menubar-buttons/dashboard-menubar-buttons.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { DashboardBreadcrumbsComponent } from './dashboard-breadcrumbs/dashboard
     NavbarComponent,
     LoginFormComponent,
     RegisterFormComponent,
-    DashboardBreadcrumbsComponent
+    DashboardBreadcrumbsComponent,
+    DashboardMenubarButtonsComponent
   ],
   imports: [
     AppRoutingModule,
