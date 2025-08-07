@@ -11,9 +11,23 @@ Here's how to set up HomeAssistant for yourself using kubernetes (read all steps
 #### If using GCR (Google Container Registry) or GAR (Google Artifact Registry)
 1. Make a copy of env.gradle.example and remove the .example extension.
 2. Configure properties in env.gradle.
-3. If using GCR (Google Container Registry) or GAR (Google Artifact Registry), download JSON key file for a service account that has access to the registry, place it at the root of this repo. If working with local images, skip this step.
+3. Download JSON key file for a service account that has access to the registry, place it at the root of this repo. If working with local images, skip this step.
 4. Run `./gradlew fullClusterSetup`.
-5. Run ./mtunnel.sh to be able connect to the minikube cluster.
+5. Run ./mtunnel.sh to be able to connect to the minikube cluster.
+6. Once every pod has a state of "Running", run `./gradlew initDb`. This will create the schema for the main server.
+7. After `initDb` is done, run `./gradlew deltaRun` to initialize the schema and load seed data.
+
+#### If working locally only
+1. Make a copy of env.gradle.example and remove the .example extension.
+2. Configure properties in env.gradle.
+3. Create a `json_key.json` file at the root of the repo with dummy contents for local development, e.g.:
+
+   ```json
+   {
+     "dummy": true
+   }
+4. Run `./gradlew fullClusterSetupLocal`.
+5. Run `minikube service postgresdb --url` to get the URL to connect to for the postgres database. Deconstruct this to put the IP address in as the value for `gradle.ext.dbUrl` and `gradle.ext.dbPort` in env.gradle
 6. Once every pod has a state of "Running", run `./gradlew initDb`. This will create the schema for the main server.
 7. After `initDb` is done, run `./gradlew deltaRun` to initialize the schema and load seed data.
 
@@ -22,7 +36,7 @@ After following these instructions, HomeAssistant should be ready for use. The d
 * Connect to the server at `http://localhost:8080` (unauthenticated, should have a secure proxy in front of it).
 * Connect to the frontend at `http://localhost:4200` (despite being the developer port for an angular UI, this is running in production mode and mapped to this port because 8080 is already exposed).
 * Connect to kafdrop at `http://localhost:9000` (unauthenticated, should have a secure proxy in front of it).
-* Connect to postgres at `http://localhost:5432` (or by using the connection string `postgres://<username>:<password>@localhost:5432/hams_data`) (unauthenticated, should have a secure proxy in front of it).
+* Connect to postgres at `http://localhost:5432` (or by using the connection string `postgres://<username>:<password>@<minikube ip>:<postgres minikube port>/hams_data`) (unauthenticated, should have a secure proxy in front of it).
 
 Tips/Troubleshooting:
 

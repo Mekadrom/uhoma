@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app-server
-          image: us-east1-docker.pkg.dev/root-furnace-306909/hadocker-images/ha-server:${version}
+          image: ha-server:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

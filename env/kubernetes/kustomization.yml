@@ -16,8 +16,6 @@ resources:
   - "kafka/broker-service.yml"
   - "kafka/kafdrop-deployment.yml"
   - "kafka/kafdrop-service.yml"
-  - "kafka/zookeeper-deployment.yml"
-  - "kafka/zookeeper-service.yml"
   - "postgres/postgres-configmap.yml"
   - "postgres/postgres-deployment.yml"
   - "postgres/postgres-persistent.yml"

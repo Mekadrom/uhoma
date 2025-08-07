@@ -17,12 +17,13 @@ repositories {
 dependencies {
     annotationProcessor libs.lombok
 
+    implementation projects.common
+
     implementation libs.bundles.jackson
     implementation libs.commons.collections4
     implementation libs.commons.io
     implementation libs.commons.lang3
     implementation libs.h2
-    implementation libs.higgs.common
     implementation libs.jakarta.validation
     implementation libs.javax.servlet
     implementation libs.jjwt

@@ -23,6 +23,16 @@ apply from: 'env.gradle'
 
 ext {
     secretContents = new File(gradle.ext.secretPath).text
+
+    if (gradle.ext.gcpArtifactRoot == "") {
+        serverArtifactTag = "${gradle.ext.serverArtifactName}"
+        actionServerArtifactTag = "${gradle.ext.actionServerArtifactName}"
+        frontendArtifactTag = "${gradle.ext.frontendArtifactName}"
+    } else {
+        serverArtifactTag = "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}"
+        actionServerArtifactTag = "${gradle.ext.gcpArtifactRoot}/${gradle.ext.actionServerArtifactName}"
+        frontendArtifactTag = "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}"
+    }
 }
 
 repositories {
@@ -126,34 +136,34 @@ task sonarqube {
 task buildServerImage(type: Exec) {
     dependsOn distribute
     executable = "${gradle.ext.imgBuildExec}"
-    args = ['build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/server/build/libs/"]
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/server/Dockerfile', '-t', "${serverArtifactTag}:${version}", '-t', "${serverArtifactTag}:latest", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/server/build/libs/"]
 }
 
 task buildActionServerImage(type: Exec) {
     dependsOn distribute
     executable = "${gradle.ext.imgBuildExec}"
-    args = ['build', "${rootDir}", '-f', 'env/kubernetes/actionserver/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.actionServerArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/actionserver/build/libs/"]
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/actionserver/Dockerfile', '-t', "${actionServerArtifactTag}:${version}", '-t', "${actionServerArtifactTag}:latest", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/actionserver/build/libs/"]
 }
 
 task buildFrontendImage(type: Exec) {
     dependsOn distribute
     executable = "${gradle.ext.imgBuildExec}"
-    args = ['build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/frontend/dist/frontend/"]
+    args = ['build', "${rootDir}", '-f', 'env/kubernetes/frontend/Dockerfile', '-t', "${frontendArtifactTag}:${version}", '-t', "${frontendArtifactTag}:latest", '--build-arg', "artifactPath=${gradle.ext.distDir.name}/frontend/dist/frontend/"]
 }
 
 task pushServerImageToMinikube(type: Exec) {
     executable = "${gradle.ext.clusterExec}"
-    args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.serverArtifactName}:${version}"]
+    args = ['image', 'load', serverArtifactTag]
 }
 
 task pushActionServerImageToMinikube(type: Exec) {
     executable = "${gradle.ext.clusterExec}"
-    args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.actionServerArtifactName}:${version}"]
+    args = ['image', 'load', actionServerArtifactTag]
 }
 
 task pushFrontendImageToMinikube(type: Exec) {
     executable = "${gradle.ext.clusterExec}"
-    args = ['image', 'load', "${gradle.ext.gcpArtifactRoot}/${gradle.ext.frontendArtifactName}:${version}"]
+    args = ['image', 'load', frontendArtifactTag]
 }
 
 task pushImagesToMinikube() {
@@ -197,9 +207,6 @@ task buildAndPushImages {
 task copyKustomizationFiles(type: Copy) {
     from('env/kubernetes/') {
         include '**/*.yml'
-        expand(project.properties)
-        expand(ext.properties)
-        expand(gradle.ext.properties)
     }
     into "${gradle.ext.distDir.path}/kubernetes/"
 }
@@ -307,7 +314,7 @@ task fullClusterSetup {
 }
 
 task fullClusterSetupLocal {
-    dependsOn ordered(':buildImages', ':kustomize', ':startMinikube', ':pushImagesToMinikube', ':tagWorkers', ':createSecret', ':kubeApply')
+    dependsOn ordered(':buildImages', ':kustomize', ':startMinikube', ':pushImagesToMinikube', ':tagWorkers', ':kubeApply')
 }
 
 task reloadCluster {
