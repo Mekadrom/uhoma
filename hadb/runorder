@@ -8,9 +8,7 @@ schema/create_action_table.sql
 schema/create_action_parameter_type_table.sql
 schema/create_action_parameter_table.sql
 schema/create_room_link_table.sql
-schema/test_schema.sql
 data/insert_test_user.sql
 data/insert_test_home.sql
 data/insert_action_handlers.sql
 data/insert_action_parameter_types.sql
-data/test_data.sql
