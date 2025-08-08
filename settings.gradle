@@ -4,6 +4,7 @@ includeProject('frontend')
 includeProject('actionserver')
 includeProject('common')
 includeProject('simulator')
+includeProject('security')
 
 // nested subprojects have to be listed in this settings.gradle because having multiple settings.gradle files is not supported
 includeProject('simulator:ProfiledHttpSimulator')

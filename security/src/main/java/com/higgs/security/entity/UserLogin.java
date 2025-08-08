@@ -1,6 +1,15 @@
-package com.higgs.server.db.entity;
+package com.higgs.security.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,16 +21,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.io.Serial;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -78,12 +77,10 @@ public class UserLogin implements UserDetails {
     private Set<String> roles;
 
     @Column(name = "LAST_LOGIN")
-    @Temporal(value = TemporalType.TIMESTAMP)
     private Date lastLogin;
 
     @NotNull
     @Column(name = "CREATED")
-    @Temporal(value = TemporalType.TIMESTAMP)
     private Date created;
 
     public UserLogin addRole(@NonNull final String role) {

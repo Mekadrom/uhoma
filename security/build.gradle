@@ -1,0 +1,137 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+apply plugin: 'java'
+apply plugin: SpringBootPlugin
+apply plugin: 'jacoco'
+apply plugin: 'pmd'
+apply plugin: 'com.adarshr.test-logger'
+apply plugin: 'info.solidsoft.pitest'
+apply plugin: 'org.sonarqube'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor libs.lombok
+
+    implementation libs.jakarta.validation
+    implementation libs.javax.servlet
+
+    implementation libs.h2.forsecurity
+    implementation libs.jakarta.persistence
+    implementation libs.javax.annotation
+    implementation libs.lombok
+    implementation libs.postgresql.forsecurity
+    implementation libs.spring.security
+    implementation libs.bundles.spring.three
+
+    testAnnotationProcessor libs.lombok
+    testImplementation libs.lombok
+}
+
+project.buildDir = file("${gradle.ext.distDir.path}/security/build")
+
+defaultTasks 'build'
+
+sourceSets {
+    itest {
+        java {
+            srcDirs("src/itest")
+        }
+    }
+}
+
+bootJar {
+    dependsOn processResources
+    archiveFileName = "${archiveBaseName.get()}.jar"
+}
+
+bootRun {
+//    systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active') ?: 'local'
+    if (System.hasProperty('server.port')) {
+        systemProperty 'server.port', System.getProperty('server.port')
+    }
+    systemProperty 'security.auth.jwt.signing-key', System.getProperty('security.auth.jwt.signing-key') ?: 'devsigningkey'
+
+    jvmArgs = ['-Dorg.slf4j.simpleLogger.defaultLogLevel=debug']
+}
+
+processResources {
+    filesMatching('**/*.yml') {
+        expand(project.properties)
+        expand(ext.properties)
+        expand(gradle.ext.properties)
+    }
+}
+
+springBoot {
+    buildInfo()
+}
+
+clean {
+    delete(files('build'))
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+pitest {
+    testSourceSets = [sourceSets.test, sourceSets.itest]
+    mainSourceSets = [sourceSets.main]
+    junit5PluginVersion = '0.14'
+    timestampedReports = false
+    outputFormats = ['HTML']
+    reportDir = file("${project.buildDir.path}/reports/pitest")
+}
+
+task itest(type: Test) {
+    testClassesDirs = sourceSets.itest.output.classesDirs
+    classpath = sourceSets.itest.runtimeClasspath
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    dependsOn itest
+
+    reports.xml.enabled = true
+    reports.xml.destination file("${project.buildDir.path}/jacoco/test/jacocoXml")
+    reports.html.destination file("${project.buildDir.path}/jacoco/test/jacocoHtml")
+
+    executionData tasks.withType(Test).findAll { it.state.executed }
+    sourceSets sourceSets.main
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+pmd {
+    ruleSets = []
+    ruleSetFiles = files("${rootDir}/pmd/pmd-rules.xml")
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectName', 'Home Assistant Security Server'
+        property 'sonar.projectKey', 'Home-Assistant-Security-Server'
+        property 'sonar.login', gradle.ext.server_sonar_login
+        property 'sonar.projectVersion', version
+        property 'sonar.sources', 'src/main'
+        property 'sonar.tests', 'src/test'
+        property 'sonar.java.binaries', "${gradle.ext.distDir.path}/security/build/classes"
+        property 'sonar.java.test.binaries', "${gradle.ext.distDir.path}/security/build/classes"
+        property 'sonar.jdbc.dialect', 'org.postgresql.Driver'
+        property 'sonar.binaries', "${gradle.ext.distDir.path}/security/build/classes"
+        property 'sonar.language', 'java'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.junit.reportsPath', "${gradle.ext.distDir.path}/security/build/test-results"
+        property 'sonar.java.coveragePlugin', 'jacoco'
+        property 'sonar.coverage.jacoco.xmlReportPaths', "${gradle.ext.distDir.path}/security/build/jacoco/test/jacocoXml"
+    }
+}
