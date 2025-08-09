@@ -36,9 +36,9 @@ public class Home implements DtoFilter {
     private Long homeSeq;
 
     @NotNull
-    @Column(name = "CREATED")
+    @Column(name = "CREATED_DATE")
     @Temporal(value = TemporalType.TIMESTAMP)
-    private Date created;
+    private Date createdDate;
 
     @NotNull
     @Column(name = "TYPE")
@@ -54,6 +54,6 @@ public class Home implements DtoFilter {
 
     @PrePersist
     public void populateCreated() {
-        this.setCreated(Date.from(OffsetDateTime.now().toInstant()));
+        this.setCreatedDate(Date.from(OffsetDateTime.now().toInstant()));
     }
 }

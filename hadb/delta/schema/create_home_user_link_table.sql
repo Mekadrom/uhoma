@@ -27,7 +27,7 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            home_user_link_seq BIGINT NOT NULL,
+            home_user_link_seq BIGINT NOT NULL DEFAULT nextval(''' || c_schema_name || '.' || c_sequence_name || '''),
             home_seq BIGINT NOT NULL,
             user_login_seq BIGINT NOT NULL,
             user_added TIMESTAMP WITH TIME ZONE NOT NULL,

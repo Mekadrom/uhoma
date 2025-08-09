@@ -27,10 +27,10 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            room_link_seq BIGINT NOT NULL,
+            room_link_seq BIGINT NOT NULL DEFAULT nextval(''' || c_schema_name || '.' || c_sequence_name || '''),
             transition_location_def VARCHAR(1024),
-            end_room_seq BIGINT,
-            start_room_seq BIGINT,
+            end_room_seq BIGINT NOT NULL,
+            start_room_seq BIGINT NOT NULL,
             PRIMARY KEY (room_link_seq),
             FOREIGN KEY (end_room_seq) REFERENCES room (room_seq),
             FOREIGN KEY (start_room_seq) REFERENCES room (room_seq)
