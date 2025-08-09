@@ -27,11 +27,12 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            home_seq BIGINT NOT NULL,
-            created TIMESTAMP WITH TIME ZONE NOT NULL,
+            owner_user_login_seq BIGINT NOT NULL,
+            home_seq BIGINT NOT NULL DEFAULT nextval(''' || c_schema_name || '.' || c_sequence_name || '''),
             name VARCHAR NOT NULL,
             type VARCHAR NOT NULL,
-            owner_user_login_seq BIGINT NOT NULL,
+            created_date TIMESTAMP WITH TIME ZONE NOT NULL,
+            UNIQUE (owner_user_login_seq, name),
             PRIMARY KEY (home_seq),
             FOREIGN KEY (owner_user_login_seq) REFERENCES user_login (user_login_seq)
         );';

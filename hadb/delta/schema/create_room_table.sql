@@ -27,10 +27,10 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            room_seq BIGINT NOT NULL,
-            name VARCHAR(256),
+            room_seq BIGINT NOT NULL DEFAULT nextval(''' || c_schema_name || '.' || c_sequence_name || '''),
             home_seq BIGINT NOT NULL,
-            UNIQUE (name, home_seq),
+            name VARCHAR(256),
+            UNIQUE (home_seq, name),
             PRIMARY KEY (room_seq),
             FOREIGN KEY (home_seq) REFERENCES home (home_seq)
         );';

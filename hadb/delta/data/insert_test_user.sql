@@ -12,14 +12,12 @@ BEGIN
 
     IF NOT v_row_exists THEN
         INSERT INTO user_login (
-            user_login_seq,
             username,
             "password",
             roles,
             last_login,
             created
         ) VALUES (
-            NEXTVAL('sq_user_login'),
             'admin',
             '$2y$12$8.WZVLPGTsg42OjSd.zjkecWxjZRYjDLOTsSRyao.LQzHJ0aeJ24q',
             'ROLE_ADMIN',
