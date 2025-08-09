@@ -18,13 +18,11 @@ BEGIN
 
     IF NOT v_row_exists THEN
         INSERT INTO home (
-            home_seq,
-            created,
+            created_date,
             type,
             name,
             owner_user_login_seq
         ) VALUES (
-            NEXTVAL('sq_home'),
             NOW(),
             'test',
             'test_home',
