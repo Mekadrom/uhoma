@@ -27,11 +27,11 @@ BEGIN
 
     IF NOT v_table_exists THEN
         EXECUTE 'CREATE TABLE ' || c_table_name || ' (
-            action_handler_seq BIGINT NOT NULL,
-            handler_def VARCHAR(65536),
+            action_handler_seq BIGINT NOT NULL DEFAULT nextval(''' || c_schema_name || '.' || c_sequence_name || '''),
+            home_seq BIGINT NOT NULL,
             name VARCHAR(256),
-            home_seq BIGINT,
-            UNIQUE (name, home_seq),
+            handler_def VARCHAR(65536),
+            UNIQUE (home_seq, name),
             PRIMARY KEY (action_handler_seq),
             FOREIGN KEY (home_seq) REFERENCES home (home_seq)
         );';
