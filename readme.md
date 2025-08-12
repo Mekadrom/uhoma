@@ -46,9 +46,9 @@ Tips/Troubleshooting:
 * The pods may start out of dependency order. They will be continually restarted by the kube control plane until the dependencies are resolved. Pods do not get restarted until every other pod has finished its 'ContainerCreating' phase. Most commonly, the app-server pod(s) will fail initially because the postgres pod takes longer to create, and the kafka-broker pod will fail initially as well because zookeeper takes longer. 
 * It takes about 12 minutes for every pod to have a 'Ready' state. This is after pulling new images for all three kafka pods and the postgres pods. This can be shortened by manually storing docker images locally and pushing them to the minikube cluster once per cluster lifecycle by running `minikube image load <image_name>`.
 
-Here is the current planned architecture of the project, in a diagram that showcases how each part might communicate with the others:
+Here is the current planned architecture of the project, in a diagram that showcases how each part might communicate with the others, and how they might be deployed in a scalable Kubernetes cluster:
 
-![](server/src/main/resources/readme/architecture.png)
+![](readme/architecture.png)
 
 Here is an up-to-date view of the standard node angular ui:
 
