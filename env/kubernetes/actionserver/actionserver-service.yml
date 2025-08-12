@@ -5,7 +5,7 @@ metadata:
   labels:
     name: action-server
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: action-server
   ports:
