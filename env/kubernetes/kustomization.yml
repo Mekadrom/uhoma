@@ -19,5 +19,7 @@ resources:
   - "postgres/postgres-secret.yml"
   - "postgres/postgres-statefulset.yml"
   - "postgres/postgres-service.yml"
+  - "crudserver/crudserver-deployment.yml"
+  - "crudserver/crudserver-service.yml"
   - "server/server-deployment.yml"
   - "server/server-service.yml"
