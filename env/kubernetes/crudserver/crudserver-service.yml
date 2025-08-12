@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crud-server
+  labels:
+    name: crud-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: crud-server
+  ports:
+    - port: 5201
+      name: crud-server-port
+      protocol: TCP

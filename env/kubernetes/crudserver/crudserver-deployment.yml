@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crud-server0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crud-server
+  template:
+    metadata:
+      labels:
+        app: crud-server
+    spec:
+      containers:
+        - name: crud-server
+          image: ha-crud-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5201
+          env:
+            - name: SERVER_INTERNAL_IP
+              value: "crud-server:5201"
+      imagePullSecrets:
+        - name: gcr-json-key
